@@ -468,7 +468,7 @@ const img=w=>w==='#family'?wimg('family'):(WIMG[w]?'<img src="'+WIMG[w]+'" alt="
 const vi=w=>M[w][0];const cap=s=>s[0].toUpperCase()+s.slice(1);
 let mode='learn',stars=0,busy=false,lastKey='';
 const stage=document.getElementById('stage'),Q=document.getElementById('q'),QV=document.getElementById('qv');
-let curSay=null,_tm=[];const T=(f,ms)=>{_tm.push(setTimeout(f,ms))};function stopAll(){_tm.forEach(clearTimeout);_tm=[];if(window._rec){try{_rec.abort()}catch(e){}_rec=null}try{speechSynthesis.cancel()}catch(e){}}
+let curSay=null,_tm=[];const T=(f,ms)=>{_tm.push(setTimeout(f,ms))};function stopAll(){_tm.forEach(clearTimeout);_tm=[];if(typeof fstop==='function')fstop();if(window._rec){try{_rec.abort()}catch(e){}_rec=null}try{speechSynthesis.cancel()}catch(e){}}
 document.getElementById('bub').onclick=()=>curSay&&curSay();
 function setQ(en,v,speak){Q.textContent=en;QV.textContent=v;curSay=speak;if(speak)T(speak,250)}
 function win(el,line,lineVi,delay){busy=true;if(el){el.classList.add('ok');good(el)}stars++;document.getElementById('stat').textContent='⭐ '+stars;sayEN(['Great job!','Super!','Well done!'][rand(3)]+' '+line,lineVi);if(stars%5===0)T(confetti,500);if(window._afterWin)_afterWin()}
@@ -493,7 +493,7 @@ function learn(){stopAll();li=(li+CARDS.length)%CARDS.length;const c=CARDS[li];
   setQ('📖 Nghe và nói theo','Bé nghe câu hỏi, rồi trả lời cùng bố mẹ nhé',null);
   stage.innerHTML='<div class="learn"><button class="btn nav" id="pv">◀</button><div class="lcard" id="lc"><div class="pic ph">'+c.pic+'</div><div><div class="say q" id="sq">❓ '+c.q[0]+'<small>'+c.q[1]+'</small></div><div class="say a" id="sa">💬 '+c.a[0]+'<small>'+c.a[1]+'</small></div><div id="lsp"></div></div></div><button class="btn nav" id="nx">▶</button></div><div class="dots">'+CARDS.map((_,i)=>'<b class="'+(i===li?'on':'')+'" data-i="'+i+'"></b>').join('')+'</div>';
   const sq=document.getElementById('sq'),sa=document.getElementById('sa');
-  speakPanel(document.getElementById('lsp'),c.a[0],c.a[1],false);
+  speakPanel(document.getElementById('lsp'),c.a[0],c.a[1],{onScore:addStars});
   const play=()=>{stopAll();sq.classList.add('on');sa.classList.remove('on');sayEN(c.q[0]+' '+c.a[0],c.a[1]);T(()=>{sq.classList.remove('on');sa.classList.add('on')},Math.max(1400,c.q[0].length*75))};
   sq.onclick=e=>{e.stopPropagation();stopAll();sayEN(c.q[0],c.q[1])};sa.onclick=e=>{e.stopPropagation();stopAll();sayEN(c.a[0],c.a[1])};
   document.getElementById('lc').onclick=play;document.getElementById('pv').onclick=()=>{li--;learn()};document.getElementById('nx').onclick=()=>{li++;learn()};
@@ -553,34 +553,121 @@ function oneLayout(pic,opts,lineFn,lineVi,raw){
   stage.innerHTML='<div class="one"><div class="ph big">'+(raw?pic:(pic.startsWith('<div class="im"')||pic.startsWith('<div class="grp"')?pic:'<div class="im">'+pic+'</div>'))+'</div><div class="ans" id="ans"></div></div>';
   opts.forEach(o=>addAns(o,lineFn,lineVi))}
 function addAns([en,v,ok,ic],lineFn,lineVi){const b=document.createElement('button');b.className='btn ghost';b.innerHTML=(ic||(en.startsWith('Yes')?'✅ ':'❌ '))+en+'<small>'+v+'</small>';
-  b.onclick=()=>{if(busy){if(!b.classList.contains('ok'))return;sayEN(en);return}if(ok){const box=document.getElementById('ans');window._afterWin=()=>{box.querySelectorAll('.btn:not(.ok)').forEach(x=>x.remove());const pn=document.createElement('div');box.appendChild(pn);speakPanel(pn,en,v,true)};win(b,Q.textContent+' '+lineFn(),lineVi,4200);window._afterWin=null}else miss(b,'Hmm, not quite. Look again! '+Q.textContent)};document.getElementById('ans').appendChild(b)}
+  b.onclick=()=>{if(busy){if(!b.classList.contains('ok'))return;sayEN(en);return}if(ok){const box=document.getElementById('ans');window._afterWin=()=>{box.querySelectorAll('.btn:not(.ok)').forEach(x=>x.remove());const pn=document.createElement('div');box.appendChild(pn);speakPanel(pn,en,v,{next:()=>next(),onScore:addStars})};win(b,Q.textContent+' '+lineFn(),lineVi,4200);window._afterWin=null}else miss(b,'Hmm, not quite. Look again! '+Q.textContent)};document.getElementById('ans').appendChild(b)}
 
-/* ---------- 🎤 Bé nói & chấm điểm ---------- */
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let micBlocked=false;
-const NW={'0':'zero','1':'one','2':'two','3':'three','4':'four','5':'five','6':'six','7':'seven','8':'eight','9':'nine','10':'ten'};
-function words(t){return t.toLowerCase().replace(/[’']/g,"'").replace(/\bisn't\b/g,'is not').replace(/\baren't\b/g,'are not').replace(/\bshe's\b/g,'she is').replace(/\bhe's\b/g,'he is').replace(/\bthey're\b/g,'they are').replace(/[^a-z0-9' ]+/g,' ').split(/\s+/).filter(Boolean).map(w=>NW[w]||w)}
-function scoreOf(target,said){const T=words(target),S=words(said);const pool=S.slice();const hit=T.map(w=>{const i=pool.indexOf(w);if(i>=0){pool.splice(i,1);return true}return false});return {T,hit,p:hit.filter(Boolean).length/T.length}}
-function speakPanel(box,target,vi,withNext){
-  box.innerHTML='<div class="spk"><div class="row"><button class="btn ghost sm" data-a="hear">🔈 Nghe mẫu</button><button class="btn mic" data-a="mic">🎤 Bé nói</button>'+(withNext?'<button class="btn ghost sm" data-a="next">Câu tiếp ▶</button>':'')+'</div><div class="res">Bé bấm 🎤 rồi nói: <b>'+target+'</b></div></div>';
+/* ===== Family sentence patterns: shared data, question bank, speak & score ===== */
+const FM={father:['bố','he','👨'],mother:['mẹ','she','👩'],brother:['anh/em trai','he','👦'],sister:['chị/em gái','she','👧'],grandfather:['ông','he','👴'],grandmother:['bà','she','👵'],baby:['em bé','','👶']};
+const FPEOPLE=['father','mother','brother','sister','grandfather','grandmother'];
+const FORDER=['grandfather','grandmother','father','mother','brother','sister','baby'];
+const FGROUPS={family:{en:'my family',vi:'gia đình của bé',who:['#family']},grandparents:{en:'my grandparents',vi:'ông bà của bé',who:['grandfather','grandmother']},sib:{en:'my brother and sister',vi:'anh/em trai và chị/em gái của bé',who:['brother','sister']},parents:{en:'my father and mother',vi:'bố và mẹ của bé',who:['father','mother']}};
+const FADJ={old:{vi:'già',yes:['grandfather','grandmother'],no:['brother','sister']},young:{vi:'trẻ',yes:['brother','sister'],no:['grandfather','grandmother']},tall:{vi:'cao',yes:['father','mother'],no:['brother','sister']},short:{vi:'thấp',yes:['brother','sister'],no:['father','mother']}};
+const FOPP={old:'young',young:'old',tall:'short',short:'tall'};
+const FHEIGHT={father:100,mother:92,grandfather:88,grandmother:84,brother:56,sister:54,baby:34};
+const FNUM=['zero','one','two','three','four','five','six','seven','eight','nine','ten'];
+const fvi=w=>FM[w][0];const fcap=s=>s[0].toUpperCase()+s.slice(1);
+function fimg(w){if(w==='#family')return WIMG.family?'<img src="'+WIMG.family+'" alt="family" draggable="false">':'<span class="femo">👨‍👩‍👧‍👦</span>';return WIMG[w]?'<img src="'+WIMG[w]+'" alt="'+w+'" draggable="false">':'<span class="femo">'+FM[w][2]+'</span>'}
+function fpic(html){return '<div class="fim">'+html+'</div>'}
+function fgroup(g){const w=FGROUPS[g].who;if(w[0]==='#family')return fpic(fimg('#family'));return '<div class="fgrp">'+w.map(m=>'<div style="height:'+FHEIGHT[m]+'%">'+fimg(m)+'</div>').join('')+'</div>'}
+function fruler(m){return '<div class="fruler"><div class="bar" style="height:'+FHEIGHT[m]+'%"></div><div class="who" style="height:'+FHEIGHT[m]+'%">'+fimg(m)+'</div></div>'}
+function fcrowd(list){return '<div class="fcrowd">'+list.map(m=>'<div class="fp"><span class="femo">'+FM[m][2]+'</span><b>'+m+'</b></div>').join('')+'</div>'}
+const pick=a=>a[rand(a.length)];
+/* Question bank. Each returns {kind,q,qv,pic,opts:[{en,vi,ok}],ans,ansVi,full} */
+const FQ={
+ who(){const t=pick(FPEOPLE);const o=shuffle([t,...shuffle(FPEOPLE.filter(x=>x!==t)).slice(0,2)]);
+   return {kind:'who',key:'who'+t,q:'Who is this?',qv:'Đây là ai?',pic:fpic(fimg(t)),opts:o.map(m=>({en:'This is my '+m+'.',vi:'Đây là '+fvi(m)+' của bé.',ok:m===t})),ans:'This is my '+t+'.',ansVi:'Đây là '+fvi(t)+' của bé.'}},
+ they(){const ks=Object.keys(FGROUPS);const t=pick(ks);const o=shuffle([t,...shuffle(ks.filter(x=>x!==t)).slice(0,2)]);
+   return {kind:'they',key:'they'+t,q:'Who are they?',qv:'Họ là ai?',pic:fgroup(t),opts:o.map(k=>({en:'They are '+FGROUPS[k].en+'.',vi:'Họ là '+FGROUPS[k].vi+'.',ok:k===t})),ans:'They are '+FGROUPS[t].en+'.',ansVi:'Họ là '+FGROUPS[t].vi+'.'}},
+ many(){const n=3+rand(5);const fam=shuffle(FORDER.slice()).slice(0,n).sort((a,b)=>FORDER.indexOf(a)-FORDER.indexOf(b));const o=shuffle([n,...shuffle([n-1,n+1,n+2].filter(x=>x>=2&&x<=9)).slice(0,2)]);
+   return {kind:'many',key:'many'+n,n,fam,q:'How many people are there in your family?',qv:'Gia đình bé có mấy người?',pic:fcrowd(fam),opts:o.map(x=>({en:'There are '+FNUM[x]+' people in my family.',vi:'Gia đình bé có '+x+' người.',ok:x===n})),ans:'There are '+FNUM[n]+' people in my family.',ansVi:'Gia đình bé có '+n+' người.'}},
+ is(){const p=pick(FPEOPLE),pr=FM[p][1];const same=FPEOPLE.filter(x=>FM[x][1]===pr&&x!==p);const a=Math.random()<.5?p:pick(same);const y=a===p;
+   return {kind:'is',key:'is'+p+a,yes:y,q:'Is '+pr+' the '+a+'?',qv:'Đây có phải là '+fvi(a)+' không?',pic:fpic(fimg(p)),opts:[{en:'Yes, '+pr+' is.',vi:'Vâng, đúng rồi.',ok:y},{en:'No, '+pr+' isn\'t.',vi:'Không, không phải.',ok:!y}],ans:y?'Yes, '+pr+' is.':'No, '+pr+' isn\'t.',ansVi:y?'Vâng, đúng rồi.':'Không, không phải.',full:y?'Yes, '+pr+' is. '+fcap(pr)+' is my '+p+'.':'No, '+pr+' isn\'t. '+fcap(pr)+' is my '+p+'.'}},
+ adj(){const k=pick(Object.keys(FADJ));const y=Math.random()<.5;const p=pick(y?FADJ[k].yes:FADJ[k].no),pr=FM[p][1];
+   return {kind:'adj',key:'adj'+k+p,yes:y,q:'Is the '+p+' '+k+'?',qv:fcap(fvi(p))+' có '+FADJ[k].vi+' không?',pic:(k==='tall'||k==='short')?fruler(p):fpic(fimg(p)),opts:[{en:'Yes, '+pr+' is.',vi:'Vâng, đúng rồi.',ok:y},{en:'No, '+pr+' isn\'t.',vi:'Không phải.',ok:!y}],ans:y?'Yes, '+pr+' is.':'No, '+pr+' isn\'t.',ansVi:y?'Vâng, '+fvi(p)+' '+FADJ[k].vi+'.':'Không, '+fvi(p)+' '+FADJ[FOPP[k]].vi+'.',full:(y?'Yes, '+pr+' is.':'No, '+pr+' isn\'t.')+' The '+p+' is '+(y?k:FOPP[k])+'.'}}
+};
+let _fqLast='';
+function famQ(kinds){kinds=kinds||Object.keys(FQ);let r,i=0;do{r=FQ[pick(kinds)]();i++}while(r.key===_fqLast&&i<10);_fqLast=r.key;return r}
+/* timers & speech control */
+let _ftm=[];const FT=(f,ms)=>{_ftm.push(setTimeout(f,ms))};
+function fstop(){_ftm.forEach(clearTimeout);_ftm=[];if(window._rec){try{_rec.abort()}catch(e){}window._rec=null}try{speechSynthesis.cancel()}catch(e){}}
+/* speak & score */
+const FSR=window.SpeechRecognition||window.webkitSpeechRecognition;let fMicBlocked=false;
+const FNW={'0':'zero','1':'one','2':'two','3':'three','4':'four','5':'five','6':'six','7':'seven','8':'eight','9':'nine','10':'ten'};
+function fwords(t){return t.toLowerCase().replace(/[’']/g,"'").replace(/\bisn't\b/g,'is not').replace(/\baren't\b/g,'are not').replace(/\bshe's\b/g,'she is').replace(/\bhe's\b/g,'he is').replace(/\bthey're\b/g,'they are').replace(/[^a-z0-9' ]+/g,' ').split(/\s+/).filter(Boolean).map(w=>FNW[w]||w)}
+function fscore(target,said){const T=fwords(target),S=fwords(said);const pool=S.slice();const hit=T.map(w=>{const i=pool.indexOf(w);if(i>=0){pool.splice(i,1);return true}return false});return {T,hit,p:hit.filter(Boolean).length/T.length,said}}
+const fInFrame=(()=>{try{return window.top!==window.self}catch(e){return true}})();
+const fUA=navigator.userAgent;const fIOS=/iPad|iPhone|iPod/.test(fUA)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);const fSafari=/Safari/.test(fUA)&&!/Chrome|CriOS|Edg|FxiOS/.test(fUA);
+const FGH='https://tram-auto-1010.github.io/be-hoc-vui/';
+function fFrameMsg(){return '🔒 Link trong khung Claude không được dùng micro. Để máy tự nghe và chấm, ba mẹ mở trang riêng: <a href="'+FGH+location.pathname.split('/').pop()+'" target="_blank" rel="noopener">'+FGH.replace('https://','')+'</a>'}
+function fNoSRMsg(){return '🌐 Trình duyệt này chưa nghe được giọng nói'+(/Firefox|FxiOS/.test(fUA)?' (Firefox)':'')+'. Ba mẹ mở bằng <b>Chrome</b> (máy tính, Android) hoặc <b>Safari</b> (iPhone, iPad) để máy tự chấm.'}
+function fDeniedMsg(){let how;
+  if(fIOS)how='iPhone/iPad: vào <b>Cài đặt → Safari → Micro</b> chọn <b>Cho phép</b>, và <b>Cài đặt → Quyền riêng tư → Nhận dạng giọng nói</b> bật cho Safari. Hoặc bấm <b>aA</b> trên thanh địa chỉ → Cài đặt trang web → Micro → Cho phép.';
+  else if(fSafari)how='Safari trên Mac: menu <b>Safari → Cài đặt → Trang web → Micro</b>, chọn <b>Cho phép</b> cho trang này.';
+  else how='Chrome: bấm biểu tượng <b>🔒 / ⚙️ cạnh địa chỉ web</b> → <b>Micro</b> → <b>Cho phép</b>, rồi tải lại trang.';
+  return '🎙️ Micro đang bị chặn. '+how+' <button class="btn ghost sm" data-retry>🔄 Thử lại</button>'}
+const FLINES=[['Let us try again!','Mình thử lại nhé!'],['Good try!','Cố lên, gần đúng rồi!'],['Good job!','Giỏi lắm!'],['Excellent!','Xuất sắc!']];
+/* opts: {onScore(n), next:fn|null, auto:bool (start listening at once)} */
+function speakPanel(box,target,vi,opts){opts=opts||{};
+  box.innerHTML='<div class="spk"><div class="row"><button class="btn ghost sm" data-a="hear">🔈 Nghe mẫu</button><button class="btn mic" data-a="mic">🎤 Bé nói</button>'+(opts.next?'<button class="btn ghost sm" data-a="next">Tiếp ▶</button>':'')+'</div><div class="res">Bé bấm 🎤 rồi nói: <b>'+target+'</b></div></div>';
   box.onclick=e=>e.stopPropagation();
   const res=box.querySelector('.res'),mic=box.querySelector('.mic');
-  box.querySelector('[data-a=hear]').onclick=()=>{stopAll();sayEN(target,vi)};
-  if(withNext)box.querySelector('[data-a=next]').onclick=()=>next();
-  const parentRate=msg=>{res.innerHTML=(msg?'<div style="margin-bottom:6px">'+msg+'</div>':'')+'Ba mẹ nghe bé nói rồi chấm nhé:<div class="row" style="margin-top:6px"><button class="btn ghost sm" data-r="3">⭐⭐⭐ Rất tốt</button><button class="btn ghost sm" data-r="2">⭐⭐ Tốt</button><button class="btn ghost sm" data-r="1">⭐ Cố lên</button></div>';
-    res.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>showScore(+b.dataset.r,null))};
-  const showScore=(n,sc)=>{const lines=[['Let us try again!','Mình thử lại nhé!'],['Good try!','Cố lên, gần đúng rồi!'],['Good job!','Giỏi lắm!'],['Excellent!','Xuất sắc!']][n];
-    let det='';if(sc)det='<div class="wd">'+sc.T.map((w,i)=>'<span class="'+(sc.hit[i]?'y':'n')+'">'+w+'</span>').join(' ')+'</div>';
-    res.innerHTML='<div class="sc">'+'⭐'.repeat(n)+'<span class="off">'+'⭐'.repeat(3-n)+'</span> <b>'+lines[0]+'</b> <small>'+lines[1]+'</small></div>'+det+(sc&&sc.said?'<div class="heard">Máy nghe được: “'+sc.said+'”</div>':'');
-    if(n>0){stars+=n;document.getElementById('stat').textContent='⭐ '+stars;if(n===3){good(mic);sfx.pop&&sfx.pop()}}else bad(mic);
-    sayEN(lines[0],lines[1])};
-  if(!SR||micBlocked){mic.onclick=()=>{stopAll();parentRate(SR?'':'Trình duyệt này chưa tự chấm được, bé nói to câu trên nhé.')};return}
-  mic.onclick=()=>{stopAll();const r=new SR();window._rec=r;r.lang='en-US';r.interimResults=false;r.maxAlternatives=5;let got=false;
-    mic.classList.add('on');mic.textContent='👂 Đang nghe…';res.innerHTML='Bé nói: <b>'+target+'</b>';
-    r.onresult=e=>{got=true;let best=null;for(const a of e.results[0]){const sc=scoreOf(target,a.transcript);sc.said=a.transcript;if(!best||sc.p>best.p)best=sc}
-      showScore(best.p>=.9?3:best.p>=.6?2:best.p>=.3?1:0,best)};
-    r.onerror=e=>{got=true;if(['not-allowed','service-not-allowed','audio-capture'].includes(e.error)){micBlocked=true;parentRate('Micro chưa được bật trên trang này.')}else if(e.error==='no-speech')res.innerHTML='Máy chưa nghe thấy. Bé bấm 🎤 và nói to hơn nhé!';else if(e.error!=='aborted')res.innerHTML='Có lỗi khi nghe ('+e.error+'). Bé thử lại nhé!'};
-    r.onend=()=>{mic.classList.remove('on');mic.textContent='🎤 Bé nói';if(!got&&!micBlocked)res.innerHTML='Máy chưa nghe thấy. Bé bấm 🎤 và nói to hơn nhé!';window._rec=null};
-    try{r.start()}catch(err){micBlocked=true;parentRate('Micro chưa được bật trên trang này.')}}}
+  box.querySelector('[data-a=hear]').onclick=()=>{fstop();sayEN(target,vi)};
+  if(opts.next)box.querySelector('[data-a=next]').onclick=()=>{fstop();opts.next()};
+  const show=(n,sc)=>{const L=FLINES[n];let det='';if(sc)det='<div class="wd">'+sc.T.map((w,i)=>'<span class="'+(sc.hit[i]?'y':'n')+'">'+w+'</span>').join(' ')+'</div>';
+    res.innerHTML='<div class="sc">'+'⭐'.repeat(n)+'<span class="off">'+'⭐'.repeat(3-n)+'</span> <b>'+L[0]+'</b> <small>'+L[1]+'</small></div>'+det+(sc&&sc.said?'<div class="heard">Máy nghe được: “'+sc.said+'”</div>':'');
+    if(n>0){if(n===3)good(mic)}else bad(mic);sayEN(L[0],L[1]);opts.onScore&&opts.onScore(n)};
+  const parent=msg=>{res.innerHTML=(msg?'<div class="mmsg">'+msg+'</div>':'')+'Ba mẹ nghe bé nói rồi chấm nhé:<div class="row" style="margin-top:6px"><button class="btn ghost sm" data-r="3">⭐⭐⭐ Rất tốt</button><button class="btn ghost sm" data-r="2">⭐⭐ Tốt</button><button class="btn ghost sm" data-r="1">⭐ Cố lên</button></div>';
+    res.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>show(+b.dataset.r,null));const rt=res.querySelector('[data-retry]');if(rt)rt.onclick=listen};
+  const listen=()=>{fstop();
+    if(!FSR){parent(fNoSRMsg());return}
+    if(fInFrame&&fMicBlocked){parent(fFrameMsg());return}
+    const r=new FSR();window._rec=r;r.lang='en-US';r.interimResults=false;r.maxAlternatives=5;r.continuous=false;let got=false,started=false;
+    const reset=()=>{mic.classList.remove('on');mic.textContent='🎤 Bé nói'};
+    mic.classList.add('on');mic.textContent='⏳ Mở micro…';res.innerHTML='Bé chuẩn bị nói: <b>'+target+'</b>';
+    r.onstart=()=>{started=true;mic.textContent='👂 Đang nghe… bé nói đi!';res.innerHTML='Bé nói: <b>'+target+'</b>'};
+    r.onresult=e=>{got=true;let best=null;for(const a of e.results[0]){const sc=fscore(target,a.transcript);if(!best||sc.p>best.p)best=sc}show(best.p>=.9?3:best.p>=.6?2:best.p>=.3?1:0,best)};
+    r.onerror=e=>{got=true;reset();const er=e.error;
+      if(er==='not-allowed'||er==='service-not-allowed'){fMicBlocked=true;parent(fInFrame?fFrameMsg():fDeniedMsg())}
+      else if(er==='audio-capture')parent('🎙️ Không tìm thấy micro trên máy này. Ba mẹ kiểm tra tai nghe/micro rồi <button class="btn ghost sm" data-retry>🔄 Thử lại</button>');
+      else if(er==='network')parent('📶 Máy cần có mạng để nghe giọng nói. Ba mẹ kiểm tra Wi-Fi rồi <button class="btn ghost sm" data-retry>🔄 Thử lại</button>');
+      else if(er==='no-speech')res.innerHTML='🤫 Máy chưa nghe thấy. Bé bấm 🎤 và nói to, gần máy hơn nhé!';
+      else if(er!=='aborted')res.innerHTML='Có lỗi khi nghe ('+er+'). Bé bấm 🎤 thử lại nhé!'};
+    r.onend=()=>{reset();if(!got)res.innerHTML='🤫 Máy chưa nghe thấy. Bé bấm 🎤 và nói to, gần máy hơn nhé!';window._rec=null};
+    try{r.start()}catch(err){reset();fMicBlocked=true;parent(fInFrame?fFrameMsg():fDeniedMsg())}};
+  mic.onclick=listen;return {listen}}
+(function(){const st=document.createElement('style');st.textContent=`
+.fim{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.fim img{max-width:100%;max-height:100%;object-fit:contain}
+.femo{font-size:clamp(60px,12vw,130px);line-height:1}
+.fgrp{display:flex;gap:4px;width:100%;aspect-ratio:1;align-items:flex-end;justify-content:center}
+.fgrp>div{flex:1;display:flex;align-items:flex-end;justify-content:center}.fgrp img{max-width:100%;max-height:100%}
+.fruler{position:relative;width:100%;aspect-ratio:1;display:flex;align-items:flex-end;justify-content:center;background:repeating-linear-gradient(to top,#FFFFFF 0 18%,#F1F5FA 18% 20%)}
+.fruler .bar{position:absolute;left:6px;bottom:0;width:12px;border-radius:6px;background:linear-gradient(#FFB74D,#FB8C00)}
+.fruler .who{display:flex;align-items:flex-end;justify-content:center;width:100%}.fruler img{max-width:80%;max-height:100%;object-fit:contain}
+.fcrowd{width:100%;aspect-ratio:1;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:4px}
+.fcrowd .fp{width:30%;display:flex;flex-direction:column;align-items:center}.fcrowd .femo{font-size:clamp(34px,6vw,64px)}.fcrowd b{font:800 12px 'Nunito',sans-serif;color:var(--muted)}
+.spk{background:#FFF8E1;border-radius:20px;padding:10px 12px;margin-top:8px;font:800 15px 'Nunito',sans-serif;color:var(--ink)}
+.spk .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.spk .btn.sm{font-size:16px;padding:8px 12px}
+.spk .btn.mic{font-size:20px;padding:10px 18px;background:#E53935;color:#FFFFFF}
+.spk .btn.mic.on{animation:fpulse 1s infinite}
+@keyframes fpulse{50%{box-shadow:0 0 0 10px rgba(229,57,53,.25)}}
+.spk .res{margin-top:8px;line-height:1.35}
+.spk .sc{font:800 22px 'Baloo 2',sans-serif}.spk .sc .off{filter:grayscale(1);opacity:.3}.spk .sc small{font:800 14px 'Nunito',sans-serif;color:var(--muted)}
+.spk .wd{font:800 20px 'Baloo 2',sans-serif;margin-top:4px}.spk .wd .y{color:#2E7D32}.spk .wd .n{color:#C62828;text-decoration:underline wavy}
+.spk .mmsg{margin-bottom:6px;background:#FFFFFF;border-radius:12px;padding:8px 10px;line-height:1.4}.spk .mmsg a{color:#1565C0}
+.spk .heard{font-size:13px;color:var(--muted);margin-top:2px}
+.fcard{background:#FFFFFF;border-radius:24px;box-shadow:0 6px 0 rgba(31,42,68,.12);padding:8px;overflow:hidden;position:relative}
+.fq{font:800 clamp(22px,4vw,34px)/1.15 'Baloo 2',sans-serif;color:#1565C0;text-align:center}
+.fq small{display:block;font:800 14px 'Nunito',sans-serif;color:var(--muted)}
+`;document.head.appendChild(st)})();
+/* pattern chips */
+let FKINDS=null;
+function famTabs(el,kinds,onChange){const L={all:'🎲 Tất cả',who:'👤 Who is this?',they:'👥 Who are they?',many:'🔢 How many?',is:'❓ Is she / he…?',adj:'📏 Old · tall…'};
+  el.className='ftabs';['all',...kinds].forEach(k=>{const b=document.createElement('button');b.className='btn'+(k==='all'?'':' ghost');b.textContent=L[k];b.onclick=()=>{FKINDS=k==='all'?kinds:[k];el.querySelectorAll('.btn').forEach(x=>x.className='btn'+(x===b?'':' ghost'));_fqLast='';onChange()};el.appendChild(b)});FKINDS=kinds}
+(function(){const st=document.createElement('style');st.textContent=`.ftabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}.ftabs .btn{font-size:15px;padding:6px 12px}
+@media (max-width:640px){.ftabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.ftabs .btn{flex-shrink:0;font-size:14px;padding:6px 10px}}`;document.head.appendChild(st)})();
+
+const addStars=n=>{stars+=n;document.getElementById('stat').textContent='⭐ '+stars};
 
 /* ---------- modes ---------- */
 const MODES=[['learn','📖 Học mẫu câu',learn],['who','👤 Who is this?',whoIs],['they','👥 Who are they?',whoAre],['many','🔢 How many?',howMany],['is','❓ Is she / he…?',isThe],['adj','📏 Old · young · tall · short',adj],['mix','🎲 Trộn · Mix',null]];

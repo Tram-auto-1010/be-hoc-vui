@@ -457,6 +457,16 @@ const FSR=window.SpeechRecognition||window.webkitSpeechRecognition;let fMicBlock
 const FNW={'0':'zero','1':'one','2':'two','3':'three','4':'four','5':'five','6':'six','7':'seven','8':'eight','9':'nine','10':'ten'};
 function fwords(t){return t.toLowerCase().replace(/[’']/g,"'").replace(/\bisn't\b/g,'is not').replace(/\baren't\b/g,'are not').replace(/\bshe's\b/g,'she is').replace(/\bhe's\b/g,'he is').replace(/\bthey're\b/g,'they are').replace(/[^a-z0-9' ]+/g,' ').split(/\s+/).filter(Boolean).map(w=>FNW[w]||w)}
 function fscore(target,said){const T=fwords(target),S=fwords(said);const pool=S.slice();const hit=T.map(w=>{const i=pool.indexOf(w);if(i>=0){pool.splice(i,1);return true}return false});return {T,hit,p:hit.filter(Boolean).length/T.length,said}}
+const fInFrame=(()=>{try{return window.top!==window.self}catch(e){return true}})();
+const fUA=navigator.userAgent;const fIOS=/iPad|iPhone|iPod/.test(fUA)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);const fSafari=/Safari/.test(fUA)&&!/Chrome|CriOS|Edg|FxiOS/.test(fUA);
+const FGH='https://tram-auto-1010.github.io/be-hoc-vui/';
+function fFrameMsg(){return '🔒 Link trong khung Claude không được dùng micro. Để máy tự nghe và chấm, ba mẹ mở trang riêng: <a href="'+FGH+location.pathname.split('/').pop()+'" target="_blank" rel="noopener">'+FGH.replace('https://','')+'</a>'}
+function fNoSRMsg(){return '🌐 Trình duyệt này chưa nghe được giọng nói'+(/Firefox|FxiOS/.test(fUA)?' (Firefox)':'')+'. Ba mẹ mở bằng <b>Chrome</b> (máy tính, Android) hoặc <b>Safari</b> (iPhone, iPad) để máy tự chấm.'}
+function fDeniedMsg(){let how;
+  if(fIOS)how='iPhone/iPad: vào <b>Cài đặt → Safari → Micro</b> chọn <b>Cho phép</b>, và <b>Cài đặt → Quyền riêng tư → Nhận dạng giọng nói</b> bật cho Safari. Hoặc bấm <b>aA</b> trên thanh địa chỉ → Cài đặt trang web → Micro → Cho phép.';
+  else if(fSafari)how='Safari trên Mac: menu <b>Safari → Cài đặt → Trang web → Micro</b>, chọn <b>Cho phép</b> cho trang này.';
+  else how='Chrome: bấm biểu tượng <b>🔒 / ⚙️ cạnh địa chỉ web</b> → <b>Micro</b> → <b>Cho phép</b>, rồi tải lại trang.';
+  return '🎙️ Micro đang bị chặn. '+how+' <button class="btn ghost sm" data-retry>🔄 Thử lại</button>'}
 const FLINES=[['Let us try again!','Mình thử lại nhé!'],['Good try!','Cố lên, gần đúng rồi!'],['Good job!','Giỏi lắm!'],['Excellent!','Xuất sắc!']];
 /* opts: {onScore(n), next:fn|null, auto:bool (start listening at once)} */
 function speakPanel(box,target,vi,opts){opts=opts||{};
@@ -468,15 +478,24 @@ function speakPanel(box,target,vi,opts){opts=opts||{};
   const show=(n,sc)=>{const L=FLINES[n];let det='';if(sc)det='<div class="wd">'+sc.T.map((w,i)=>'<span class="'+(sc.hit[i]?'y':'n')+'">'+w+'</span>').join(' ')+'</div>';
     res.innerHTML='<div class="sc">'+'⭐'.repeat(n)+'<span class="off">'+'⭐'.repeat(3-n)+'</span> <b>'+L[0]+'</b> <small>'+L[1]+'</small></div>'+det+(sc&&sc.said?'<div class="heard">Máy nghe được: “'+sc.said+'”</div>':'');
     if(n>0){if(n===3)good(mic)}else bad(mic);sayEN(L[0],L[1]);opts.onScore&&opts.onScore(n)};
-  const parent=msg=>{res.innerHTML=(msg?'<div style="margin-bottom:6px">'+msg+'</div>':'')+'Ba mẹ nghe bé nói rồi chấm nhé:<div class="row" style="margin-top:6px"><button class="btn ghost sm" data-r="3">⭐⭐⭐ Rất tốt</button><button class="btn ghost sm" data-r="2">⭐⭐ Tốt</button><button class="btn ghost sm" data-r="1">⭐ Cố lên</button></div>';
-    res.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>show(+b.dataset.r,null))};
-  const listen=()=>{fstop();if(!FSR||fMicBlocked){parent(FSR?'Micro chưa được bật trên trang này.':'Trình duyệt này chưa tự chấm được, bé nói to câu trên nhé.');return}
-    const r=new FSR();window._rec=r;r.lang='en-US';r.interimResults=false;r.maxAlternatives=5;let got=false;
-    mic.classList.add('on');mic.textContent='👂 Đang nghe…';res.innerHTML='Bé nói: <b>'+target+'</b>';
+  const parent=msg=>{res.innerHTML=(msg?'<div class="mmsg">'+msg+'</div>':'')+'Ba mẹ nghe bé nói rồi chấm nhé:<div class="row" style="margin-top:6px"><button class="btn ghost sm" data-r="3">⭐⭐⭐ Rất tốt</button><button class="btn ghost sm" data-r="2">⭐⭐ Tốt</button><button class="btn ghost sm" data-r="1">⭐ Cố lên</button></div>';
+    res.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>show(+b.dataset.r,null));const rt=res.querySelector('[data-retry]');if(rt)rt.onclick=listen};
+  const listen=()=>{fstop();
+    if(!FSR){parent(fNoSRMsg());return}
+    if(fInFrame&&fMicBlocked){parent(fFrameMsg());return}
+    const r=new FSR();window._rec=r;r.lang='en-US';r.interimResults=false;r.maxAlternatives=5;r.continuous=false;let got=false,started=false;
+    const reset=()=>{mic.classList.remove('on');mic.textContent='🎤 Bé nói'};
+    mic.classList.add('on');mic.textContent='⏳ Mở micro…';res.innerHTML='Bé chuẩn bị nói: <b>'+target+'</b>';
+    r.onstart=()=>{started=true;mic.textContent='👂 Đang nghe… bé nói đi!';res.innerHTML='Bé nói: <b>'+target+'</b>'};
     r.onresult=e=>{got=true;let best=null;for(const a of e.results[0]){const sc=fscore(target,a.transcript);if(!best||sc.p>best.p)best=sc}show(best.p>=.9?3:best.p>=.6?2:best.p>=.3?1:0,best)};
-    r.onerror=e=>{got=true;if(['not-allowed','service-not-allowed','audio-capture'].includes(e.error)){fMicBlocked=true;parent('Micro chưa được bật trên trang này.')}else if(e.error==='no-speech')res.innerHTML='Máy chưa nghe thấy. Bé bấm 🎤 và nói to hơn nhé!';else if(e.error!=='aborted')res.innerHTML='Có lỗi khi nghe ('+e.error+'). Bé thử lại nhé!'};
-    r.onend=()=>{mic.classList.remove('on');mic.textContent='🎤 Bé nói';if(!got&&!fMicBlocked)res.innerHTML='Máy chưa nghe thấy. Bé bấm 🎤 và nói to hơn nhé!';window._rec=null};
-    try{r.start()}catch(err){fMicBlocked=true;parent('Micro chưa được bật trên trang này.')}};
+    r.onerror=e=>{got=true;reset();const er=e.error;
+      if(er==='not-allowed'||er==='service-not-allowed'){fMicBlocked=true;parent(fInFrame?fFrameMsg():fDeniedMsg())}
+      else if(er==='audio-capture')parent('🎙️ Không tìm thấy micro trên máy này. Ba mẹ kiểm tra tai nghe/micro rồi <button class="btn ghost sm" data-retry>🔄 Thử lại</button>');
+      else if(er==='network')parent('📶 Máy cần có mạng để nghe giọng nói. Ba mẹ kiểm tra Wi-Fi rồi <button class="btn ghost sm" data-retry>🔄 Thử lại</button>');
+      else if(er==='no-speech')res.innerHTML='🤫 Máy chưa nghe thấy. Bé bấm 🎤 và nói to, gần máy hơn nhé!';
+      else if(er!=='aborted')res.innerHTML='Có lỗi khi nghe ('+er+'). Bé bấm 🎤 thử lại nhé!'};
+    r.onend=()=>{reset();if(!got)res.innerHTML='🤫 Máy chưa nghe thấy. Bé bấm 🎤 và nói to, gần máy hơn nhé!';window._rec=null};
+    try{r.start()}catch(err){reset();fMicBlocked=true;parent(fInFrame?fFrameMsg():fDeniedMsg())}};
   mic.onclick=listen;return {listen}}
 (function(){const st=document.createElement('style');st.textContent=`
 .fim{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -498,6 +517,7 @@ function speakPanel(box,target,vi,opts){opts=opts||{};
 .spk .res{margin-top:8px;line-height:1.35}
 .spk .sc{font:800 22px 'Baloo 2',sans-serif}.spk .sc .off{filter:grayscale(1);opacity:.3}.spk .sc small{font:800 14px 'Nunito',sans-serif;color:var(--muted)}
 .spk .wd{font:800 20px 'Baloo 2',sans-serif;margin-top:4px}.spk .wd .y{color:#2E7D32}.spk .wd .n{color:#C62828;text-decoration:underline wavy}
+.spk .mmsg{margin-bottom:6px;background:#FFFFFF;border-radius:12px;padding:8px 10px;line-height:1.4}.spk .mmsg a{color:#1565C0}
 .spk .heard{font-size:13px;color:var(--muted);margin-top:2px}
 .fcard{background:#FFFFFF;border-radius:24px;box-shadow:0 6px 0 rgba(31,42,68,.12);padding:8px;overflow:hidden;position:relative}
 .fq{font:800 clamp(22px,4vw,34px)/1.15 'Baloo 2',sans-serif;color:#1565C0;text-align:center}
