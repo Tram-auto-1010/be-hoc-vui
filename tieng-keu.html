@@ -400,7 +400,7 @@ function dinoSVG(k){return DINO_SPECIES[k]?DINO_SPECIES[k][4]:''}
 
 /* Ảnh ba mẹ gửi thay cho hình vẽ */
 if(!WIMG.dino_bronto)delete DINO_SPECIES.bronto;
-['trex','tri','stego','bronto','ptero','ankylo','spino','raptor'].forEach(k=>{const src=WIMG['dino_'+k];if(src&&DINO_SPECIES[k])DINO_SPECIES[k][4]='<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg"><ellipse cx="100" cy="142" rx="60" ry="6" fill="#000" opacity=".1"/><image href="'+src+'" x="4" y="2" width="192" height="140" preserveAspectRatio="xMidYMid meet"/></svg>'});
+['trex','tri','stego','bronto','ptero','ankylo','spino','raptor'].forEach(k=>{const src=(k==='trex'&&WIMG.dinosaur)||WIMG['dino_'+k];if(src&&DINO_SPECIES[k])DINO_SPECIES[k][4]='<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg"><ellipse cx="100" cy="142" rx="60" ry="6" fill="#000" opacity=".1"/><image href="'+src+'" x="4" y="2" width="192" height="140" preserveAspectRatio="xMidYMid meet"/></svg>'});
 /* Khủng long ảnh 3D ba mẹ gửi */
 (function(){const P=[
  ['d7','Brachiosaurus','khủng long cổ dài','The Brachiosaurus is very, very tall!','Khủng long cổ dài cao như một tòa nhà.'],
@@ -420,7 +420,7 @@ if(!WIMG.dino_bronto)delete DINO_SPECIES.bronto;
 /* Khung chơi tự co vừa màn hình */
 function fitToScreen(el,pad){if(!el)return;const f=()=>{const top=el.getBoundingClientRect().top+scrollY;const h=Math.max(260,innerHeight-top-(pad||(innerWidth<=760?66:74)));el.style.height=h+'px'};f();addEventListener('resize',f);setTimeout(f,300)}
 
-const S=[['trex','dino_trex','🦖','khủng long bạo chúa','gàooo','T-rex','roar'],['dog','dog','🐶','con chó','gâu gâu','dog','woof woof'],['cat','cat','🐱','con mèo','meo meo','cat','meow'],['rooster','rooster','🐓','gà trống','ò ó o','rooster','cock-a-doodle-doo'],['chicken','chicken','🐔','gà mái','cục ta cục tác','hen','cluck cluck'],['duck','duck','🦆','con vịt','cạp cạp','duck','quack quack'],['cow','cow','🐄','con bò','ụm bò','cow','moo'],['pig','pig','🐷','con lợn','ụt ịt','pig','oink oink'],['sheep','sheep','🐑','con cừu','be be','sheep','baa'],['frog','frog','🐸','con ếch','ộp ộp','frog','ribbit'],['horse','horse','🐴','con ngựa','hí hí','horse','neigh'],['lion','lion','🦁','sư tử','gừm gừm','lion','roar'],['elephant','elephant','🐘','con voi','ò ó…','elephant','toot'],['bird','bird','🐦','con chim','líu lo','bird','tweet tweet']];
+const S=[['trex','dinosaur','🦖','khủng long bạo chúa','gàooo','T-rex','roar'],['dog','dog','🐶','con chó','gâu gâu','dog','woof woof'],['cat','cat','🐱','con mèo','meo meo','cat','meow'],['rooster','rooster','🐓','gà trống','ò ó o','rooster','cock-a-doodle-doo'],['chicken','chicken','🐔','gà mái','cục ta cục tác','hen','cluck cluck'],['duck','duck','🦆','con vịt','cạp cạp','duck','quack quack'],['cow','cow','🐄','con bò','ụm bò','cow','moo'],['pig','pig','🐷','con lợn','ụt ịt','pig','oink oink'],['sheep','sheep','🐑','con cừu','be be','sheep','baa'],['frog','frog','🐸','con ếch','ộp ộp','frog','ribbit'],['horse','horse','🐴','con ngựa','hí hí','horse','neigh'],['lion','lion','🦁','sư tử','gừm gừm','lion','roar'],['elephant','elephant','🐘','con voi','ò ó…','elephant','toot'],['bird','bird','🐦','con chim','líu lo','bird','tweet tweet']];
 const AU={};S.forEach(s=>{const a=new Audio('snd/'+s[0]+'.mp3?v=1');a.preload='auto';AU[s[0]]=a});
 const pic=s=>WIMG[s[1]]?'<img src="'+WIMG[s[1]]+'" alt="'+s[5]+'" draggable="false">':'<i>'+s[2]+'</i>';
 let cur=null,stars=0,busy=false,playing=null;
