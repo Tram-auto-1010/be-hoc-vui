@@ -88,7 +88,10 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 .big small{font:800 16px 'Nunito',sans-serif;color:var(--blue)}
 .ch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;max-width:720px;margin:0 auto}
 .opt{aspect-ratio:1;border-radius:30px;border:none;background:#FFFFFF;box-shadow:0 7px 0 rgba(31,42,68,.15);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
-.opt span{font-size:clamp(60px,11vw,96px);line-height:1}
+.opt .ph{width:78%;aspect-ratio:1;display:flex;align-items:center;justify-content:center}.opt .ph img{max-width:100%;max-height:100%;object-fit:contain}.opt .ph i{font-size:clamp(60px,11vw,96px);font-style:normal}
+.list .ph.sm{display:inline-flex;width:30px;height:30px;vertical-align:middle;margin-right:6px}.list .ph.sm img{max-width:100%;max-height:100%}
+.play.on{animation:pulse .9s}@keyframes pulse{50%{transform:scale(1.08)}}
+.cred{margin-top:18px;text-align:center;font:700 11px 'Nunito',sans-serif;color:var(--muted)}
 .opt em{font:800 18px 'Baloo 2',sans-serif;font-style:normal}
 .opt.ok{background:#EAF7F0;outline:5px solid var(--green)}
 .list{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:26px}
@@ -99,10 +102,11 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 <body>
 <header class="bar"><a class="ibtn" href="index.html" title="Về trang chính">🏠</a><h1>Đoán tiếng kêu <small>Guess the animal sound</small></h1><button class="ibtn" id="voiceBtn">🔊</button></header>
 <main>
-  <div class="top"><span style="font:800 16px 'Nunito',sans-serif;color:var(--muted)">Bấm loa để nghe, rồi chọn con vật kêu như vậy.</span><span class="stars" id="stat"></span></div>
+  <div class="top"><span style="font:800 16px 'Nunito',sans-serif;color:var(--muted)">Bấm loa để nghe tiếng kêu thật, rồi chọn con vật.</span><span class="stars" id="stat"></span></div>
   <div class="big"><button class="play" id="play">🔊</button><b id="snd">…</b><small>Con nào kêu như thế? · Who says this?</small></div>
   <div class="ch" id="ch"></div>
   <div class="list" id="list"></div>
+  <div class="cred">Âm thanh ghi âm thật từ bộ “sounds” (AntumMT), phần lớn CC0. Ghi công CC BY 3.0: blimp66 (mèo), www.bonson.ca (gà mái), yottasounds (lợn), videog (tiếng gầm khủng long, đã chỉnh trầm).</div>
 </main>
 <script>
 const VOICE_KEY='bhv-voice';
@@ -416,17 +420,22 @@ if(!WIMG.dino_bronto)delete DINO_SPECIES.bronto;
 /* Khung chơi tự co vừa màn hình */
 function fitToScreen(el,pad){if(!el)return;const f=()=>{const top=el.getBoundingClientRect().top+scrollY;const h=Math.max(260,innerHeight-top-(pad||(innerWidth<=760?66:74)));el.style.height=h+'px'};f();addEventListener('resize',f);setTimeout(f,300)}
 
-const S=[['🦖','khủng long bạo chúa','gàooo… gừ gừ','roar'],['🐶','con chó','gâu gâu gâu','woof woof'],['🐱','con mèo','meo meo meo','meow'],['🐓','gà trống','ò ó o o','cock a doodle doo'],['🐥','gà con','chíp chíp chíp','cheep cheep'],['🦆','con vịt','cạp cạp cạp','quack quack'],['🐄','con bò','ụm bò ụm bò','moo'],['🐷','con lợn','ụt ịt ụt ịt','oink oink'],['🐐','con dê','be be be','baa'],['🐸','con ếch','ộp ộp ộp','ribbit'],['🐴','con ngựa','hí hí hí','neigh'],['🦁','sư tử','gừ gừ… gầm','roar'],['🐝','con ong','vo ve vo ve','buzz'],['🐵','con khỉ','khẹt khẹt khẹt','ooh ooh aah'],['🐍','con rắn','xì xì xì','hiss']];
-let cur=null,stars=0,busy=false;
-function play(){say(cur[2],cur[3])}
+const S=[['trex','dino_trex','🦖','khủng long bạo chúa','gàooo','T-rex','roar'],['dog','dog','🐶','con chó','gâu gâu','dog','woof woof'],['cat','cat','🐱','con mèo','meo meo','cat','meow'],['rooster','rooster','🐓','gà trống','ò ó o','rooster','cock-a-doodle-doo'],['chicken','chicken','🐔','gà mái','cục ta cục tác','hen','cluck cluck'],['duck','duck','🦆','con vịt','cạp cạp','duck','quack quack'],['cow','cow','🐄','con bò','ụm bò','cow','moo'],['pig','pig','🐷','con lợn','ụt ịt','pig','oink oink'],['sheep','sheep','🐑','con cừu','be be','sheep','baa'],['frog','frog','🐸','con ếch','ộp ộp','frog','ribbit'],['horse','horse','🐴','con ngựa','hí hí','horse','neigh'],['lion','lion','🦁','sư tử','gừm gừm','lion','roar'],['elephant','elephant','🐘','con voi','ò ó…','elephant','toot'],['bird','bird','🐦','con chim','líu lo','bird','tweet tweet']];
+const AU={};S.forEach(s=>{const a=new Audio('snd/'+s[0]+'.mp3?v=1');a.preload='auto';AU[s[0]]=a});
+const pic=s=>WIMG[s[1]]?'<img src="'+WIMG[s[1]]+'" alt="'+s[5]+'" draggable="false">':'<i>'+s[2]+'</i>';
+let cur=null,stars=0,busy=false,playing=null;
+function stopAll(){try{speechSynthesis.cancel()}catch(e){}if(playing){playing.pause();playing.onended=null}}
+function sound(s,then){stopAll();const a=AU[s[0]];playing=a;try{a.currentTime=0}catch(e){}a.onended=()=>{a.onended=null;then&&then()};const p=a.play();if(p&&p.catch)p.catch(()=>{then&&then()});document.getElementById('play').classList.add('on');setTimeout(()=>document.getElementById('play').classList.remove('on'),900)}
+function play(){if(cur)sound(cur)}
 document.getElementById('play').onclick=play;
-function round(){busy=false;cur=S[rand(S.length)];document.getElementById('snd').textContent='“'+cur[2]+'”';
+function round(){busy=false;cur=S[rand(S.length)];document.getElementById('snd').textContent='🔊 …';
   const opts=shuffle([cur,...shuffle(S.filter(x=>x!==cur)).slice(0,2)]);const ch=document.getElementById('ch');ch.innerHTML='';
-  opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span>'+o[0]+'</span><em>'+o[1]+'</em>';b.onclick=()=>{if(busy)return;
-    if(o===cur){busy=true;b.classList.add('ok');stars++;document.getElementById('stat').textContent='⭐ '+stars;say(PRAISE[rand(PRAISE.length)][0]+' '+o[1]+' kêu '+o[2],'Yes! The '+en(o[1])+' says '+o[3]);if(stars%5===0)confetti();setTimeout(round,3000)}
-    else{b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');say(o[1]+' kêu '+o[2]+'. Bé thử lại nhé','The '+en(o[1])+' says '+o[3]+'. Try again!')}};ch.appendChild(b)});
-  setTimeout(play,300)}
-const L=document.getElementById('list');S.forEach(s=>{const b=document.createElement('button');b.textContent=s[0]+' '+s[1];b.onclick=()=>say(s[1]+' kêu '+s[2],'The '+en(s[1])+' says '+s[3]);L.appendChild(b)});
+  opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="ph">'+pic(o)+'</span><em>'+o[3]+'</em>';b.onclick=()=>{if(busy)return;
+    if(o===cur){busy=true;b.classList.add('ok');stars++;document.getElementById('stat').textContent='⭐ '+stars;document.getElementById('snd').textContent='“'+o[4]+'”';
+      sound(o,()=>say(PRAISE[rand(PRAISE.length)][0]+' '+o[3]+' kêu '+o[4],'Yes! The '+o[5]+' says '+o[6]));if(stars%5===0)confetti();setTimeout(round,6500)}
+    else{b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');sound(o,()=>say('Đây là tiếng '+o[3]+'. Bé nghe lại nhé','This is the '+o[5]+'. Listen again!'))}};ch.appendChild(b)});
+  setTimeout(play,400)}
+const L=document.getElementById('list');S.forEach(s=>{const b=document.createElement('button');b.innerHTML='<span class="ph sm">'+pic(s)+'</span>'+s[3];b.onclick=()=>sound(s,()=>say(s[3]+' kêu '+s[4],'The '+s[5]+' says '+s[6]));L.appendChild(b)});
 document.getElementById('stat').textContent='⭐ 0';round();
 </script>
 </body>
