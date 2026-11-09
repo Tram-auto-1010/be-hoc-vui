@@ -529,6 +529,25 @@ function famTabs(el,kinds,onChange){const L={all:'🎲 Tất cả',who:'👤 Who
   el.className='ftabs';['all',...kinds].forEach(k=>{const b=document.createElement('button');b.className='btn'+(k==='all'?'':' ghost');b.textContent=L[k];b.onclick=()=>{FKINDS=k==='all'?kinds:[k];el.querySelectorAll('.btn').forEach(x=>x.className='btn'+(x===b?'':' ghost'));_fqLast='';onChange()};el.appendChild(b)});FKINDS=kinds}
 (function(){const st=document.createElement('style');st.textContent=`.ftabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}.ftabs .btn{font-size:15px;padding:6px 12px}
 @media (max-width:640px){.ftabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.ftabs .btn{flex-shrink:0;font-size:14px;padding:6px 10px}}`;document.head.appendChild(st)})();
+/* picture icons for pre-readers */
+function fthumb(w){if(w==='#family')return WIMG.family?'<img src="'+WIMG.family+'" alt="">':'👨‍👩‍👧';return WIMG[w]?'<img src="'+WIMG[w]+'" alt="">':FM[w][2]}
+function optIcon(en){const t=en.toLowerCase();
+  if(/^yes\b/.test(t))return '<span class="oi y">👍</span>';if(/^no\b/.test(t))return '<span class="oi n">👎</span>';
+  let m=t.match(/this is my (\w+)/);if(m&&FM[m[1]])return '<span class="oi">'+fthumb(m[1])+'</span>';
+  m=t.match(/they are (my [\w ]+?)\./);if(m){const g=Object.values(FGROUPS).find(G=>G.en===m[1]);if(g)return '<span class="oi g">'+g.who.map(fthumb).join('')+'</span>'}
+  m=t.match(/there (?:are|is) (\w+) (?:people|person)/);if(m){const n=/^\d+$/.test(m[1])?+m[1]:FNUM.indexOf(m[1]);return '<span class="oi num"><b>'+n+'</b><i>'+'●'.repeat(Math.max(0,n))+'</i></span>'}
+  return '<span class="oi">💬</span>'}
+function optHTML(en,vi){return '<span class="opt">'+optIcon(en)+'<span class="ot">'+en+(vi?'<small>'+vi+'</small>':'')+'</span></span>'}
+function wordIcon(w){w=w.toLowerCase().replace(/[.,!?]/g,'');if(FM[w])return fthumb(w);return {she:'👩',he:'👨',yes:'👍',no:'👎',family:fthumb('#family'),grandparents:'👴👵',mother:'',father:''}[w]||(FNUM.indexOf(w)>0?String(FNUM.indexOf(w)):'')}
+(function(){const st=document.createElement('style');st.textContent=`
+.opt{display:flex;align-items:center;gap:12px;width:100%}
+.oi{flex:0 0 auto;width:clamp(58px,8vw,86px);height:clamp(58px,8vw,86px);display:grid;place-items:center;font-size:clamp(36px,5vw,52px);border-radius:16px;background:#FFFFFF;overflow:hidden;box-shadow:inset 0 0 0 2px #E3E8F1}
+.oi img{max-width:100%;max-height:100%;object-fit:contain}
+.oi.g{display:flex;gap:2px;padding:2px}.oi.g img{width:50%;height:100%;object-fit:contain}
+.oi.y{background:#E8F5E9}.oi.n{background:#FFEBEE}
+.oi.num{display:flex;flex-direction:column;line-height:1}.oi.num b{font:800 clamp(30px,4.4vw,44px)/1 'Baloo 2',sans-serif;color:#FB8C00}.oi.num i{font-style:normal;font-size:9px;color:#FB8C00;letter-spacing:1px;word-break:break-all;max-width:90%;text-align:center}
+.ot{flex:1;font-size:.82em;line-height:1.15}.ot small{display:block}
+`;document.head.appendChild(st)})();
 
 const GOAL=15;let leaves=0,stars=0,cur=null,scored=false;
 function meter(){document.getElementById('mi').style.width=Math.min(100,leaves/GOAL*100)+'%';document.getElementById('mb').textContent='🍃 '+Math.min(leaves,GOAL)+' / '+GOAL+' lá cho Dino'}

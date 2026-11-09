@@ -90,6 +90,7 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 .pool{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;justify-content:center}
 .wb{border:none;border-radius:16px;padding:10px 18px;font:800 clamp(22px,3.4vw,30px) 'Baloo 2',sans-serif;color:#FFFFFF;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.18)}
 .wb.used{visibility:hidden}
+.wb{display:inline-flex;align-items:center;gap:6px}.wi{display:inline-grid;place-items:center;width:44px;height:44px;background:#FFFFFF;border-radius:10px;overflow:hidden;font-size:30px;color:#FB8C00}.wi img{max-width:100%;max-height:100%}
 .wb.hint{animation:glow 1s infinite;outline:4px solid #FFD54F}
 .c0{background:#E53935}.c1{background:#1E88E5}.c2{background:#43A047}.c3{background:#8E24AA}.c4{background:#FB8C00}.c5{background:#00897B}.c6{background:#6D4C41}.c7{background:#D81B60}
 .lab{font:800 14px 'Nunito',sans-serif;color:var(--muted);margin:2px 0 6px}
@@ -523,6 +524,25 @@ function famTabs(el,kinds,onChange){const L={all:'🎲 Tất cả',who:'👤 Who
   el.className='ftabs';['all',...kinds].forEach(k=>{const b=document.createElement('button');b.className='btn'+(k==='all'?'':' ghost');b.textContent=L[k];b.onclick=()=>{FKINDS=k==='all'?kinds:[k];el.querySelectorAll('.btn').forEach(x=>x.className='btn'+(x===b?'':' ghost'));_fqLast='';onChange()};el.appendChild(b)});FKINDS=kinds}
 (function(){const st=document.createElement('style');st.textContent=`.ftabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}.ftabs .btn{font-size:15px;padding:6px 12px}
 @media (max-width:640px){.ftabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.ftabs .btn{flex-shrink:0;font-size:14px;padding:6px 10px}}`;document.head.appendChild(st)})();
+/* picture icons for pre-readers */
+function fthumb(w){if(w==='#family')return WIMG.family?'<img src="'+WIMG.family+'" alt="">':'👨‍👩‍👧';return WIMG[w]?'<img src="'+WIMG[w]+'" alt="">':FM[w][2]}
+function optIcon(en){const t=en.toLowerCase();
+  if(/^yes\b/.test(t))return '<span class="oi y">👍</span>';if(/^no\b/.test(t))return '<span class="oi n">👎</span>';
+  let m=t.match(/this is my (\w+)/);if(m&&FM[m[1]])return '<span class="oi">'+fthumb(m[1])+'</span>';
+  m=t.match(/they are (my [\w ]+?)\./);if(m){const g=Object.values(FGROUPS).find(G=>G.en===m[1]);if(g)return '<span class="oi g">'+g.who.map(fthumb).join('')+'</span>'}
+  m=t.match(/there (?:are|is) (\w+) (?:people|person)/);if(m){const n=/^\d+$/.test(m[1])?+m[1]:FNUM.indexOf(m[1]);return '<span class="oi num"><b>'+n+'</b><i>'+'●'.repeat(Math.max(0,n))+'</i></span>'}
+  return '<span class="oi">💬</span>'}
+function optHTML(en,vi){return '<span class="opt">'+optIcon(en)+'<span class="ot">'+en+(vi?'<small>'+vi+'</small>':'')+'</span></span>'}
+function wordIcon(w){w=w.toLowerCase().replace(/[.,!?]/g,'');if(FM[w])return fthumb(w);return {she:'👩',he:'👨',yes:'👍',no:'👎',family:fthumb('#family'),grandparents:'👴👵',mother:'',father:''}[w]||(FNUM.indexOf(w)>0?String(FNUM.indexOf(w)):'')}
+(function(){const st=document.createElement('style');st.textContent=`
+.opt{display:flex;align-items:center;gap:12px;width:100%}
+.oi{flex:0 0 auto;width:clamp(58px,8vw,86px);height:clamp(58px,8vw,86px);display:grid;place-items:center;font-size:clamp(36px,5vw,52px);border-radius:16px;background:#FFFFFF;overflow:hidden;box-shadow:inset 0 0 0 2px #E3E8F1}
+.oi img{max-width:100%;max-height:100%;object-fit:contain}
+.oi.g{display:flex;gap:2px;padding:2px}.oi.g img{width:50%;height:100%;object-fit:contain}
+.oi.y{background:#E8F5E9}.oi.n{background:#FFEBEE}
+.oi.num{display:flex;flex-direction:column;line-height:1}.oi.num b{font:800 clamp(30px,4.4vw,44px)/1 'Baloo 2',sans-serif;color:#FB8C00}.oi.num i{font-style:normal;font-size:9px;color:#FB8C00;letter-spacing:1px;word-break:break-all;max-width:90%;text-align:center}
+.ot{flex:1;font-size:.82em;line-height:1.15}.ot small{display:block}
+`;document.head.appendChild(st)})();
 
 let cur=null,pos=0,miss=0,stars=0,toks=[];
 const strip=w=>w.replace(/[.,!?]/g,'');
@@ -533,19 +553,20 @@ function round(){fstop();cur=famQ(FKINDS);pos=0;miss=0;toks=cur.ans.split(' ');
   document.getElementById('pic').innerHTML=cur.pic;document.getElementById('spk').innerHTML='';
   const sl=document.getElementById('slots');sl.innerHTML=toks.map((t,i)=>'<div class="slot'+(i===0?' next':'')+'"></div>').join('');
   const pool=document.getElementById('pool');pool.innerHTML='';
-  shuffle(toks.map((t,i)=>({t,i}))).forEach(o=>{const b=document.createElement('button');b.className='wb c'+(o.i%8);b.textContent=o.t;b._i=o.i;b.onclick=()=>tap(b);pool.appendChild(b)});
-  FT(ask,300)}
+  shuffle(toks.map((t,i)=>({t,i}))).forEach(o=>{const b=document.createElement('button');b.className='wb c'+(o.i%8);b.dataset.w=o.t;const ic=wordIcon(o.t);b.innerHTML=(ic?'<span class="wi">'+ic+'</span>':'')+'<span>'+o.t+'</span>';b._i=o.i;b.onclick=()=>tap(b);pool.appendChild(b)});
+  FT(()=>{fstop();sayEN(cur.q+' '+cur.ans,cur.qv)},300);idle()}
 function tap(b){if(pos>=toks.length||b.classList.contains('used'))return;
-  const ok=strip(b.textContent).toLowerCase()===strip(toks[pos]).toLowerCase();
+  const ok=strip(b.dataset.w).toLowerCase()===strip(toks[pos]).toLowerCase();clearTimeout(idleT);
   if(ok){const sl=document.querySelectorAll('.slot');const s=sl[pos];s.textContent=toks[pos];s.className='slot f c'+(b._i%8);b.classList.add('used');b.classList.remove('hint');pos++;miss=0;
     if(sl[pos])sl[pos].classList.add('next');
-    if(pos===toks.length){done()}else{fstop();sayEN(strip(b.textContent))}}
-  else{b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');bad(b);miss++;fstop();sayEN(strip(b.textContent)+'? Hmm.');
-    if(miss>=2){const h=[...document.querySelectorAll('.wb:not(.used)')].find(x=>strip(x.textContent).toLowerCase()===strip(toks[pos]).toLowerCase());h&&h.classList.add('hint')}}}
-function done(){stars++;document.getElementById('stat').textContent='⭐ '+stars;good(document.getElementById('slots'));fstop();
+    if(pos===toks.length){done()}else{fstop();sayEN(strip(b.dataset.w));idle()}}
+  else{b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');bad(b);miss++;fstop();sayEN(strip(b.dataset.w)+'? Hmm. Next is: '+strip(toks[pos]));hint()}}
+let idleT=0;function hint(){const h=[...document.querySelectorAll('.wb:not(.used)')].find(x=>strip(x.dataset.w).toLowerCase()===strip(toks[pos]).toLowerCase());h&&h.classList.add('hint')}
+function idle(){clearTimeout(idleT);idleT=setTimeout(()=>{if(pos<toks.length){hint();fstop();sayEN(strip(toks[pos]))}},6000)}
+function done(){clearTimeout(idleT);stars++;document.getElementById('stat').textContent='⭐ '+stars;good(document.getElementById('slots'));fstop();
   sayEN(['Great job!','Super!','Well done!'][rand(3)]+' '+cur.q+' '+cur.ans,cur.ansVi);if(stars%5===0)FT(confetti,600);
   speakPanel(document.getElementById('spk'),cur.ans,cur.ansVi,{next:round,onScore:n=>{stars+=n;document.getElementById('stat').textContent='⭐ '+stars}})}
-famTabs(document.getElementById('tabs'),['who','they','many','is','adj'],round);
+famTabs(document.getElementById('tabs'),['who','they','is','adj'],round);
 round();
 </script>
 </body>

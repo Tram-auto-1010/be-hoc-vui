@@ -543,6 +543,25 @@ function famTabs(el,kinds,onChange){const L={all:'🎲 Tất cả',who:'👤 Who
   el.className='ftabs';['all',...kinds].forEach(k=>{const b=document.createElement('button');b.className='btn'+(k==='all'?'':' ghost');b.textContent=L[k];b.onclick=()=>{FKINDS=k==='all'?kinds:[k];el.querySelectorAll('.btn').forEach(x=>x.className='btn'+(x===b?'':' ghost'));_fqLast='';onChange()};el.appendChild(b)});FKINDS=kinds}
 (function(){const st=document.createElement('style');st.textContent=`.ftabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}.ftabs .btn{font-size:15px;padding:6px 12px}
 @media (max-width:640px){.ftabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.ftabs .btn{flex-shrink:0;font-size:14px;padding:6px 10px}}`;document.head.appendChild(st)})();
+/* picture icons for pre-readers */
+function fthumb(w){if(w==='#family')return WIMG.family?'<img src="'+WIMG.family+'" alt="">':'👨‍👩‍👧';return WIMG[w]?'<img src="'+WIMG[w]+'" alt="">':FM[w][2]}
+function optIcon(en){const t=en.toLowerCase();
+  if(/^yes\b/.test(t))return '<span class="oi y">👍</span>';if(/^no\b/.test(t))return '<span class="oi n">👎</span>';
+  let m=t.match(/this is my (\w+)/);if(m&&FM[m[1]])return '<span class="oi">'+fthumb(m[1])+'</span>';
+  m=t.match(/they are (my [\w ]+?)\./);if(m){const g=Object.values(FGROUPS).find(G=>G.en===m[1]);if(g)return '<span class="oi g">'+g.who.map(fthumb).join('')+'</span>'}
+  m=t.match(/there (?:are|is) (\w+) (?:people|person)/);if(m){const n=/^\d+$/.test(m[1])?+m[1]:FNUM.indexOf(m[1]);return '<span class="oi num"><b>'+n+'</b><i>'+'●'.repeat(Math.max(0,n))+'</i></span>'}
+  return '<span class="oi">💬</span>'}
+function optHTML(en,vi){return '<span class="opt">'+optIcon(en)+'<span class="ot">'+en+(vi?'<small>'+vi+'</small>':'')+'</span></span>'}
+function wordIcon(w){w=w.toLowerCase().replace(/[.,!?]/g,'');if(FM[w])return fthumb(w);return {she:'👩',he:'👨',yes:'👍',no:'👎',family:fthumb('#family'),grandparents:'👴👵',mother:'',father:''}[w]||(FNUM.indexOf(w)>0?String(FNUM.indexOf(w)):'')}
+(function(){const st=document.createElement('style');st.textContent=`
+.opt{display:flex;align-items:center;gap:12px;width:100%}
+.oi{flex:0 0 auto;width:clamp(58px,8vw,86px);height:clamp(58px,8vw,86px);display:grid;place-items:center;font-size:clamp(36px,5vw,52px);border-radius:16px;background:#FFFFFF;overflow:hidden;box-shadow:inset 0 0 0 2px #E3E8F1}
+.oi img{max-width:100%;max-height:100%;object-fit:contain}
+.oi.g{display:flex;gap:2px;padding:2px}.oi.g img{width:50%;height:100%;object-fit:contain}
+.oi.y{background:#E8F5E9}.oi.n{background:#FFEBEE}
+.oi.num{display:flex;flex-direction:column;line-height:1}.oi.num b{font:800 clamp(30px,4.4vw,44px)/1 'Baloo 2',sans-serif;color:#FB8C00}.oi.num i{font-style:normal;font-size:9px;color:#FB8C00;letter-spacing:1px;word-break:break-all;max-width:90%;text-align:center}
+.ot{flex:1;font-size:.82em;line-height:1.15}.ot small{display:block}
+`;document.head.appendChild(st)})();
 
 const SHE=FPEOPLE.filter(m=>FM[m][1]==='she'),HE=FPEOPLE.filter(m=>FM[m][1]==='he');
 let mode='sort',stars=0,busy=false,last='';
@@ -551,8 +570,8 @@ const addPts=n=>{stars+=n;document.getElementById('stat').textContent='⭐ '+sta
 const RULES={
  sort:['👩 Mẹ, bà, chị/em gái → <b class="cs">she</b> · 👨 Bố, ông, anh/em trai → <b class="ch">he</b>','Girls and women: she. Boys and men: he.','Con gái, phụ nữ thì dùng she. Con trai, đàn ông thì dùng he.'],
  blank:['👩 nữ → <b class="cs">she</b> · 👨 nam → <b class="ch">he</b>. Nhìn ảnh rồi chọn nhé!','She or he? Look at the picture!','Bé nhìn ảnh: nữ thì chọn she, nam thì chọn he.'],
- yn:['Câu hỏi bắt đầu bằng <b class="y">Is …?</b> → trả lời <b class="y">Yes</b> / <b class="n">No</b>. Câu hỏi <b>Who …? How many …?</b> → trả lời bằng câu.','Is questions: answer yes or no. Who and how many questions: answer with a sentence.','Câu hỏi bắt đầu bằng Is thì trả lời Yes hoặc No. Câu hỏi Who, How many thì trả lời bằng một câu.'],
- isnt:['<b class="y">Yes</b> / đúng → <b class="y">is</b> · <b class="n">No</b> / sai → <b class="n">isn\'t</b> (is not)','Yes, she is. No, she isn\'t.','Đúng thì dùng is. Sai thì dùng isn\'t, nghĩa là không phải.']};
+ yn:['Nhìn ảnh, nghe câu hỏi: đúng → 👍 <b class="y">Yes</b> · sai → 👎 <b class="n">No</b>','Look and listen. Right? Yes! Wrong? No!','Bé nhìn ảnh và nghe câu hỏi. Đúng thì chọn Yes, sai thì chọn No.'],
+ isnt:['Đúng → 👍 <b class="y">is</b> · sai → 👎 <b class="n">isn\'t</b>','Yes, she is. No, she isn\'t.','Đúng thì dùng is. Sai thì dùng isn\'t, nghĩa là không phải.']};
 function setRule(k){ruleEl.innerHTML='💡 '+RULES[k][0];ruleEl.onclick=()=>{fstop();sayEN(RULES[k][1],RULES[k][2])}}
 const twoBtns=(a,cb)=>{const w=document.createElement('div');w.className='two';a.forEach(([cls,html,val])=>{const b=document.createElement('button');b.className='btn '+cls;b.innerHTML=html;b.onclick=()=>cb(val,b,w);w.appendChild(b)});return w};
 function wrong(b,line){b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');bad(b);fstop();if(line)sayEN(line)}
@@ -588,20 +607,15 @@ function blankGame(){setRule('blank');busy=false;
     else wrong(b,'Look! The '+p+'. Is it she or he?')}));
   fstop();FT(()=>sayEN('She or he?','Bé chọn she hay he?'),250)}
 
-/* 3. Yes/No question or sentence answer? */
+/* 3. Yes or No? (picture-based) */
 function ynGame(){setRule('yn');busy=false;
-  const q=fresh(()=>{const x=famQ(['who','they','many','is','adj','is','adj']);x.key=x.key;return x});const isYN=q.kind==='is'||q.kind==='adj';
-  const first=q.q.split(' ')[0],rest=q.q.slice(first.length);const head=q.kind==='many'?'How many':first;const tail=q.q.slice(head.length);
-  stage.innerHTML='<div class="play"><div class="fcard">'+q.pic+'</div><div><div class="sent" id="st"><mark>'+head+'</mark>'+tail+'<span class="q" style="font-size:.5em;color:var(--muted)">'+q.qv+'</span></div><div id="bt"></div><div class="ans" id="ans"></div><div id="sp"></div></div></div>';
-  document.getElementById('st').onclick=()=>{fstop();sayEN(q.q,q.qv)};
-  const step2=()=>{const a=document.getElementById('ans');q.opts.forEach(o=>{const b=document.createElement('button');b.className='btn ghost';b.innerHTML=(isYN?(o.en.startsWith('Yes')?'✅ ':'❌ '):'💬 ')+o.en+'<small>'+o.vi+'</small>';
-    b.onclick=()=>{if(busy)return;if(o.ok){busy=true;b.classList.add('ok');good(b);addPts(1);a.querySelectorAll('.btn:not(.ok)').forEach(x=>x.remove());fstop();sayEN(q.q+' '+(q.full||o.en),q.ansVi);addSpeak(document.getElementById('sp'),o.en,o.vi)}
-      else wrong(b,'Hmm, look again! '+q.q)};a.appendChild(b)})};
-  document.getElementById('bt').appendChild(twoBtns([['typ','✅❌ Yes / No<small style="opacity:.7">Yes, she is. · No, he isn\'t.</small>','yn'],['typ','💬 Trả lời bằng câu<small style="opacity:.7">This is… · They are… · There are…</small>','sent']],(v,b,w)=>{if(w.dataset.done)return;
-    if((v==='yn')===isYN){w.dataset.done=1;b.classList.add('ok');good(b);w.querySelectorAll('.btn').forEach(x=>x===b||x.classList.add('dim'));fstop();
-      sayEN(isYN?head+' question! Answer yes or no.':head+' question! Answer with a sentence.',isYN?'Câu hỏi bắt đầu bằng '+head+', trả lời Yes hoặc No.':'Câu hỏi '+head+', trả lời bằng một câu.');FT(step2,600)}
-    else wrong(b,isYN?'Listen: '+head+'... It starts with '+head+'. Answer yes or no!':'Listen: '+head+'... Answer with a sentence!')}));
-  fstop();FT(()=>sayEN(q.q+' Yes or no? Or a sentence?',q.qv),250)}
+  const q=fresh(()=>famQ(['is','adj']));
+  stage.innerHTML='<div class="play"><div class="fcard">'+q.pic+'</div><div><div class="sent" id="st">'+q.q+'<span class="q" style="font-size:.5em;color:var(--muted)">'+q.qv+'</span></div><div id="bt"></div><div id="sp"></div></div></div>';
+  const say=()=>{fstop();sayEN(q.q,q.qv)};document.getElementById('st').onclick=say;
+  document.getElementById('bt').appendChild(twoBtns([['isb','👍 Yes<small>đúng</small>',true],['isnt','👎 No<small>sai</small>',false]],(v,b,w)=>{if(busy)return;
+    if(v===q.yes){busy=true;good(b);addPts(1);w.querySelectorAll('.btn').forEach(x=>x===b||x.classList.add('dim'));fstop();sayEN(q.full,q.ansVi);addSpeak(document.getElementById('sp'),q.ans,q.ansVi)}
+    else wrong(b,'Hmm. Look at the picture again! '+q.q)}));
+  FT(say,250)}
 
 /* 4. is or isn't */
 function isntGame(){setRule('isnt');busy=false;
@@ -613,12 +627,12 @@ function isntGame(){setRule('isnt');busy=false;
     return {key:'a'+k+p,pic:(k==='tall'||k==='short')?fruler(p):fpic(fimg(p)),qline:'',s:'The '+p+' __ '+k+'.',ans:y?'is':'isn\'t',full:'The '+p+(y?' is ':' isn\'t ')+k+'.',vi:fcap(fvi(p))+(y?' ':' không ')+FADJ[k].vi+'.'}});
   stage.innerHTML='<div class="play"><div class="fcard">'+r.pic+'</div><div><div class="sent" id="st">'+(r.qline?'<span class="q">'+r.qline+'</span>':'')+r.s.replace('__','<span class="blank" id="bl">?</span>')+'</div><div id="bt"></div><div id="sp"></div></div></div>';
   const say=()=>{fstop();sayEN((r.qline?r.qline+' ':'')+r.s.replace('__','...'))};document.getElementById('st').onclick=say;
-  document.getElementById('bt').appendChild(twoBtns([['isb','✅ is<small>đúng · là</small>','is'],['isnt','❌ isn\'t<small>sai · không phải</small>','isn\'t']],(v,b,w)=>{if(busy)return;
+  document.getElementById('bt').appendChild(twoBtns([['isb','👍 is<small>đúng</small>','is'],['isnt','👎 isn\'t<small>sai</small>','isn\'t']],(v,b,w)=>{if(busy)return;
     if(v===r.ans){busy=true;const bl=document.getElementById('bl');bl.textContent=v;bl.classList.add('f');good(b);addPts(1);w.querySelectorAll('.btn').forEach(x=>x===b||x.classList.add('dim'));fstop();sayEN((r.qline?r.qline+' ':'')+r.full,r.vi);addSpeak(document.getElementById('sp'),r.full,r.vi)}
     else wrong(b,v==='is'?'Hmm. Look again! Is it right?':'Hmm. Look again! Is it wrong?')}));
   FT(say,250)}
 
-const MODES=[['sort','👩👨 She hay He?',sortGame],['blank','✏️ Điền she / he',blankGame],['yn','❓ Yes/No hay câu?',ynGame],['isnt','✅ is hay isn\'t?',isntGame],['mix','🎲 Trộn',null]];
+const MODES=[['sort','👩👨 She hay He?',sortGame],['blank','✏️ Điền she / he',blankGame],['yn','👍👎 Yes hay No?',ynGame],['isnt','✅ is hay isn\'t?',isntGame],['mix','🎲 Trộn',null]];
 function next(){fstop();busy=false;if(mode==='mix')return pick([blankGame,ynGame,isntGame,isntGame,blankGame])();MODES.find(m=>m[0]===mode)[2]()}
 const tabs=document.getElementById('tabs');
 MODES.forEach(([k,l])=>{const b=document.createElement('button');b.className='btn'+(k===mode?'':' ghost');b.textContent=l;b.onclick=()=>{mode=k;last='';tabs.querySelectorAll('.btn').forEach(x=>x.className='btn'+(x===b?'':' ghost'));next()};tabs.appendChild(b)});
