@@ -117,16 +117,20 @@ body{background:#F3FAEC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 /* ---------- section nav ---------- */
 .snav{position:sticky;top:0;z-index:20;display:flex;gap:8px;overflow-x:auto;padding:10px max(20px,calc((100% - 1160px)/2 + 20px));background:rgba(243,250,236,.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);scrollbar-width:none;margin-top:14px}
 .snav::-webkit-scrollbar{display:none}
+@media (min-width:900px){.snav{flex-wrap:wrap;justify-content:center;overflow:visible;padding:10px 20px}}
 .snav a{flex:0 0 auto;text-decoration:none;font:800 15px 'Nunito',sans-serif;color:#FFFFFF;background:var(--c);padding:8px 14px;border-radius:999px;box-shadow:0 4px 0 rgba(0,0,0,.15);transition:transform .15s}
 .snav a:hover{transform:translateY(-2px)}
 /* ---------- sections ---------- */
-.sec{max-width:1160px;margin:22px auto 0;padding:0 20px;scroll-margin-top:64px}
+.sec{max-width:1160px;margin:22px auto 0;padding:0 20px;scroll-margin-top:118px}
+@media (max-width:899px){.sec{scroll-margin-top:64px}}
 .sec .panel{background:var(--t);border-radius:30px;padding:0 16px 18px;box-shadow:0 6px 0 rgba(0,0,0,.05);overflow:hidden}
 .sec h2{margin:0 -16px 16px;padding:12px 20px;font:800 clamp(21px,3vw,27px)/1.1 'Baloo 2',sans-serif;display:flex;align-items:center;gap:10px;color:#FFFFFF;background:linear-gradient(100deg,var(--c),color-mix(in srgb,var(--c) 65%,#FFFFFF));text-shadow:0 2px 0 rgba(0,0,0,.15)}
 .sec h2 .sic{font-size:1.25em}
 .sec h2 small{font:800 14px 'Nunito',sans-serif;opacity:.9}
 .sec h2 i{margin-left:auto;font:800 13px 'Nunito',sans-serif;font-style:normal;background:rgba(255,255,255,.25);padding:4px 10px;border-radius:999px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.grid{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;--n:5}
+.grid .game{flex:0 0 calc((100% - (var(--n) - 1)*14px)/var(--n));box-sizing:border-box;min-width:0}
+@media (max-width:1060px){.grid{--n:4}}@media (max-width:820px){.grid{--n:3}}
 .game{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;padding:16px 10px 14px;border-radius:24px;text-decoration:none;color:var(--ink);background:#FFFFFF;box-shadow:0 6px 0 color-mix(in srgb,var(--c) 30%,transparent),0 10px 18px rgba(31,42,68,.06);transition:transform .18s cubic-bezier(.3,1.6,.6,1),box-shadow .18s;text-align:center;opacity:0;transform:translateY(18px)}
 .game.in{opacity:1;transform:none;transition:opacity .5s,transform .5s cubic-bezier(.3,1.4,.6,1)}
 .game:hover,.game:focus-visible{transform:translateY(-6px) rotate(-1.2deg);box-shadow:0 10px 0 color-mix(in srgb,var(--c) 45%,transparent),0 16px 24px rgba(31,42,68,.12)}
@@ -142,10 +146,10 @@ body{background:#F3FAEC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .game .new{position:absolute;top:10px;right:10px;background:linear-gradient(#FF7043,#E53935);color:#FFFFFF;font:800 12px 'Nunito',sans-serif;font-style:normal;padding:3px 9px;border-radius:999px;transform:rotate(8deg);box-shadow:0 3px 0 rgba(0,0,0,.15);animation:nw 1.6s ease-in-out infinite}
 @keyframes nw{50%{transform:rotate(8deg) scale(1.12)}}
 .note{max-width:1160px;margin:30px auto;padding:0 20px;font:700 14px 'Nunito',sans-serif;color:var(--muted);text-align:center}
-@media (max-width:640px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.game{padding:12px 6px 10px}.game .ic{width:70px;height:70px;font-size:38px}.game b{font-size:17px}.game span,.game em{font-size:11.5px}.sec{padding:0 10px}.sec .panel{padding:0 10px 12px}.sec h2{margin:0 -10px 12px;padding:10px 14px}.sec h2 small{display:none}.scene{height:340px}.scene .bubble{display:none}.snav a{font-size:13px;padding:7px 11px}}
+@media (max-width:640px){.grid{--n:2;gap:10px}.grid .game{flex-basis:calc((100% - 10px)/2)}.game{padding:12px 6px 10px}.game .ic{width:70px;height:70px;font-size:38px}.game b{font-size:17px}.game span,.game em{font-size:11.5px}.sec{padding:0 10px}.sec .panel{padding:0 10px 12px}.sec h2{margin:0 -10px 12px;padding:10px 14px}.sec h2 small{display:none}.scene{height:340px}.scene .bubble{display:none}.snav a{font-size:13px;padding:7px 11px}}
 @media (max-width:480px){.gdt{display:none}}
 @media (prefers-reduced-motion:reduce){.scene *,.game,.game .ic,.title h1 span{animation:none!important}.game{opacity:1;transform:none}}
-.shelf{max-width:1160px;margin:16px auto 0;padding:12px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#FFFFFF;border:4px solid var(--line);border-radius:24px;width:calc(100% - 40px);box-sizing:border-box}
+.shelf{max-width:1160px;margin:16px auto 0;padding:12px 20px;display:flex;align-items:center;justify-content:center;text-align:center;gap:12px;flex-wrap:wrap;background:#FFFFFF;border:4px solid var(--line);border-radius:24px;width:calc(100% - 40px);box-sizing:border-box}
 .shelf b{font:800 20px 'Baloo 2',sans-serif}
 .shelf .st{font:800 22px 'Baloo 2',sans-serif;color:#C98A00}
 .shelf .fr{display:flex;gap:6px;flex-wrap:wrap}
@@ -153,14 +157,17 @@ body{background:#F3FAEC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .shelf .fr span.lock{filter:grayscale(1) brightness(1.6);opacity:.45}
 .fr span img{width:46px;height:46px;object-fit:contain;padding:3px;box-sizing:border-box;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 2px #DCEFD0;display:block}
 .fr span.lock img{opacity:.6}
-.shelf small{font:700 14px 'Nunito',sans-serif;color:var(--muted)}
-.top{display:flex;justify-content:flex-end;padding:14px 20px 0}
+.shelf .fr{justify-content:center}.shelf small{flex-basis:100%;font:700 14px 'Nunito',sans-serif;color:var(--muted)}
+.top{display:flex;justify-content:space-between;align-items:center;max-width:1160px;margin:0 auto;padding:14px 0 0;width:calc(100% - 40px)}
+.top .tr{display:flex;gap:10px;align-items:center}
+.topstar{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font:800 18px 'Baloo 2',sans-serif;color:#C98A00;background:#FFFFFF;border:3px solid var(--line);border-radius:999px;padding:6px 14px;white-space:nowrap}
+@media (max-width:640px){.top{width:calc(100% - 20px)}}
 html,body{overflow-x:clip}
 </style>
 <script src="wimg.js?v=1793854375"></script>
 </head>
 <body>
-<div class="top" style="gap:10px"><a class="btn ghost" href="giong-doc.html" style="text-decoration:none;white-space:nowrap">🎙️<span class="gdt"> Giọng đọc (ba mẹ)</span></a><button class="ibtn" id="voiceBtn" aria-label="Bật/tắt tiếng">🔊</button></div>
+<div class="top"><a class="topstar" href="#shelf" title="Sao của bé">⭐ <span id="topst">0</span> sao</a><div class="tr"><a class="btn ghost" href="giong-doc.html" style="text-decoration:none;white-space:nowrap">🎙️<span class="gdt"> Giọng đọc (ba mẹ)</span></a><button class="ibtn" id="voiceBtn" aria-label="Bật/tắt tiếng">🔊</button></div></div>
 <div class="scene" id="scene" aria-label="Khủng long">
   <div class="glow"></div><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
   <div class="mt m1"></div><div class="mt m2"></div>
@@ -584,7 +591,7 @@ setTimeout(()=>document.querySelectorAll('.game:not(.in)').forEach(a=>{const r=a
   document.getElementById('rand').onclick=()=>{const g=ALLG[Math.floor(Math.random()*ALLG.length)];location.href=g}})();
 const FRIENDS=[['🦕','Đô Đô','dino_d6'],['🦖','Rex','dinosaur'],['🦕','Spino','dino_spino'],['🦅','Ptera','dino_ptero'],['🐢','Rùa Ru','turtle'],['🦖','Raptor','dino_raptor'],['🐣','Gà con Chíp','chick'],['🦕','Kentro','dino_d5'],['🐳','Cá voi Bơi','whale'],['🦒','Hươu Cao','giraffe'],['🦁','Sư tử Su','lion'],['🐼','Gấu Bông Bông','panda']];
 const frPic=f=>{const W=window.__WIMG||{};return W[f[2]]?'<img src="'+W[f[2]]+'" alt="'+f[1]+'" draggable="false">':f[0]};
-function shelf(){const s=getStars();const n=Math.min(FRIENDS.length,1+Math.floor(s/10));const nxt=n<FRIENDS.length?(n*10-s):0;
+function shelf(){const s=getStars();try{document.getElementById('topst').textContent=s}catch(e){}const n=Math.min(FRIENDS.length,1+Math.floor(s/10));const nxt=n<FRIENDS.length?(n*10-s):0;
   document.getElementById('shelf').innerHTML='<b>Bạn khủng long của bé</b><span class="st">⭐ '+s+'</span><div class="fr">'+FRIENDS.map((f,k)=>'<span class="'+(k<n?'':'lock')+'" title="'+(k<n?f[1]:'Chưa mở')+'">'+frPic(f)+'</span>').join('')+'</div><small>'+(nxt?'Còn '+nxt+' ⭐ nữa là có bạn mới!':'Bé đã có đủ các bạn rồi!')+'</small>';
   document.querySelectorAll('#shelf .fr span:not(.lock)').forEach((e,k)=>e.onclick=()=>{e.style.transform='scale(1.4)';setTimeout(()=>e.style.transform='',300);say('Chào bạn '+FRIENDS[k][1]+'!','Hello friend!')})}
 shelf();
