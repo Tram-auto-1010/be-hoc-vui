@@ -126,6 +126,8 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 .shelf .fr{display:flex;gap:6px;flex-wrap:wrap}
 .shelf .fr span{font-size:34px;line-height:1;filter:none;transition:transform .2s}
 .shelf .fr span.lock{filter:grayscale(1) brightness(1.6);opacity:.45}
+.fr span img{width:46px;height:46px;object-fit:cover;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 2px #DCEFD0;display:block}
+.fr span.lock img{opacity:.6}
 .shelf small{font:700 14px 'Nunito',sans-serif;color:var(--muted)}
 .top{display:flex;justify-content:flex-end;padding:14px 20px 0}
 html,body{overflow-x:clip}
@@ -535,9 +537,10 @@ const SECS=[
 const root=document.getElementById('secs');
 SECS.forEach(([t,en,c,tint,games])=>{const s=document.createElement('section');s.className='sec';s.innerHTML='<h2>'+t+' <small>· '+en+'</small></h2><div class="grid"></div>';
   games.forEach(([href,ic,vi,gen,em])=>{const a=document.createElement('a');a.className='game';a.href=href;a.style.setProperty('--c',c);a.style.setProperty('--t',tint);a.innerHTML='<div class="ic">'+ic+'</div><b>'+vi+'</b><span>'+gen+'</span><em>'+em+'</em>';a.addEventListener('mouseenter',()=>say(vi,gen));s.querySelector('.grid').appendChild(a)});root.appendChild(s)});
-const FRIENDS=[['🦕','Đô Đô'],['🦖','Rex'],['🐊','Cá sấu Cu'],['🦎','Thằn lằn Li'],['🐢','Rùa Ru'],['🐉','Rồng Bông'],['🐣','Gà con Chíp'],['🦄','Kỳ lân Lấp Lánh'],['🐳','Cá voi Bơi'],['🦒','Hươu Cao'],['🦁','Sư tử Su'],['🐼','Gấu Bông Bông']];
+const FRIENDS=[['🦕','Đô Đô','dino_bronto'],['🦖','Rex','dinosaur'],['🦕','Spino','dino_spino'],['🦅','Ptera','dino_ptero'],['🐢','Rùa Ru','turtle'],['🦖','Raptor','dino_raptor'],['🐣','Gà con Chíp','chick'],['🦕','Kentro','dino_d5'],['🐳','Cá voi Bơi','whale'],['🦒','Hươu Cao','giraffe'],['🦁','Sư tử Su','lion'],['🐼','Gấu Bông Bông','panda']];
+const frPic=f=>{const W=window.__WIMG||{};return W[f[2]]?'<img src="'+W[f[2]]+'" alt="'+f[1]+'" draggable="false">':f[0]};
 function shelf(){const s=getStars();const n=Math.min(FRIENDS.length,1+Math.floor(s/10));const nxt=n<FRIENDS.length?(n*10-s):0;
-  document.getElementById('shelf').innerHTML='<b>Bạn khủng long của bé</b><span class="st">⭐ '+s+'</span><div class="fr">'+FRIENDS.map((f,k)=>'<span class="'+(k<n?'':'lock')+'" title="'+(k<n?f[1]:'Chưa mở')+'">'+f[0]+'</span>').join('')+'</div><small>'+(nxt?'Còn '+nxt+' ⭐ nữa là có bạn mới!':'Bé đã có đủ các bạn rồi!')+'</small>';
+  document.getElementById('shelf').innerHTML='<b>Bạn khủng long của bé</b><span class="st">⭐ '+s+'</span><div class="fr">'+FRIENDS.map((f,k)=>'<span class="'+(k<n?'':'lock')+'" title="'+(k<n?f[1]:'Chưa mở')+'">'+frPic(f)+'</span>').join('')+'</div><small>'+(nxt?'Còn '+nxt+' ⭐ nữa là có bạn mới!':'Bé đã có đủ các bạn rồi!')+'</small>';
   document.querySelectorAll('#shelf .fr span:not(.lock)').forEach((e,k)=>e.onclick=()=>{e.style.transform='scale(1.4)';setTimeout(()=>e.style.transform='',300);say('Chào bạn '+FRIENDS[k][1]+'!','Hello friend!')})}
 shelf();
 ['rex','bronto'].forEach(id=>{const e=document.getElementById(id);e.onclick=()=>{e.classList.remove('roar');void e.offsetWidth;e.classList.add('roar');sfx.win&&_note(110,0,.5,'sawtooth',.12,70);burst(e.getBoundingClientRect().left+e.offsetWidth/2,e.getBoundingClientRect().top+20,['🥚','⭐','🌿','💚'],10);say(id==='rex'?'Gàoooo! Mình là khủng long bạo chúa!':'Chào bé! Mình là khủng long cổ dài!',id==='rex'?'Roar! I am T-rex!':'Hello! I am a long-neck dinosaur!')};e.addEventListener('animationend',()=>e.classList.remove('roar'))});
