@@ -86,6 +86,7 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 .stone{position:absolute;transform:translate(-50%,-50%);width:clamp(66px,9vw,92px);aspect-ratio:1.25;border-radius:50%;border:none;background:#B0BEC5;box-shadow:inset -8px -10px 0 #90A4AE,0 6px 0 rgba(0,0,0,.15);font:800 clamp(26px,4vw,38px) 'Baloo 2',sans-serif;color:var(--ink);cursor:pointer}
 .stone.on{background:#A5D6A7;box-shadow:inset -8px -10px 0 #81C784}
 .hero{position:absolute;transform:translate(-50%,-80%);font-size:clamp(56px,8vw,80px);line-height:1;transition:left .45s cubic-bezier(.3,1.4,.6,1),top .45s cubic-bezier(.3,1.4,.6,1);pointer-events:none;z-index:2}
+@media (max-width:640px){.hero{font-size:clamp(38px,10vw,56px)}}
 .home{position:absolute;right:2%;top:50%;transform:translateY(-50%);font-size:clamp(50px,7vw,72px)}
 </style>
 <script src="wimg.js?v=1793854375"></script>
@@ -144,7 +145,7 @@ const LANGS=[['vi','🇻🇳','Tiếng Việt'],['en','🇬🇧','English'],['bo
 function saveVS(){try{localStorage.setItem(VSET_KEY,JSON.stringify(VS))}catch(e){}}
 function setupLangBtn(vb){if(!vb||document.getElementById('langBtn'))return;const b=document.createElement('button');b.id='langBtn';b.className='ibtn';b.style.width='auto';b.style.padding='0 12px';b.style.font="800 15px 'Nunito',sans-serif";b.style.gap='6px';b.style.display='flex';b.style.color='#1F2A44';b.style.alignItems='center';
   const r=()=>{const l=LANGS.find(x=>x[0]===(VS.lang||'vi'))||LANGS[0];b.innerHTML='<span style="font-size:22px">'+l[1]+'</span><span class="lt-name">'+l[2]+'</span>';b.title='Ngôn ngữ đọc: '+l[2]+' (bấm để đổi)'};r();
-  b.onclick=()=>{const i=LANGS.findIndex(x=>x[0]===(VS.lang||'vi'));VS.lang=LANGS[(i+1)%LANGS.length][0];saveVS();r();
+  b.onclick=()=>{const i=LANGS.findIndex(x=>x[0]===(VS.lang||'vi'));VS.lang=LANGS[(i+1)%LANGS.length][0];saveVS();r();try{window.dispatchEvent(new Event('langchange'))}catch(e){}
     if(VS.lang==='vi')tts('Bé nghe tiếng Việt nhé');else if(VS.lang==='en')tts('','Now in English!');else tts('Tiếng Việt và','English')};
   vb.parentNode.insertBefore(b,vb)}
 function setupVoiceBtn(){const b=document.getElementById('voiceBtn');if(!b)return;setupLangBtn(b);const r=()=>{b.textContent=voiceOn?'🔊':'🔇';b.classList.toggle('off',!voiceOn);b.title=voiceOn?'Tắt tiếng':'Bật tiếng'};r();b.onclick=()=>{voiceOn=!voiceOn;try{localStorage.setItem(VOICE_KEY,voiceOn?'1':'0')}catch(e){}if(!voiceOn&&'speechSynthesis' in window)speechSynthesis.cancel();r()}}

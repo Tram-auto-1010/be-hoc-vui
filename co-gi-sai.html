@@ -149,7 +149,7 @@ const LANGS=[['vi','🇻🇳','Tiếng Việt'],['en','🇬🇧','English'],['bo
 function saveVS(){try{localStorage.setItem(VSET_KEY,JSON.stringify(VS))}catch(e){}}
 function setupLangBtn(vb){if(!vb||document.getElementById('langBtn'))return;const b=document.createElement('button');b.id='langBtn';b.className='ibtn';b.style.width='auto';b.style.padding='0 12px';b.style.font="800 15px 'Nunito',sans-serif";b.style.gap='6px';b.style.display='flex';b.style.color='#1F2A44';b.style.alignItems='center';
   const r=()=>{const l=LANGS.find(x=>x[0]===(VS.lang||'vi'))||LANGS[0];b.innerHTML='<span style="font-size:22px">'+l[1]+'</span><span class="lt-name">'+l[2]+'</span>';b.title='Ngôn ngữ đọc: '+l[2]+' (bấm để đổi)'};r();
-  b.onclick=()=>{const i=LANGS.findIndex(x=>x[0]===(VS.lang||'vi'));VS.lang=LANGS[(i+1)%LANGS.length][0];saveVS();r();
+  b.onclick=()=>{const i=LANGS.findIndex(x=>x[0]===(VS.lang||'vi'));VS.lang=LANGS[(i+1)%LANGS.length][0];saveVS();r();try{window.dispatchEvent(new Event('langchange'))}catch(e){}
     if(VS.lang==='vi')tts('Bé nghe tiếng Việt nhé');else if(VS.lang==='en')tts('','Now in English!');else tts('Tiếng Việt và','English')};
   vb.parentNode.insertBefore(b,vb)}
 function setupVoiceBtn(){const b=document.getElementById('voiceBtn');if(!b)return;setupLangBtn(b);const r=()=>{b.textContent=voiceOn?'🔊':'🔇';b.classList.toggle('off',!voiceOn);b.title=voiceOn?'Tắt tiếng':'Bật tiếng'};r();b.onclick=()=>{voiceOn=!voiceOn;try{localStorage.setItem(VOICE_KEY,voiceOn?'1':'0')}catch(e){}if(!voiceOn&&'speechSynthesis' in window)speechSynthesis.cancel();r()}}
@@ -426,7 +426,7 @@ function round(){busy=false;document.getElementById('why').textContent='';const 
   const wrongBand=home==='land'?(Math.random()<.5?'sky':'water'):(Math.random()<.5?'sky':'land');
   const cnt={sky:3,land:3,water:3};cnt[wrongBand]--;
   const items=[];Object.keys(cnt).forEach(b=>{const pool=shuffle(OK[b].filter(x=>x!==e)).slice(0,cnt[b]);const sp=spots(b,cnt[b]+1);pool.forEach((x,i)=>items.push([x,sp[i],0]));if(b===wrongBand)items.push([e,sp[cnt[b]],1])});
-  items.forEach(([x,[px,py],bad])=>{const b=document.createElement('button');b.className='it'+(Math.random()<.4?' float':'');b.textContent=x;b.style.left=px+'%';b.style.top=py+'%';
+  items.forEach(([x,[px,py],bad])=>{const b=document.createElement('button');b.className='it'+(Math.random()<.4?' float':'');b.textContent=x;b.style.left=Math.min(90,Math.max(10,px))+'%';b.style.top=Math.min(87,Math.max(13,py))+'%';
     b.onclick=()=>{if(busy)return;if(bad){busy=true;b.classList.add('found','ok');stars++;document.getElementById('stat').textContent='⭐ '+stars;
         const t=vi+' ở '+WHERE[wrongBand][0]+' là sai rồi! Phải ở '+WHERE[home][0]+' chứ!';document.getElementById('why').textContent=t;
         say('Đúng rồi! '+t,'Yes! '+EN[e][0].toUpperCase()+EN[e].slice(1)+' '+WHERE[wrongBand][1]+'? That is silly!');if(stars%5===0)setTimeout(confetti,500);setTimeout(round,4200)}
