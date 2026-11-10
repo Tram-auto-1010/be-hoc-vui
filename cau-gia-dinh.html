@@ -196,12 +196,12 @@ function say(vi,en){if(!voiceOn)return;if(_aud){try{_aud.pause()}catch(e){}}
   if(vi&&REC.khen.length&&PRAISE_RE.test(vi)){if('speechSynthesis' in window)speechSynthesis.cancel();const rest=vi.replace(PRAISE_RE,'');playClip('khen',()=>tts(rest,en));return}
   if(vi&&REC.dong.length&&WRONG_RE.test(vi)){if('speechSynthesis' in window)speechSynthesis.cancel();const rest=vi.replace(WRONG_RE,'');playClip('dong',()=>tts(rest,en));return}
   tts(vi,en)}
-const LANGS=[['vi','🇻🇳','Tiếng Việt'],['en','🇬🇧','English'],['both','🇻🇳🇬🇧','Việt + Anh']];
+const LANGS=[['vi','🇻🇳','Tiếng Việt'],['en','🇬🇧','English']];if(VS.lang!=='vi'&&VS.lang!=='en'){VS.lang='vi';try{localStorage.setItem(VSET_KEY,JSON.stringify(VS))}catch(e){}}
 function saveVS(){try{localStorage.setItem(VSET_KEY,JSON.stringify(VS))}catch(e){}}
 function setupLangBtn(vb){if(!vb||document.getElementById('langBtn'))return;const b=document.createElement('button');b.id='langBtn';b.className='ibtn';b.style.width='auto';b.style.padding='0 12px';b.style.font="800 15px 'Nunito',sans-serif";b.style.gap='6px';b.style.display='flex';b.style.color='#1F2A44';b.style.alignItems='center';
   const r=()=>{const l=LANGS.find(x=>x[0]===(VS.lang||'vi'))||LANGS[0];b.innerHTML='<span style="font-size:22px">'+l[1]+'</span><span class="lt-name">'+l[2]+'</span>';b.title='Ngôn ngữ đọc: '+l[2]+' (bấm để đổi)'};r();
   b.onclick=()=>{const i=LANGS.findIndex(x=>x[0]===(VS.lang||'vi'));VS.lang=LANGS[(i+1)%LANGS.length][0];saveVS();r();try{window.dispatchEvent(new Event('langchange'))}catch(e){}
-    if(VS.lang==='vi')tts('Bé nghe tiếng Việt nhé');else if(VS.lang==='en')tts('','Now in English!');else tts('Tiếng Việt và','English')};
+    if(VS.lang==='vi')tts('Tiếng Việt');else tts('','English')};
   vb.parentNode.insertBefore(b,vb)}
 function setupVoiceBtn(){const b=document.getElementById('voiceBtn');if(!b)return;setupLangBtn(b);const r=()=>{b.textContent=voiceOn?'🔊':'🔇';b.classList.toggle('off',!voiceOn);b.title=voiceOn?'Tắt tiếng':'Bật tiếng'};r();b.onclick=()=>{voiceOn=!voiceOn;try{localStorage.setItem(VOICE_KEY,voiceOn?'1':'0')}catch(e){}if(!voiceOn&&'speechSynthesis' in window)speechSynthesis.cancel();r()}}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
