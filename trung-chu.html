@@ -418,6 +418,47 @@ if(!WIMG.dino_bronto)delete DINO_SPECIES.bronto;
    DINO_SPECIES['p_'+id]=[en,vi,f,fv,'<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">'+'<ellipse cx="100" cy="142" rx="70" ry="6" fill="#000" opacity=".1"/><image href="'+src+'" x="4" y="4" width="192" height="138" preserveAspectRatio="xMidYMid meet"/></svg>']})})();
 /* Khung chơi tự co vừa màn hình */
 function fitToScreen(el,pad){if(!el)return;const f=()=>{const top=el.getBoundingClientRect().top+scrollY;const h=Math.max(260,innerHeight-top-(pad||(innerWidth<=760?66:74)));el.style.height=h+'px'};f();addEventListener('resize',f);setTimeout(f,300)}
+/* ===== Sticker album: 1 sticker every 3 correct answers, across all games ===== */
+const STK_THEMES=[
+ ['dino','🦖','Khủng long','Dinosaurs',[['dinosaur','T-rex'],['dino_d6','Apatosaurus'],['dino_spino','Spinosaurus'],['dino_raptor','Velociraptor'],['dino_ptero','Pteranodon'],['dino_ankylo','Ankylosaurus'],['dino_d1','Brachiosaurus'],['dino_d2','Mamenchisaurus'],['dino_d3','Edmontonia'],['dino_d4','Protoceratops'],['dino_d5','Kentrosaurus'],['dino_d8','Sinoceratops'],['dino_d9','Lambeosaurus'],['dino_d10','Pentaceratops'],['dino_d11','Edmontosaurus'],['dino_d12','Iguanodon']]],
+ ['animals','🐾','Con vật','Animals',[['cat','cat'],['dog','dog'],['rabbit','rabbit'],['chick','chick'],['chicken','hen'],['rooster','rooster'],['duck','duck'],['cow','cow'],['pig','pig'],['sheep','sheep'],['horse','horse'],['mouse','mouse'],['frog','frog'],['turtle','turtle'],['bird','bird'],['bear','bear'],['panda','panda'],['monkey','monkey'],['lion','lion'],['elephant','elephant'],['giraffe','giraffe'],['fish','fish'],['dolphin','dolphin'],['whale','whale'],['shark','shark'],['octopus','octopus']]],
+ ['food','🍓','Trái cây & đồ ăn','Fruit & food',[['apple','apple'],['banana','banana'],['orange','orange'],['grapes','grapes'],['strawberry','strawberry'],['watermelon','watermelon'],['carrot','carrot'],['bread','bread'],['cookie','cookie'],['egg','egg'],['ice cream','ice cream']]],
+ ['family','👨‍👩‍👧','Gia đình','My family',[['father','father'],['mother','mother'],['brother','brother'],['sister','sister'],['baby','baby'],['grandfather','grandfather'],['grandmother','grandmother'],['boy','boy'],['girl','girl'],['children','children'],['family','family']]],
+ ['world','🌈','Quanh bé','Around me',[['house','house'],['school','school'],['tree','tree'],['flower','flower'],['rainbow','rainbow'],['airplane','airplane']]]];
+STK_THEMES.forEach(t=>t[4]=t[4].filter(x=>WIMG[x[0]]));
+const STK_KEY='beAlbum',STK_CNT='beAlbumCnt';
+function stkGot(){try{return new Set(JSON.parse(localStorage.getItem(STK_KEY)||'[]'))}catch(e){return new Set()}}
+function stkSave(s){try{localStorage.setItem(STK_KEY,JSON.stringify([...s]))}catch(e){}}
+function stkAward(){const got=stkGot();const all=[];STK_THEMES.forEach(t=>t[4].forEach(x=>all.push([t,x])));
+  const left=all.filter(([t,x])=>!got.has(t[0]+':'+x[0]));if(!left.length)return;
+  /* prefer finishing a theme that is already started */
+  const started=left.filter(([t])=>t[4].some(x=>got.has(t[0]+':'+x[0])));const pool=started.length&&Math.random()<.6?started:left;
+  const [t,x]=pool[Math.floor(Math.random()*pool.length)];got.add(t[0]+':'+x[0]);stkSave(got);
+  const done=t[4].every(y=>got.has(t[0]+':'+y[0]));stkShow(t,x,done,got.size,all.length)}
+function stkShow(t,x,done,n,N){const d=document.createElement('div');d.className='stkpop';
+  d.innerHTML='<div class="stkcard"><div class="stkt">🎁 Sticker mới! · New sticker!</div><div class="stkimg"><img src="'+WIMG[x[0]]+'" alt=""></div><b>'+x[1]+'</b><small>'+t[1]+' '+t[2]+' · 📒 '+n+'/'+N+'</small>'+(done?'<div class="stkbadge">🏅 Đủ bộ '+t[2]+'!</div>':'')+'<a href="album-sticker.html">📒 Xem album</a></div>';
+  document.body.appendChild(d);try{sfx.win&&sfx.win()}catch(e){}
+  setTimeout(()=>{try{if(window.sayEN)sayEN('You got a sticker! '+x[1]+'!'+(done?' You finished the '+t[3]+' set!':''),done?'Bé sưu tập đủ bộ '+t[2]+' rồi!':null)}catch(e){}},700);
+  if(done)try{confetti()}catch(e){}
+  d.onclick=e=>{if(e.target.tagName!=='A')d.remove()};setTimeout(()=>d.classList.add('out'),3400);setTimeout(()=>d.remove(),3900)}
+let _stkLast=0;
+function stkTick(){if(/album-sticker/.test(location.pathname)||document.getElementById('shelf'))return;const now=Date.now();if(now-_stkLast<1200)return;_stkLast=now;
+  let c=0;try{c=+(localStorage.getItem(STK_CNT)||0)+1;localStorage.setItem(STK_CNT,c)}catch(e){c=1}
+  if(c%3===0)setTimeout(stkAward,1300)}
+(function(){const g0=good;good=function(el){g0.apply(this,arguments);try{stkTick()}catch(e){}};
+  const st=document.createElement('style');st.textContent=`.stkpop{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(0,0,0,.25);animation:stkin .3s}
+.stkpop.out{animation:stkout .5s forwards}
+@keyframes stkin{from{opacity:0}}@keyframes stkout{to{opacity:0}}
+.stkcard{background:#FFFFFF;border-radius:30px;padding:16px 22px;text-align:center;box-shadow:0 12px 30px rgba(0,0,0,.25);animation:stkcard .6s cubic-bezier(.3,1.6,.5,1);max-width:86vw}
+@keyframes stkcard{from{transform:scale(.2) rotate(-20deg)}}
+.stkt{font:800 20px 'Baloo 2',sans-serif;color:#E65100}
+.stkimg{width:clamp(130px,30vw,190px);aspect-ratio:1;margin:8px auto;border-radius:50%;border:6px solid #FFFFFF;box-shadow:0 0 0 4px #FB8C00,0 6px 12px rgba(0,0,0,.2);overflow:hidden;background:#FFF8E1;display:flex;align-items:center;justify-content:center;animation:spin 1s ease-out}
+@keyframes spin{from{transform:rotate(-360deg) scale(.4)}}
+.stkimg img{width:92%;height:92%;object-fit:contain}
+.stkcard b{display:block;font:800 26px 'Baloo 2',sans-serif;color:#1A2A5A}
+.stkcard small{display:block;font:800 14px 'Nunito',sans-serif;color:#5A6478}
+.stkbadge{margin-top:6px;font:800 18px 'Baloo 2',sans-serif;color:#FFFFFF;background:linear-gradient(#FFB300,#FB8C00);border-radius:999px;padding:4px 14px;display:inline-block}
+.stkcard a{display:inline-block;margin-top:10px;font:800 15px 'Nunito',sans-serif;color:#1565C0;text-decoration:none;background:#E3F2FD;border-radius:999px;padding:6px 14px}`;document.head.appendChild(st)})();
 
 const VL=[['a','a'],['ă','á'],['â','ớ'],['b','bờ'],['c','cờ'],['d','dờ'],['đ','đờ'],['e','e'],['ê','ê'],['g','gờ'],['h','hờ'],['i','i'],['k','ca'],['l','lờ'],['m','mờ'],['n','nờ'],['o','o'],['ô','ô'],['ơ','ơ'],['p','pờ'],['q','quờ'],['r','rờ'],['s','sờ'],['t','tờ'],['u','u'],['ư','ư'],['v','vờ'],['x','xờ'],['y','i dài']];
 const NAME=Object.fromEntries(VL);
