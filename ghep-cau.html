@@ -438,9 +438,11 @@ const FQ={
  who(){const t=pick(FPEOPLE);const o=shuffle([t,...shuffle(FPEOPLE.filter(x=>x!==t)).slice(0,2)]);
    return {kind:'who',key:'who'+t,q:'Who is this?',qv:'Đây là ai?',pic:fpic(fimg(t)),opts:o.map(m=>({en:'This is my '+m+'.',vi:'Đây là '+fvi(m)+' của bé.',ok:m===t})),ans:'This is my '+t+'.',ansVi:'Đây là '+fvi(t)+' của bé.'}},
  they(){const ks=Object.keys(FGROUPS);const t=pick(ks);const o=shuffle([t,...shuffle(ks.filter(x=>x!==t)).slice(0,2)]);
-   return {kind:'they',key:'they'+t,q:'Who are they?',qv:'Họ là ai?',pic:fgroup(t),opts:o.map(k=>({en:'They are '+FGROUPS[k].en+'.',vi:'Họ là '+FGROUPS[k].vi+'.',ok:k===t})),ans:'They are '+FGROUPS[t].en+'.',ansVi:'Họ là '+FGROUPS[t].vi+'.'}},
+   return {kind:'they',key:'they'+t,q:'Who are they?',qv:'Họ là ai?',pic:fgroup(t),opts:o.map(k=>({en:'They\'re '+FGROUPS[k].en+'.',vi:'Họ là '+FGROUPS[k].vi+'.',ok:k===t})),ans:'They\'re '+FGROUPS[t].en+'.',ansVi:'Họ là '+FGROUPS[t].vi+'.'}},
  many(){const n=3+rand(5);const fam=shuffle(FORDER.slice()).slice(0,n).sort((a,b)=>FORDER.indexOf(a)-FORDER.indexOf(b));const o=shuffle([n,...shuffle([n-1,n+1,n+2].filter(x=>x>=2&&x<=9)).slice(0,2)]);
    return {kind:'many',key:'many'+n,n,fam,q:'How many people are there in your family?',qv:'Gia đình bé có mấy người?',pic:fcrowd(fam),opts:o.map(x=>({en:'There are '+FNUM[x]+' people in my family.',vi:'Gia đình bé có '+x+' người.',ok:x===n})),ans:'There are '+FNUM[n]+' people in my family.',ansVi:'Gia đình bé có '+n+' người.'}},
+ look(){const p=pick(FPEOPLE),pr=FM[p][1];const age=['grandfather','grandmother'].includes(p)?'old':'young',h=['father','mother'].includes(p)?'tall':'short';const att=Math.random()<.5?'age':'h';const adj=att==='age'?age:h,opp=FOPP[adj];const form=Math.random()<.5;const Pr=fcap(pr)+"'s";const s1=a=>form?'My '+p+' is '+a+'.':Pr+' '+a+'.';
+   return {kind:'look',key:'look'+p+att,q:'What does your '+p+' look like?',qv:fcap(fvi(p))+' của bé trông như thế nào?',pic:att==='h'?fruler(p):fpic(fimg(p)),opts:shuffle([{en:s1(adj),vi:fcap(fvi(p))+' '+FADJ[adj].vi+'.',ok:true},{en:s1(opp),vi:fcap(fvi(p))+' '+FADJ[opp].vi+'.',ok:false}]),ans:s1(adj),ansVi:fcap(fvi(p))+' '+FADJ[adj].vi+'.',full:'My '+p+' is '+adj+'. '+Pr+' '+adj+'.'}},
  is(){const p=pick(FPEOPLE),pr=FM[p][1];const same=FPEOPLE.filter(x=>FM[x][1]===pr&&x!==p);const a=Math.random()<.5?p:pick(same);const y=a===p;
    return {kind:'is',key:'is'+p+a,yes:y,q:'Is '+pr+' the '+a+'?',qv:'Đây có phải là '+fvi(a)+' không?',pic:fpic(fimg(p)),opts:[{en:'Yes, '+pr+' is.',vi:'Vâng, đúng rồi.',ok:y},{en:'No, '+pr+' isn\'t.',vi:'Không, không phải.',ok:!y}],ans:y?'Yes, '+pr+' is.':'No, '+pr+' isn\'t.',ansVi:y?'Vâng, đúng rồi.':'Không, không phải.',full:y?'Yes, '+pr+' is. '+fcap(pr)+' is my '+p+'.':'No, '+pr+' isn\'t. '+fcap(pr)+' is my '+p+'.'}},
  adj(){const k=pick(Object.keys(FADJ));const y=Math.random()<.5;const p=pick(y?FADJ[k].yes:FADJ[k].no),pr=FM[p][1];
@@ -524,7 +526,7 @@ function speakPanel(box,target,vi,opts){opts=opts||{};
 `;document.head.appendChild(st)})();
 /* pattern chips */
 let FKINDS=null;
-function famTabs(el,kinds,onChange){const L={all:'🎲 Tất cả',who:'👤 Who is this?',they:'👥 Who are they?',many:'🔢 How many?',is:'❓ Is she / he…?',adj:'📏 Old · tall…'};
+function famTabs(el,kinds,onChange){const L={all:'🎲 Tất cả',who:'👤 Who is this?',they:'👥 Who are they?',many:'🔢 How many?',is:'❓ Is she / he…?',look:'👀 What does … look like?',adj:'📏 Old · tall…'};
   el.className='ftabs';['all',...kinds].forEach(k=>{const b=document.createElement('button');b.className='btn'+(k==='all'?'':' ghost');b.textContent=L[k];b.onclick=()=>{FKINDS=k==='all'?kinds:[k];el.querySelectorAll('.btn').forEach(x=>x.className='btn'+(x===b?'':' ghost'));_fqLast='';onChange()};el.appendChild(b)});FKINDS=kinds}
 (function(){const st=document.createElement('style');st.textContent=`.ftabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}.ftabs .btn{font-size:15px;padding:6px 12px}
 @media (max-width:640px){.ftabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.ftabs .btn{flex-shrink:0;font-size:14px;padding:6px 10px}}`;document.head.appendChild(st)})();
@@ -535,6 +537,7 @@ function optIcon(en){const t=en.toLowerCase();
   let m=t.match(/this is my (\w+)/);if(m&&FM[m[1]])return '<span class="oi">'+fthumb(m[1])+'</span>';
   m=t.match(/they are (my [\w ]+?)\./);if(m){const g=Object.values(FGROUPS).find(G=>G.en===m[1]);if(g)return '<span class="oi g">'+g.who.map(fthumb).join('')+'</span>'}
   m=t.match(/there (?:are|is) (\w+) (?:people|person)/);if(m){const n=/^\d+$/.test(m[1])?+m[1]:FNUM.indexOf(m[1]);return '<span class="oi num"><b>'+n+'</b><i>'+'●'.repeat(Math.max(0,n))+'</i></span>'}
+  m=t.match(/\b(tall|short|young|old)\.?$/);if(m)return '<span class="oi">'+{tall:'🦒',short:'🐢',young:'👶',old:'🧓'}[m[1]]+'</span>';
   return '<span class="oi">💬</span>'}
 function optHTML(en,vi){return '<span class="opt">'+optIcon(en)+'<span class="ot">'+en+(vi?'<small>'+vi+'</small>':'')+'</span></span>'}
 function wordIcon(w){w=w.toLowerCase().replace(/[.,!?]/g,'');if(FM[w])return fthumb(w);return {she:'👩',he:'👨',yes:'👍',no:'👎',family:fthumb('#family'),grandparents:'👴👵',mother:'',father:''}[w]||(FNUM.indexOf(w)>0?String(FNUM.indexOf(w)):'')}
@@ -570,7 +573,7 @@ function idle(){clearTimeout(idleT);idleT=setTimeout(()=>{if(pos<toks.length){hi
 function done(){clearTimeout(idleT);stars++;document.getElementById('stat').textContent='⭐ '+stars;good(document.getElementById('slots'));fstop();
   sayEN(['Great job!','Super!','Well done!'][rand(3)]+' '+cur.q+' '+cur.ans,cur.ansVi);if(stars%5===0)FT(confetti,600);
   speakPanel(document.getElementById('spk'),cur.ans,cur.ansVi,{next:round,onScore:n=>{stars+=n;document.getElementById('stat').textContent='⭐ '+stars}})}
-famTabs(document.getElementById('tabs'),['who','they','is','adj'],round);
+famTabs(document.getElementById('tabs'),['who','they','is','look','adj'],round);
 round();
 </script>
 </body>
