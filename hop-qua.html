@@ -616,7 +616,7 @@ const rnum=n=>'<span class="oi2 num"><b>'+n+'</b><i>'+'●'.repeat(n)+'</i></spa
 const RYES='<span class="oi2 y">👍</span>',RNO='<span class="oi2 n">👎</span>';
 const rpicOne=k=>'<div class="rvpic">'+RIMG(RP[k].img)+'</div>';
 const rpicImgs=a=>'<div class="rvpic">'+a.map(RIMG).join('')+'</div>';
-const rruler=k=>'<div class="rvpic"><div class="rvruler" style="--h:'+RP[k].hp+'%"><span class="who">'+RIMG(RP[k].img)+'</span><span class="rl"><i></i></span></div></div>';
+const rruler=k=>'<div class="rvpic"><div class="rvruler" style="--h:'+RP[k].hp+'%"><span class="who">'+(RV['h_'+k]?RIMG('h_'+k):RIMG(RP[k].img))+'</span><span class="rl"><i></i></span></div></div>';
 const rcrowd=l=>'<div class="rvpic"><div class="rvcrowd">'+l.map(k=>RIMG(RP[k].img)).join('')+'</div></div>';
 const RQICON={who:'👤',they:'👥',many:'🔢',is:'❓',look:'👀',age:'🧓',height:'📏'};
 const RG={
