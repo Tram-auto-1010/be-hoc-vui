@@ -605,6 +605,10 @@ function rvOptBtn(o){const b=document.createElement('button');b.className='btn g
 .rvopt{font-size:clamp(18px,2.6vw,24px)!important;padding:8px 12px!important;line-height:1.15}
 .rvopt.ok{background:#43A047!important;color:#FFFFFF}.rvopt.ok small{color:#FFFFFF}
 `;document.head.appendChild(st)})();
+/* rule chip: which answer goes with which question */
+const RRULE={who:['❓ Who is this?','💬 This is my …'],they:['❓ Who are they?','💬 They\'re my …'],many:['❓ How many people…?','💬 There are … people'],is:['❓ Is she / he the …?','👍 Yes, she is · 👎 No, he isn\'t'],look:['❓ What does … look like?','💬 She\'s / He\'s tall, old…'],age:['❓ Is the … old / young?','👍 Yes, … is · 👎 No, … isn\'t'],height:['❓ Is the … tall / short?','👍 Yes, … is · 👎 No, … isn\'t']};
+function rvRuleHTML(k){const r=RRULE[k];return '<div class="rvrule"><span>'+r[0]+'</span><b>→</b><span>'+r[1]+'</span></div>'}
+(function(){const st=document.createElement('style');st.textContent=`.rvrule{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:8px auto 0;background:#FFFDE7;border:3px dashed #FBC02D;border-radius:16px;padding:6px 12px;font:800 clamp(14px,2vw,18px) 'Baloo 2',sans-serif;color:#1A2A5A;max-width:640px}.rvrule b{color:#FB8C00;font-size:1.3em}`;document.head.appendChild(st)})();
 
 let stars=0,open=[],lock=false,matched=0;
 const addPts=n=>{stars+=n;document.getElementById('stat').textContent='⭐ '+stars};
