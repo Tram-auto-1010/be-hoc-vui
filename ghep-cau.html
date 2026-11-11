@@ -120,7 +120,7 @@ function enScore(v){const l=(v.lang||'').toLowerCase().replace('_','-'),n=v.name
   if(/Natural|Neural/i.test(n))s+=70;if(/Online/i.test(n))s+=40;if(/Premium|Enhanced/i.test(n))s+=45;
   if(/Google US English/i.test(n))s+=50;
   if(/Jenny|Aria|Ava|Emma|Ana|Michelle|Sonia|Libby|Samantha|Allison|Susan|Serena|Kate|Zira/i.test(n))s+=20;
-  if(v.localService===false)s+=5;return s}
+  if(v.localService===false)s-=60;return s}
 function rankedEn(){return voicesFor('en').slice().sort((a,b)=>enScore(b)-enScore(a))}
 function pickVoice(lang){const vs=voicesFor(lang);const chosen=vs.find(v=>v.name===VS[lang]&&(lang!=='en'||/en.us/i.test(v.lang)));if(chosen)return chosen;
   if(lang==='en')return rankedEn()[0]||null;
@@ -561,7 +561,7 @@ function round(){fstop();cur=famQ(FKINDS);pos=0;miss=0;toks=cur.ans.split(' ');
   const sl=document.getElementById('slots');sl.innerHTML=toks.map((t,i)=>'<div class="slot'+(i===0?' next':'')+'"></div>').join('');
   const pool=document.getElementById('pool');pool.innerHTML='';
   shuffle(toks.map((t,i)=>({t,i}))).forEach(o=>{const b=document.createElement('button');b.className='wb c'+(o.i%8);b.dataset.w=o.t;const ic=wordIcon(o.t);b.innerHTML=(ic?'<span class="wi">'+ic+'</span>':'')+'<span>'+o.t+'</span>';b._i=o.i;b.onclick=()=>tap(b);pool.appendChild(b)});
-  FT(()=>{fstop();sayEN(cur.q+' '+cur.ans,cur.qv)},300);idle()}
+  FT(()=>{fstop();sayEN(cur.q+' '+cur.ans,cur.qv)},90);idle()}
 function tap(b){if(pos>=toks.length||b.classList.contains('used'))return;
   const ok=strip(b.dataset.w).toLowerCase()===strip(toks[pos]).toLowerCase();clearTimeout(idleT);
   if(ok){const sl=document.querySelectorAll('.slot');const s=sl[pos];s.textContent=toks[pos];s.className='slot f c'+(b._i%8);b.classList.add('used');b.classList.remove('hint');pos++;miss=0;

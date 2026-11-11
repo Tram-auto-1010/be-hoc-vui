@@ -125,7 +125,7 @@ function enScore(v){const l=(v.lang||'').toLowerCase().replace('_','-'),n=v.name
   if(/Natural|Neural/i.test(n))s+=70;if(/Online/i.test(n))s+=40;if(/Premium|Enhanced/i.test(n))s+=45;
   if(/Google US English/i.test(n))s+=50;
   if(/Jenny|Aria|Ava|Emma|Ana|Michelle|Sonia|Libby|Samantha|Allison|Susan|Serena|Kate|Zira/i.test(n))s+=20;
-  if(v.localService===false)s+=5;return s}
+  if(v.localService===false)s-=60;return s}
 function rankedEn(){return voicesFor('en').slice().sort((a,b)=>enScore(b)-enScore(a))}
 function pickVoice(lang){const vs=voicesFor(lang);const chosen=vs.find(v=>v.name===VS[lang]&&(lang!=='en'||/en.us/i.test(v.lang)));if(chosen)return chosen;
   if(lang==='en')return rankedEn()[0]||null;
@@ -570,7 +570,7 @@ function round(){fstop();scored=false;cur=famQ(FKINDS);
   speakPanel(document.getElementById('spk'),cur.ans,cur.ansVi,{next:round,onScore:n=>{
     stars+=n;document.getElementById('stat').textContent='⭐ '+stars;hint.classList.add('show');
     if(n>0&&!scored){scored=true;leaves+=n;meter();if(leaves>=GOAL)setTimeout(finish,1500)}}});
-  FT(ask,300)}
+  FT(ask,90)}
 function finish(){confetti();fstop();sayEN('Yummy! Thank you! You are a super talker!','Dino no rồi! Bé nói giỏi quá!');
   const t=toast('🦕🍃 Dino no rồi! Bé nói giỏi quá!<br><button class="btn">Chơi lại · Play again</button>');t.querySelector('.btn').onclick=()=>{t.remove();leaves=0;meter();round()}}
 famTabs(document.getElementById('tabs'),['who','they','many','is','look','adj'],round);

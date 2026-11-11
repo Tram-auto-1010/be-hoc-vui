@@ -117,7 +117,7 @@ function enScore(v){const l=(v.lang||'').toLowerCase().replace('_','-'),n=v.name
   if(/Natural|Neural/i.test(n))s+=70;if(/Online/i.test(n))s+=40;if(/Premium|Enhanced/i.test(n))s+=45;
   if(/Google US English/i.test(n))s+=50;
   if(/Jenny|Aria|Ava|Emma|Ana|Michelle|Sonia|Libby|Samantha|Allison|Susan|Serena|Kate|Zira/i.test(n))s+=20;
-  if(v.localService===false)s+=5;return s}
+  if(v.localService===false)s-=60;return s}
 function rankedEn(){return voicesFor('en').slice().sort((a,b)=>enScore(b)-enScore(a))}
 function pickVoice(lang){const vs=voicesFor(lang);const chosen=vs.find(v=>v.name===VS[lang]&&(lang!=='en'||/en.us/i.test(v.lang)));if(chosen)return chosen;
   if(lang==='en')return rankedEn()[0]||null;
@@ -432,7 +432,7 @@ function round(){busy=false;let i;do{i=rand(W.length)}while(i===last);last=i;cur
     if(l===f){busy=true;b.classList.add('ok');good(b);const s=document.getElementById('f');s.textContent=f;s.classList.add('ok');stars++;document.getElementById('stat').textContent='⭐ '+stars;
       say(PRAISE[rand(4)][0]+' '+NAME[f]+'. '+cur[2].split(' ')[0]+'. Chữ '+NAME[f]+' trong '+cur[1],null);if(stars%5===0)setTimeout(confetti,500);setTimeout(round,3600)}
     else{b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');bad(b);say('Đây là chữ '+NAME[l]+'. Bé nghe lại nhé: '+cur[2].split(' ')[0],null)}};o.appendChild(b)});
-  setTimeout(ask,350)}
+  setTimeout(ask,90)}
 round();
 </script>
 </body>

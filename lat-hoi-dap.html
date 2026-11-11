@@ -121,7 +121,7 @@ function enScore(v){const l=(v.lang||'').toLowerCase().replace('_','-'),n=v.name
   if(/Natural|Neural/i.test(n))s+=70;if(/Online/i.test(n))s+=40;if(/Premium|Enhanced/i.test(n))s+=45;
   if(/Google US English/i.test(n))s+=50;
   if(/Jenny|Aria|Ava|Emma|Ana|Michelle|Sonia|Libby|Samantha|Allison|Susan|Serena|Kate|Zira/i.test(n))s+=20;
-  if(v.localService===false)s+=5;return s}
+  if(v.localService===false)s-=60;return s}
 function rankedEn(){return voicesFor('en').slice().sort((a,b)=>enScore(b)-enScore(a))}
 function pickVoice(lang){const vs=voicesFor(lang);const chosen=vs.find(v=>v.name===VS[lang]&&(lang!=='en'||/en.us/i.test(v.lang)));if(chosen)return chosen;
   if(lang==='en')return rankedEn()[0]||null;
@@ -620,7 +620,7 @@ function round(){fstop();open=[];lock=false;matched=0;
         if(c1.i===c2.i&&c1.t!==c2.t){setTimeout(()=>{b1.classList.add('ok');b2.classList.add('ok');good(b2);addPts(1);matched++;fstop();sayEN(c1.r.q+' '+c1.r.full,c1.r.ansVi);open=[];lock=false;
             if(matched===4)setTimeout(()=>{confetti();fstop();sayEN('Great job! All pairs!','Bé tìm được hết các cặp rồi!');setTimeout(round,3200)},2600)},1300)}
         else setTimeout(()=>{b1.classList.remove('up');b2.classList.remove('up');open=[];lock=false},2200)}};bd.appendChild(b)});
-  FT(()=>sayEN('Find a question and its answer!','Bé lật thẻ, tìm câu hỏi và câu trả lời đi đôi nhé!'),300)}
+  FT(()=>sayEN('Find a question and its answer!','Bé lật thẻ, tìm câu hỏi và câu trả lời đi đôi nhé!'),90)}
 round();
 </script>
 </body>

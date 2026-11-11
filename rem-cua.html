@@ -117,7 +117,7 @@ function enScore(v){const l=(v.lang||'').toLowerCase().replace('_','-'),n=v.name
   if(/Natural|Neural/i.test(n))s+=70;if(/Online/i.test(n))s+=40;if(/Premium|Enhanced/i.test(n))s+=45;
   if(/Google US English/i.test(n))s+=50;
   if(/Jenny|Aria|Ava|Emma|Ana|Michelle|Sonia|Libby|Samantha|Allison|Susan|Serena|Kate|Zira/i.test(n))s+=20;
-  if(v.localService===false)s+=5;return s}
+  if(v.localService===false)s-=60;return s}
 function rankedEn(){return voicesFor('en').slice().sort((a,b)=>enScore(b)-enScore(a))}
 function pickVoice(lang){const vs=voicesFor(lang);const chosen=vs.find(v=>v.name===VS[lang]&&(lang!=='en'||/en.us/i.test(v.lang)));if(chosen)return chosen;
   if(lang==='en')return rankedEn()[0]||null;
@@ -564,7 +564,7 @@ function round(){fstop();busy=false;cur=famQ(FKINDS);opened=0;
         fstop();sayEN((n===3?'Wow! Super eyes! ':'Great job! ')+cur.q+' '+(cur.full||cur.ans),cur.ansVi);if(n===3)FT(confetti,700);
         speakPanel(document.getElementById('spk'),cur.ans,cur.ansVi,{next:round,onScore:k=>{stars+=k;document.getElementById('stat').textContent='⭐ '+stars}})}
       else{b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');bad(b);fstop();sayEN(o.en+' Hmm, not yet. Open another window!')}};a.appendChild(b)});
-  FT(()=>{fstop();sayEN(cur.q+' Open a window and look!',cur.qv)},300)}
+  FT(()=>{fstop();sayEN(cur.q+' Open a window and look!',cur.qv)},90)}
 famTabs(document.getElementById('tabs'),['who','they','is','look','adj'],round);
 round();
 </script>

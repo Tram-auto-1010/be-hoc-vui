@@ -155,7 +155,7 @@ function enScore(v){const l=(v.lang||'').toLowerCase().replace('_','-'),n=v.name
   if(/Natural|Neural/i.test(n))s+=70;if(/Online/i.test(n))s+=40;if(/Premium|Enhanced/i.test(n))s+=45;
   if(/Google US English/i.test(n))s+=50;
   if(/Jenny|Aria|Ava|Emma|Ana|Michelle|Sonia|Libby|Samantha|Allison|Susan|Serena|Kate|Zira/i.test(n))s+=20;
-  if(v.localService===false)s+=5;return s}
+  if(v.localService===false)s-=60;return s}
 function rankedEn(){return voicesFor('en').slice().sort((a,b)=>enScore(b)-enScore(a))}
 function pickVoice(lang){const vs=voicesFor(lang);const chosen=vs.find(v=>v.name===VS[lang]&&(lang!=='en'||/en.us/i.test(v.lang)));if(chosen)return chosen;
   if(lang==='en')return rankedEn()[0]||null;
@@ -657,7 +657,7 @@ function sheet(){fstop();
   document.getElementById('runAll').onclick=()=>{run=true;show(0)};
   stage.querySelectorAll('.qc').forEach(b=>b.onclick=()=>{run=false;show(+b.dataset.i)});
   stage.querySelectorAll('.words button').forEach(b=>b.onclick=()=>{fstop();sayEN(b.textContent)});
-  FT(()=>sayEN('Let\'s review! Look at the pictures and answer the questions.','Bé nhìn tranh và trả lời câu hỏi nhé!'),300)}
+  FT(()=>sayEN('Let\'s review! Look at the pictures and answer the questions.','Bé nhìn tranh và trả lời câu hỏi nhé!'),90)}
 function show(i){render(Q[i].build(),{idx:i})}
 function render(b,ctx){fstop();busy=false;const i=ctx.idx;const sample=i!==undefined;const col=sample?COLS[i]:pick(COLS);
   const picHTML=b.ruler?'<div class="ruler" style="--h:'+P[b.ruler].hp+'%"><span class="who">'+IMG(P[b.ruler].img)+'</span><span class="rl"><i></i></span></div>':b.crowd?'<div class="crowd">'+b.crowd.map(k=>IMG(P[k].img)).join('')+'</div>':b.pics.map(([k,pt])=>'<span class="one'+(pt?' pt':'')+'">'+IMG(k)+'</span>').join('');
@@ -677,7 +677,7 @@ function render(b,ctx){fstop();busy=false;const i=ctx.idx;const sample=i!==undef
         if(sample){done.add(i);saveDone();stage.querySelectorAll('.prog i')[i].classList.add('d')}fstop();sayEN(b.q+' '+(o.full||o.en),o.vi);
         speakPanel(document.getElementById('spk'),o.full||o.en,o.vi,{next:goNext,onScore:addPts})}
       else{ctx.onWrong&&ctx.onWrong();bt.classList.remove('shake');void bt.offsetWidth;bt.classList.add('shake');bad(bt);fstop();sayEN(o.en+' Hmm, look again! '+b.q)}};a.appendChild(bt)});
-  FT(ask,300)}
+  FT(ask,90)}
 function finish(){fstop();confetti();const all=done.size>=10;sayEN(all?'Great job! You finished the review!':'Good work! Let\'s try the other questions too!',all?'Bé đã làm xong phiếu ôn tập! Giỏi quá!':'Bé làm tiếp những câu còn lại nhé!');
   const t=toast((all?'🏆 Bé làm xong cả 10 câu!':'⭐ Bé đã làm '+done.size+'/10 câu')+'<br><button class="btn">📋 Về phiếu</button> <button class="btn ghost">🔄 Làm lại</button>');
   const bs=t.querySelectorAll('.btn');bs[0].onclick=()=>{t.remove();tab(false);sheet()};bs[1].onclick=()=>{t.remove();done=new Set();saveDone();run=true;setTab('sheet');show(0)}}

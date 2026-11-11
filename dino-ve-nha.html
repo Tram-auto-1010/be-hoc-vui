@@ -123,7 +123,7 @@ function enScore(v){const l=(v.lang||'').toLowerCase().replace('_','-'),n=v.name
   if(/Natural|Neural/i.test(n))s+=70;if(/Online/i.test(n))s+=40;if(/Premium|Enhanced/i.test(n))s+=45;
   if(/Google US English/i.test(n))s+=50;
   if(/Jenny|Aria|Ava|Emma|Ana|Michelle|Sonia|Libby|Samantha|Allison|Susan|Serena|Kate|Zira/i.test(n))s+=20;
-  if(v.localService===false)s+=5;return s}
+  if(v.localService===false)s-=60;return s}
 function rankedEn(){return voicesFor('en').slice().sort((a,b)=>enScore(b)-enScore(a))}
 function pickVoice(lang){const vs=voicesFor(lang);const chosen=vs.find(v=>v.name===VS[lang]&&(lang!=='en'||/en.us/i.test(v.lang)));if(chosen)return chosen;
   if(lang==='en')return rankedEn()[0]||null;
@@ -570,7 +570,7 @@ function round(){fstop();busy=false;cur=famQ(FKINDS);
         if(step>=STEPS)FT(finish,2600);else FT(round,3400)}
       else{bad(b);b.classList.add('shake');yn.querySelectorAll('.btn').forEach(x=>x!==b||x.classList.add('dim'));
         sayEN('Oh no! Listen: '+cur.full,cur.ansVi);FT(round,4200)}};yn.appendChild(b)});
-  FT(ask,300)}
+  FT(ask,90)}
 function finish(){confetti();fstop();sayEN('Hooray! Dino is home! Thank you!','Dino về đến nhà rồi! Cảm ơn bé!');
   const t=toast('🏠🦕 Dino về đến nhà rồi!<br><button class="btn">Chơi lại · Play again</button>');t.querySelector('.btn').onclick=()=>{t.remove();step=0;drawTrack();round()}}
 famTabs(document.getElementById('tabs'),['is','adj'],()=>{step=0;drawTrack();round()});

@@ -116,7 +116,7 @@ function enScore(v){const l=(v.lang||'').toLowerCase().replace('_','-'),n=v.name
   if(/Natural|Neural/i.test(n))s+=70;if(/Online/i.test(n))s+=40;if(/Premium|Enhanced/i.test(n))s+=45;
   if(/Google US English/i.test(n))s+=50;
   if(/Jenny|Aria|Ava|Emma|Ana|Michelle|Sonia|Libby|Samantha|Allison|Susan|Serena|Kate|Zira/i.test(n))s+=20;
-  if(v.localService===false)s+=5;return s}
+  if(v.localService===false)s-=60;return s}
 function rankedEn(){return voicesFor('en').slice().sort((a,b)=>enScore(b)-enScore(a))}
 function pickVoice(lang){const vs=voicesFor(lang);const chosen=vs.find(v=>v.name===VS[lang]&&(lang!=='en'||/en.us/i.test(v.lang)));if(chosen)return chosen;
   if(lang==='en')return rankedEn()[0]||null;
@@ -432,7 +432,7 @@ function round(){busy=false;do{target=1+rand(max)}while(target===last);last=targ
         const ims=[...b.querySelectorAll('img')];ims.forEach((im,i)=>setTimeout(()=>{im.classList.add('c');say(VI[i+1],EN[i+1])},i*650));
         setTimeout(()=>say(PRAISE[rand(4)][0]+' '+VI[target]+' '+item[1],'Yes! '+EN[target]+'!'),k*650+200);if(stars%5===0)setTimeout(confetti,k*650);setTimeout(round,k*650+2800)}
       else{b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');bad(b);say('Nhóm này có '+VI[k]+'. Bé đếm lại nhé','This group has '+EN[k]+'. Count again!')}};g.appendChild(b)});
-  setTimeout(ask,350)}
+  setTimeout(ask,90)}
 round();
 </script>
 </body>

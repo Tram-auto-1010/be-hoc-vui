@@ -84,7 +84,7 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 .hud{display:flex;justify-content:flex-end;margin-bottom:4px}
 .play{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:24px;align-items:center;max-width:1060px;margin:0 auto}
 .wwrap{position:relative;width:min(100%,calc(100svh - 250px),460px);aspect-ratio:1;justify-self:center;margin-top:34px}
-.wheel{position:absolute;inset:0;border-radius:50%;background:conic-gradient(#FFCDD2 0 14.2857%,#FFE0B2 0 28.5714%,#FFF9C4 0 42.857%,#C8E6C9 0 57.1428%,#B3E5FC 0 71.4285%,#D1C4E9 0 85.714%,#F8BBD0 0);box-shadow:0 0 0 10px #FFFFFF,0 0 0 16px #FB8C00,0 12px 24px rgba(0,0,0,.18);transition:transform 3.6s cubic-bezier(.17,.89,.25,1)}
+.wheel{position:absolute;inset:0;border-radius:50%;background:conic-gradient(#FFCDD2 0 14.2857%,#FFE0B2 0 28.5714%,#FFF9C4 0 42.857%,#C8E6C9 0 57.1428%,#B3E5FC 0 71.4285%,#D1C4E9 0 85.714%,#F8BBD0 0);box-shadow:0 0 0 10px #FFFFFF,0 0 0 16px #FB8C00,0 12px 24px rgba(0,0,0,.18);transition:transform 2.4s cubic-bezier(.17,.89,.25,1)}
 .seg{position:absolute;left:50%;top:50%;width:26%;height:26%;margin:-13% 0 0 -13%;display:flex;align-items:center;justify-content:center}
 .seg img{max-width:100%;max-height:100%;object-fit:contain;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 3px #FFFFFF}
 .pin{position:absolute;left:50%;top:-24px;transform:translateX(-50%);width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-top:42px solid #E53935;filter:drop-shadow(0 3px 2px rgba(0,0,0,.25));z-index:2}
@@ -123,7 +123,7 @@ function enScore(v){const l=(v.lang||'').toLowerCase().replace('_','-'),n=v.name
   if(/Natural|Neural/i.test(n))s+=70;if(/Online/i.test(n))s+=40;if(/Premium|Enhanced/i.test(n))s+=45;
   if(/Google US English/i.test(n))s+=50;
   if(/Jenny|Aria|Ava|Emma|Ana|Michelle|Sonia|Libby|Samantha|Allison|Susan|Serena|Kate|Zira/i.test(n))s+=20;
-  if(v.localService===false)s+=5;return s}
+  if(v.localService===false)s-=60;return s}
 function rankedEn(){return voicesFor('en').slice().sort((a,b)=>enScore(b)-enScore(a))}
 function pickVoice(lang){const vs=voicesFor(lang);const chosen=vs.find(v=>v.name===VS[lang]&&(lang!=='en'||/en.us/i.test(v.lang)));if(chosen)return chosen;
   if(lang==='en')return rankedEn()[0]||null;
@@ -616,8 +616,8 @@ const addPts=n=>{stars+=n;document.getElementById('stat').textContent='⭐ '+sta
 function tick(){try{_note(900+rand(300),0,.03,'square',.05)}catch(e){}}
 spinB.onclick=()=>{if(spinning)return;spinning=true;spinB.disabled=true;fstop();panel.innerHTML='<div class="tip">🎡 …</div>';
   const i=rand(N);const target=360-(i+.5)*SEG;rot+=1440+((target-rot%360)+360)%360;wheel.style.transform='rotate('+rot+'deg)';
-  let t=0;const iv=setInterval(()=>{tick();if(++t>18)clearInterval(iv)},180);
-  setTimeout(()=>{spinning=false;spinB.disabled=false;ask(W[i])},3700)};
+  let t=0;const iv=setInterval(()=>{tick();if(++t>12)clearInterval(iv)},180);
+  setTimeout(()=>{spinning=false;spinB.disabled=false;ask(W[i])},2500)};
 function ask(k){const kinds=['who','is','look','age','height','who','look'].filter(x=>!(x==='is'&&k==='baby'));const r=RG[pick(kinds)](k);let busy=false;
   panel.innerHTML='<div class="qh" id="qh">'+r.q+'<small>'+r.qv+' · 🔈 chạm để nghe lại</small></div><div class="qpic">'+r.pic+'</div><div class="ans" id="ans"></div><div id="spk"></div>';
   const say=()=>{fstop();sayEN(r.q,r.qv)};document.getElementById('qh').onclick=say;
@@ -626,7 +626,7 @@ function ask(k){const kinds=['who','is','look','age','height','who','look'].filt
     if(o.ok){busy=true;b.classList.add('ok');good(b);addPts(1);a.querySelectorAll('.btn:not(.ok)').forEach(x=>x.remove());fstop();sayEN(r.q+' '+(o.full||o.en),o.vi);
       speakPanel(document.getElementById('spk'),o.full||o.en,o.vi,{next:()=>{fstop();spinB.click()},onScore:addPts});const nx=document.querySelector('[data-a=next]');if(nx)nx.textContent='🎡 Quay tiếp'}
     else{b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');bad(b);fstop();sayEN(o.en+' Hmm, look again! '+r.q)}};a.appendChild(b)});
-  FT(()=>{fstop();sayEN('The '+k+'! '+r.q,r.qv)},200)}
+  FT(()=>{fstop();sayEN('The '+k+'! '+r.q,r.qv)},60)}
 FT(()=>sayEN('Spin the wheel!','Bé bấm quay nhé!'),500);
 </script>
 </body>

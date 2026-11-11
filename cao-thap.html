@@ -141,7 +141,7 @@ function enScore(v){const l=(v.lang||'').toLowerCase().replace('_','-'),n=v.name
   if(/Natural|Neural/i.test(n))s+=70;if(/Online/i.test(n))s+=40;if(/Premium|Enhanced/i.test(n))s+=45;
   if(/Google US English/i.test(n))s+=50;
   if(/Jenny|Aria|Ava|Emma|Ana|Michelle|Sonia|Libby|Samantha|Allison|Susan|Serena|Kate|Zira/i.test(n))s+=20;
-  if(v.localService===false)s+=5;return s}
+  if(v.localService===false)s-=60;return s}
 function rankedEn(){return voicesFor('en').slice().sort((a,b)=>enScore(b)-enScore(a))}
 function pickVoice(lang){const vs=voicesFor(lang);const chosen=vs.find(v=>v.name===VS[lang]&&(lang!=='en'||/en.us/i.test(v.lang)));if(chosen)return chosen;
   if(lang==='en')return rankedEn()[0]||null;
@@ -583,7 +583,7 @@ const pr=k=>['grandmother','girl','chicken'].includes(k)?'she':['grandfather','b
 let mode='learn',stars=0,busy=false,last='';
 const stage=document.getElementById('stage'),ASK=document.getElementById('ask');
 const addPts=n=>{stars+=n;document.getElementById('stat').textContent='⭐ '+stars;if(n>0&&stars%8<n)FT(confetti,500)};
-function setAsk(html,sayFn){ASK.innerHTML=html;ASK.onclick=()=>{fstop();sayFn&&sayFn()};if(sayFn)FT(sayFn,300)}
+function setAsk(html,sayFn){ASK.innerHTML=html;ASK.onclick=()=>{fstop();sayFn&&sayFn()};if(sayFn)FT(sayFn,90)}
 /* pick a round: kind tall/short/young/old, pair */
 function pickRound(){let r,i=0;do{const k=pick(['tall','short','young','old']);const p=pick(k==='tall'||k==='short'?TS:YO);r={k,big:p[0],small:p[1],key:k+p.join()}}while(r.key===last&&i++<10);last=r.key;
   r.ans=(r.k==='tall'||r.k==='old')?r.big:r.small;r.other=r.ans===r.big?r.small:r.big;return r}

@@ -139,7 +139,7 @@ function enScore(v){const l=(v.lang||'').toLowerCase().replace('_','-'),n=v.name
   if(/Natural|Neural/i.test(n))s+=70;if(/Online/i.test(n))s+=40;if(/Premium|Enhanced/i.test(n))s+=45;
   if(/Google US English/i.test(n))s+=50;
   if(/Jenny|Aria|Ava|Emma|Ana|Michelle|Sonia|Libby|Samantha|Allison|Susan|Serena|Kate|Zira/i.test(n))s+=20;
-  if(v.localService===false)s+=5;return s}
+  if(v.localService===false)s-=60;return s}
 function rankedEn(){return voicesFor('en').slice().sort((a,b)=>enScore(b)-enScore(a))}
 function pickVoice(lang){const vs=voicesFor(lang);const chosen=vs.find(v=>v.name===VS[lang]&&(lang!=='en'||/en.us/i.test(v.lang)));if(chosen)return chosen;
   if(lang==='en')return rankedEn()[0]||null;
@@ -591,7 +591,7 @@ function sortGame(){setRule('sort');if(!queue.length){queue=shuffle(FPEOPLE.conc
   const m=queue[0];busy=false;
   const th=w=>WIMG[w]?'<img src="'+WIMG[w]+'" alt="">':'<span>'+FM[w][2]+'</span>';
   stage.innerHTML='<div class="sort"><button class="hs sh" data-g="she"><span class="em">👩</span><h3>she</h3><div class="in">'+sorted.she.map(th).join('')+'</div></button><div class="mid"><div class="fcard">'+fpic(fimg(m))+'</div><div class="nm">'+m+' · '+fvi(m)+'</div></div><button class="hs hh" data-g="he"><span class="em">👨</span><h3>he</h3><div class="in">'+sorted.he.map(th).join('')+'</div></button></div>';
-  fstop();FT(()=>sayEN('The '+m+'. She or he?','Đây là '+fvi(m)+'. She hay he?'),250);
+  fstop();FT(()=>sayEN('The '+m+'. She or he?','Đây là '+fvi(m)+'. She hay he?'),90);
   stage.querySelectorAll('.hs').forEach(h=>h.onclick=()=>{if(busy)return;const g=h.dataset.g;
     if(g===FM[m][1]){busy=true;good(h);sorted[g].push(m);queue.shift();addPts(1);fstop();sayEN(fcap(g)+'! '+fcap(g)+' is my '+m+'.',(g==='she'?'She':'He')+' — '+fvi(m)+' của bé.');
       if(!queue.length){FT(()=>{confetti();fstop();sayEN('All done! Super!','Bé xếp xong rồi! Giỏi quá!');FT(sortGame,2600)},1800)}else FT(sortGame,2300)}
@@ -612,7 +612,7 @@ function blankGame(){setRule('blank');busy=false;
   document.getElementById('bt').appendChild(twoBtns([['she','👩 she<small>nữ</small>','she'],['he','👨 he<small>nam</small>','he']],(v,b,w)=>{if(busy)return;
     if(v===pr){idx++;draw();good(b);if(idx>=nb){busy=true;addPts(1);w.querySelectorAll('.btn').forEach(x=>x===b||x.classList.add('dim'));fstop();sayEN(t.full,t.vi);addSpeak(document.getElementById('sp'),t.full,t.vi)}else{fstop();sayEN(v)}}
     else wrong(b,'Look! The '+p+'. Is it she or he?')}));
-  fstop();FT(()=>sayEN('She or he?','Bé chọn she hay he?'),250)}
+  fstop();FT(()=>sayEN('She or he?','Bé chọn she hay he?'),90)}
 
 /* 3. Yes or No? (picture-based) */
 function ynGame(){setRule('yn');busy=false;
@@ -622,7 +622,7 @@ function ynGame(){setRule('yn');busy=false;
   document.getElementById('bt').appendChild(twoBtns([['isb','👍 Yes<small>đúng</small>',true],['isnt','👎 No<small>sai</small>',false]],(v,b,w)=>{if(busy)return;
     if(v===q.yes){busy=true;good(b);addPts(1);w.querySelectorAll('.btn').forEach(x=>x===b||x.classList.add('dim'));fstop();sayEN(q.full,q.ansVi);addSpeak(document.getElementById('sp'),q.ans,q.ansVi)}
     else wrong(b,'Hmm. Look at the picture again! '+q.q)}));
-  FT(say,250)}
+  FT(say,90)}
 
 /* 4. is or isn't */
 function isntGame(){setRule('isnt');busy=false;
@@ -637,7 +637,7 @@ function isntGame(){setRule('isnt');busy=false;
   document.getElementById('bt').appendChild(twoBtns([['isb','👍 is<small>đúng</small>','is'],['isnt','👎 isn\'t<small>sai</small>','isn\'t']],(v,b,w)=>{if(busy)return;
     if(v===r.ans){busy=true;const bl=document.getElementById('bl');bl.textContent=v;bl.classList.add('f');good(b);addPts(1);w.querySelectorAll('.btn').forEach(x=>x===b||x.classList.add('dim'));fstop();sayEN((r.qline?r.qline+' ':'')+r.full,r.vi);addSpeak(document.getElementById('sp'),r.full,r.vi)}
     else wrong(b,v==='is'?'Hmm. Look again! Is it right?':'Hmm. Look again! Is it wrong?')}));
-  FT(say,250)}
+  FT(say,90)}
 
 const MODES=[['sort','👩👨 She hay He?',sortGame],['blank','✏️ Điền she / he',blankGame],['yn','👍👎 Yes hay No?',ynGame],['isnt','✅ is hay isn\'t?',isntGame],['mix','🎲 Trộn',null]];
 function next(){fstop();busy=false;if(mode==='mix')return pick([blankGame,ynGame,isntGame,isntGame,blankGame])();MODES.find(m=>m[0]===mode)[2]()}
