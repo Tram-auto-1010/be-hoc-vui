@@ -1,10 +1,7 @@
-<!doctype html>
-<html lang="vi">
-<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Khủng long Bé học vui</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@700;800&display=swap">
+<script src="wimg.js?v=1793854375"></script>
 <style>
 :root{--ink:#1F2A44;--muted:#56627E;--bg:#FFF8EE;--card:#FFFFFF;--line:#E3E8F1;--red:#E5533A;--blue:#2E8FD8;--green:#2E9E5B;--yellow:#F2B705;--purple:#7B5CD6;}
 *{box-sizing:border-box}
@@ -164,9 +161,7 @@ body{background:#F3FAEC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 @media (max-width:640px){.top{width:calc(100% - 20px)}}
 html,body{overflow-x:clip}
 </style>
-<script src="wimg.js?v=1793854375"></script>
-</head>
-<body>
+
 <div class="top"><span style="display:flex;gap:8px;align-items:center"><a class="topstar" href="#shelf" title="Sao của bé">⭐ <span id="topst">0</span></a><a class="topstar" href="album-sticker.html" title="Album sticker">📒 <span id="topalb">0</span><span class="gdt"> sticker</span></a></span><div class="tr"><a class="btn ghost" href="giong-doc.html" style="text-decoration:none;white-space:nowrap">🎙️<span class="gdt"> Giọng đọc (ba mẹ)</span></a><button class="ibtn" id="voiceBtn" aria-label="Bật/tắt tiếng">🔊</button></div></div>
 <div class="scene" id="scene" aria-label="Khủng long">
   <div class="glow"></div><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
@@ -574,6 +569,19 @@ const SECS=[
    ['kham-pha.html#grow','🐣','Lớn lên thế nào?','What comes first?','Trứng → gà con → gà mẹ'],
    ['kham-pha.html#legs','🦵','Đếm chân','How many legs?','Gà 2, chó 4, bạch tuộc 8'],
    ['kham-pha.html#eats','🥕','Con vật ăn gì?','What do animals eat?','Thỏ ăn cà rốt']]],
+ ['📝 Bé hiểu thế giới','Little world','#00897B','#E0F2F1',[
+   ['phieu-vui.html#hot','🔥','Nóng hay lạnh?','Hot or cold?','Xếp vào 2 giỏ'],
+   ['phieu-vui.html#day','🌙','Ngày hay đêm?','Day or night?','Gà gáy, cú mèo…'],
+   ['phieu-vui.html#weather','🌦️','Trời thế này, mặc gì?','What to wear?','Nắng đội mũ, mưa che ô'],
+   ['phieu-vui.html#jobs','👩‍⚕️','Nghề nghiệp','Jobs','Cô chú dùng gì?'],
+   ['phieu-vui.html#farm','🐄','Con vật cho ta gì?','What animals give us','Bò cho sữa, gà cho trứng'],
+   ['phieu-vui.html#habit','🪥','Thói quen tốt','Good habits','Tốt hay chưa tốt?'],
+   ['phieu-vui.html#safe','⛑️','An toàn cho bé','Stay safe','An toàn hay nguy hiểm?'],
+   ['phieu-vui.html#feel','😀','Bé thấy thế nào?','Feelings','Vui · buồn · tức · sợ'],
+   ['phieu-vui.html#music','🥁','Nhạc cụ nào kêu?','Which instrument?','Nghe tiếng, đoán nhạc cụ'],
+   ['phieu-vui.html#light','🚦','Đèn giao thông','Traffic lights','Đỏ dừng, xanh đi'],
+   ['phieu-vui.html#road','🚗','Xe trên đường','On the road','Xe nào chạy trên đường?'],
+   ['phieu-vui.html#food','🥦','Món nào tốt cho bé?','Healthy food','Ăn nhiều hay ăn ít?']]],
  ['🎵 Bé hát tiếng Anh','English songs','#E91E63','#FCE4EC',[
    ['nhac.html','🎤','Bài hát tiếng Anh','Nursery rhymes','11 bài dễ thuộc, có nhạc']]],
  ['🧩 Logic khủng long','Dino logic','#7B5CD6','#F2EEFC',[
@@ -633,8 +641,8 @@ const SECS=[
    ['ghep-hinh.html','🧩','Ghép hình','Jigsaw','9 hoặc 16 mảnh'],
    ['ve-tu-do.html','🎨','Vẽ tự do','Free drawing','Bút màu và hình dán']]]];
 const root=document.getElementById('secs'),nav=document.getElementById('snav');
-const NEW=new Set(['kham-pha.html#heavy','kham-pha.html#shadow','kham-pha.html#add','kham-pha.html#take','kham-pha.html#grow','kham-pha.html#legs','kham-pha.html#eats','cau-ca-tra-loi.html','tham-tu.html','hop-qua.html','ech-nhay.html','dino-goi.html','be-co-giao.html','dino-do-vui.html','hat-mau-cau.html','vong-quay.html','cau-hoi-nao.html','lat-hoi-dap.html','on-tap.html','cao-thap.html','tau-so.html','so-luong.html','trung-chu.html','chu-hinh.html','cau-gia-dinh.html','ghep-cau.html','rem-cua.html','dino-ve-nha.html','gia-dinh-be.html','dino-hoi.html','phan-biet.html','tieng-keu.html']);
-const CARDPIC={'kham-pha.html#heavy':'elephant','kham-pha.html#shadow':'horse','kham-pha.html#add':'chick','kham-pha.html#take':'fish','kham-pha.html#grow':'chick','kham-pha.html#legs':'octopus','kham-pha.html#eats':'rabbit','cau-ca-tra-loi.html':'fish','hop-qua.html':'dolphin','ech-nhay.html':'frog','dino-goi.html':'dino_d12','dino-do-vui.html':'dolphin','cao-thap.html':'giraffe','so-luong.html':'duck','trung-chu.html':'dino_d2','chu-hinh.html':'cow','the-gioi-khung-long.html':'dinosaur','dino-says.html':'dinosaur','dino-ve-nha.html':'dino_d6','ghep-tranh.html':'dino_spino','dao-hoa-thach.html':'dino_ankylo','qua-song.html':'dino_d10','hung-la.html':'dino_d6','ap-trung.html':'chick','trung-ve-to.html':'chick','dino-nho.html':'dino_d2','dua-xe.html':'dino_raptor','dino-hoi.html':'dino_d12','tieng-keu.html':'cow','cho-an.html':'rabbit','phan-loai.html':'dolphin','cham-thu.html':'mouse','me-cung.html':'rabbit','bien-mat.html':'lion','tim-cap.html':'panda','tu-vung.html':'cat','abc.html':'apple','chu-dau.html':'apple','dem-so.html':'strawberry','cau-ca.html':'fish','bo-gio.html':'orange','to-nho.html':'elephant','thu-tu.html':'elephant','khac-loai.html':'carrot','di-doi.html':'bear','o-dau.html':'box','gia-dinh-be.html':'children','cau-gia-dinh.html':'children','bong-tu.html':'giraffe','dap-trung.html':'chick','lat-the-tu.html':'turtle','tim-do.html':'boy','be-hoc-vui.html':'banana','ghep-bong.html':'horse','phan-biet.html':'girl'};
+const NEW=new Set(['phieu-vui.html#hot','phieu-vui.html#day','phieu-vui.html#weather','phieu-vui.html#jobs','phieu-vui.html#farm','phieu-vui.html#habit','phieu-vui.html#safe','phieu-vui.html#feel','phieu-vui.html#music','phieu-vui.html#light','phieu-vui.html#road','phieu-vui.html#food','kham-pha.html#heavy','kham-pha.html#shadow','kham-pha.html#add','kham-pha.html#take','kham-pha.html#grow','kham-pha.html#legs','kham-pha.html#eats','cau-ca-tra-loi.html','tham-tu.html','hop-qua.html','ech-nhay.html','dino-goi.html','be-co-giao.html','dino-do-vui.html','hat-mau-cau.html','vong-quay.html','cau-hoi-nao.html','lat-hoi-dap.html','on-tap.html','cao-thap.html','tau-so.html','so-luong.html','trung-chu.html','chu-hinh.html','cau-gia-dinh.html','ghep-cau.html','rem-cua.html','dino-ve-nha.html','gia-dinh-be.html','dino-hoi.html','phan-biet.html','tieng-keu.html']);
+const CARDPIC={'phieu-vui.html#farm':'cow','phieu-vui.html#day':'rooster','phieu-vui.html#food':'apple','phieu-vui.html#road':'airplane','kham-pha.html#heavy':'elephant','kham-pha.html#shadow':'horse','kham-pha.html#add':'chick','kham-pha.html#take':'fish','kham-pha.html#grow':'chick','kham-pha.html#legs':'octopus','kham-pha.html#eats':'rabbit','cau-ca-tra-loi.html':'fish','hop-qua.html':'dolphin','ech-nhay.html':'frog','dino-goi.html':'dino_d12','dino-do-vui.html':'dolphin','cao-thap.html':'giraffe','so-luong.html':'duck','trung-chu.html':'dino_d2','chu-hinh.html':'cow','the-gioi-khung-long.html':'dinosaur','dino-says.html':'dinosaur','dino-ve-nha.html':'dino_d6','ghep-tranh.html':'dino_spino','dao-hoa-thach.html':'dino_ankylo','qua-song.html':'dino_d10','hung-la.html':'dino_d6','ap-trung.html':'chick','trung-ve-to.html':'chick','dino-nho.html':'dino_d2','dua-xe.html':'dino_raptor','dino-hoi.html':'dino_d12','tieng-keu.html':'cow','cho-an.html':'rabbit','phan-loai.html':'dolphin','cham-thu.html':'mouse','me-cung.html':'rabbit','bien-mat.html':'lion','tim-cap.html':'panda','tu-vung.html':'cat','abc.html':'apple','chu-dau.html':'apple','dem-so.html':'strawberry','cau-ca.html':'fish','bo-gio.html':'orange','to-nho.html':'elephant','thu-tu.html':'elephant','khac-loai.html':'carrot','di-doi.html':'bear','o-dau.html':'box','gia-dinh-be.html':'children','cau-gia-dinh.html':'children','bong-tu.html':'giraffe','dap-trung.html':'chick','lat-the-tu.html':'turtle','tim-do.html':'boy','be-hoc-vui.html':'banana','ghep-bong.html':'horse','phan-biet.html':'girl'};
 const COVER=new Set(['dino_raptor','dino_d10','children','fish','strawberry','orange','boy','girl','cat','lion','mouse','rabbit','bear','panda']);
 const W_=window.__WIMG||{};
 let io=null;try{io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -6% 0px'})}catch(e){}
@@ -664,5 +672,3 @@ shelf();
 ['rex','bronto'].forEach(id=>{const e=document.getElementById(id);e.onclick=()=>{e.classList.remove('roar');void e.offsetWidth;e.classList.add('roar');sfx.win&&_note(110,0,.5,'sawtooth',.12,70);burst(e.getBoundingClientRect().left+e.offsetWidth/2,e.getBoundingClientRect().top+20,['🥚','⭐','🌿','💚'],10);say(id==='rex'?'Gàoooo! Mình là khủng long bạo chúa!':'Chào bé! Mình là khủng long cổ dài!',id==='rex'?'Roar! I am T-rex!':'Hello! I am a long-neck dinosaur!')};e.addEventListener('animationend',()=>e.classList.remove('roar'))});
 document.addEventListener('pointerdown',()=>{if(!window._hi){window._hi=1;setTimeout(()=>playClip('chao'),150)}},{once:true});
 </script>
-</body>
-</html>
