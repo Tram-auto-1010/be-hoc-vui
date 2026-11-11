@@ -681,7 +681,7 @@ const NMH=o=>'<span class="nm">'+o[3]+'<small>'+o[2]+'</small></span>';
 /* ---------- SORT INTO 2 BINS ---------- */
 const SORT={
  hot:{q:['Hot or cold?','Nóng hay lạnh?'],bins:[['🔥','Nóng','Hot','#FFCCBC'],['❄️','Lạnh','Cold','#B3E5FC']],
-  items:[['☕',null,'trà nóng','Hot tea',0],['🔥',null,'ngọn lửa','Fire',0],['🍲',null,'nồi canh','Soup',0],['☀️',null,'mặt trời','The sun',0],
+  items:[['☕',null,'trà nóng','Hot tea',0],['🔥',null,'ngọn lửa','Fire',0],['🍲',null,'nồi canh','Soup',0],['☀️','sun','mặt trời','The sun',0],
          ['🍦',null,'que kem','Ice cream',1],['🧊',null,'cục đá','Ice',1],['⛄',null,'người tuyết','A snowman',1],['❄️',null,'bông tuyết','Snow',1]],
   say:(o,b)=>[o[3]+' is '+(b?'cold':'hot')+'.',o[2]+' '+(b?'lạnh':'nóng')+'.']},
  day:{q:['Day or night?','Ban ngày hay ban đêm?'],bins:[['☀️','Ban ngày','Day','#FFF59D'],['🌙','Ban đêm','Night','#C5CAE9']],
@@ -727,7 +727,7 @@ const FACES=[['😀','happy','vui','happy'],['😢','sad','buồn','sad'],['😠
 const INST=[['🥁',null,'cái trống','drum'],['🎺',null,'cái kèn','trumpet'],['🎸',null,'đàn ghi-ta','guitar'],['🎹',null,'đàn piano','piano']];
 const MATCH={
  weather:{pool:[['🧢',null,'mũ lưỡi trai','a cap'],['☔',null,'ô che mưa','an umbrella'],['🧣',null,'khăn len','a scarf'],['🩱',null,'đồ bơi','a swimsuit']],
-  qs:[[['☀️',null,'trời nắng','sunny'],0],[['🌧️',null,'trời mưa','rainy'],1],[['❄️',null,'trời lạnh','cold'],2],[['🏖️',null,'đi biển','at the beach'],3]],
+  qs:[[['☀️','sun','trời nắng','sunny'],0],[['🌧️',null,'trời mưa','rainy'],1],[['❄️',null,'trời lạnh','cold'],2],[['🏖️',null,'đi biển','at the beach'],3]],
   ask:p=>p[3]==='at the beach'?['We go to the beach. What do you wear?','Đi biển, bé mặc gì?']:['It\'s '+p[3]+'. What do you need?',p[2]+', bé cần gì?'],
   ans:(p,a)=>['I need '+a[3]+'!','Bé cần '+a[2]+'!']},
  jobs:{pool:[['🩺',null,'ống nghe','a stethoscope'],['🚒',null,'xe cứu hỏa','a fire truck'],['🍳',null,'cái chảo','a pan'],['🌾',null,'cây lúa','rice'],['🚓',null,'xe cảnh sát','a police car']],
@@ -735,7 +735,7 @@ const MATCH={
   ask:p=>['What does the '+p[3]+' use?','Cô chú '+p[2]+' dùng gì?'],
   ans:(p,a)=>['The '+p[3]+' uses '+a[3]+'.',p[2]+' dùng '+a[2]+'.']},
  farm:{pool:[['🥛',null,'ly sữa','milk'],['🥚','egg','quả trứng','eggs'],['🍯',null,'mật ong','honey'],['🧶',null,'cuộn len','wool']],
-  qs:[[['🐄','cow','con bò','cow'],0],[['🐔','chicken','con gà','hen'],1],[['🐝',null,'con ong','bee'],2],[['🐑','sheep','con cừu','sheep'],3]],
+  qs:[[['🐄','cow','con bò','cow'],0],[['🐔','chicken','con gà','hen'],1],[['🐝','bee','con ong','bee'],2],[['🐑','sheep','con cừu','sheep'],3]],
   ask:p=>['What does the '+p[3]+' give us?',p[2]+' cho ta gì?'],
   ans:(p,a)=>['The '+p[3]+' gives us '+a[3]+'.',p[2]+' cho ta '+a[2]+'.']},
  feel:{pool:FACES,all:true,
