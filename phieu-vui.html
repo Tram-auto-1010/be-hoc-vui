@@ -85,11 +85,11 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 @media (max-width:700px){.tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.tabs .btn{flex-shrink:0;font-size:13px;padding:6px 10px}.tabs .stars{position:sticky;right:0;flex-shrink:0;background:#F3FAEC;padding-left:6px}}
 .ask{text-align:center;font:800 clamp(22px,3.8vw,36px)/1.15 'Baloo 2',sans-serif;color:#1A2A5A;margin:2px 0 10px;cursor:pointer}
 .ask small{display:block;font:800 14px 'Nunito',sans-serif;color:var(--muted)}
-.em{font-size:1em;line-height:1;display:block}
+.em{font-size:1em;line-height:1;display:flex;align-items:center;justify-content:center;height:100%;max-width:100%}.em img{max-width:100%;max-height:100%;object-fit:contain}
 .pic{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
 .pic img{max-width:100%;max-height:100%;object-fit:contain;display:block}
-.pvh{margin:0 auto;width:clamp(140px,min(26vw,28svh),230px);aspect-ratio:1;background:#FFFFFF;border-radius:28px;box-shadow:0 6px 0 rgba(31,42,68,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;font-size:clamp(90px,15vw,140px);cursor:pointer;animation:pop .45s}
-.pvh .pic{flex:1 1 0;min-height:0}
+.pvh{margin:0 auto;width:clamp(170px,min(26vw,30svh),230px);aspect-ratio:1;background:#FFFFFF;border-radius:28px;box-shadow:0 6px 0 rgba(31,42,68,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;font-size:clamp(90px,15vw,140px);cursor:pointer;animation:pop .45s}
+.pvh .pic{flex:1 1 0;min-height:0;overflow:hidden}.pvh .em{font-size:.75em}
 .pvh .nm{font:800 clamp(15px,2.2vw,20px)/1.15 'Baloo 2',sans-serif;color:var(--ink);text-align:center;margin-top:4px}
 .pvh .nm small{display:block;font:800 12px 'Nunito',sans-serif;color:var(--muted)}
 @keyframes pop{from{transform:scale(.6);opacity:0}}
@@ -723,7 +723,7 @@ function sortGame(k){const G=SORT[k];if(!sq.length||sq.k!==k){sq=shuffle(G.items
     else{el.classList.remove('no');void el.offsetWidth;el.classList.add('no');bad(el);fstop();sayEN('Hmm, look again!','Bé nghĩ lại nhé!')}}}
 
 /* ---------- MATCH 1 OF SEVERAL ---------- */
-const FACES=[['😀',null,'vui','happy'],['😢',null,'buồn','sad'],['😠',null,'tức giận','angry'],['😨',null,'sợ hãi','scared']];
+const FACES=[['😀','happy','vui','happy'],['😢','sad','buồn','sad'],['😠','angry','tức giận','angry'],['😨','scared','sợ hãi','scared']];
 const INST=[['🥁',null,'cái trống','drum'],['🎺',null,'cái kèn','trumpet'],['🎸',null,'đàn ghi-ta','guitar'],['🎹',null,'đàn piano','piano']];
 const MATCH={
  weather:{pool:[['🧢',null,'mũ lưỡi trai','a cap'],['☔',null,'ô che mưa','an umbrella'],['🧣',null,'khăn len','a scarf'],['🩱',null,'đồ bơi','a swimsuit']],

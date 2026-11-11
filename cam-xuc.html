@@ -463,7 +463,7 @@ let cur,stars=0,busy=false;
 function round(){busy=false;cur=S[rand(S.length)];const e=E[cur[4]];
   document.getElementById('story').innerHTML='<div class="pic">'+cur[0]+'<i>'+cur[1]+'</i></div><p>'+cur[2]+'<small>'+cur[3]+'</small></p>';
   const keys=shuffle([cur[4],...shuffle(Object.keys(E).filter(k=>k!==cur[4])).slice(0,3)]);const o=document.getElementById('opts');o.innerHTML='';
-  keys.forEach(k=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span>'+E[k][0]+'</span><b>'+E[k][1]+'</b><small>'+E[k][2]+'</small>';b.onclick=()=>{if(busy)return;
+  keys.forEach(k=>{const b=document.createElement('button');b.className='opt';const ph=WIMG[{buonngu:'tired'}[k]||E[k][2]];b.innerHTML='<span>'+(ph?'<img src="'+ph+'" alt="" draggable="false" style="width:clamp(90px,15vw,150px);height:clamp(90px,15vw,150px);object-fit:cover;border-radius:20px;display:block">':E[k][0])+'</span><b>'+E[k][1]+'</b><small>'+E[k][2]+'</small>';b.onclick=()=>{if(busy)return;
     if(k===cur[4]){busy=true;b.classList.add('ok');stars++;document.getElementById('stat').textContent='⭐ '+stars;say('Đúng rồi! Khủng long đang thấy '+E[k][1],E[k][2]);if(stars%4===0)confetti();setTimeout(round,3000)}
     else{b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');say('Chưa đúng. Đây là mặt '+E[k][1]+'. Bé nghe lại nhé: '+cur[2],'Not quite. That face is '+E[k][2]+'. Listen again: '+cur[3])}};o.appendChild(b)});
   say(cur[2]+' Bạn ấy cảm thấy thế nào?',cur[3]+' How does he feel?')}
