@@ -502,7 +502,7 @@ let L=null;
 function layout(){area.style.maxWidth='';const full=area.clientWidth;const wide=full>720;const n=pieces.length||9;
   const trayH=wide?H*1.0:H*(n>12?1.25:n>9?1.05:.9);
   L=wide?{AW:W*2.24,AH:H*1.04,bx:W*.01,by:H*.02,tx:W*1.07,ty:H*.02,tw:W*1.16,th:H*1.0}:{AW:W,AH:H*1.04+trayH,bx:0,by:0,tx:0,ty:H*1.04,tw:W,th:trayH};
-  const avail=innerHeight-(area.getBoundingClientRect().top+scrollY)-(innerWidth<=760?62:70);
+  const narrow=innerWidth<=760;const avail=narrow?innerHeight-16:innerHeight-(area.getBoundingClientRect().top+scrollY)-70;
   area.style.maxWidth=Math.min(full,Math.max(wide?420:full*.86,avail*L.AW/L.AH))+'px';
   area.style.height=(area.clientWidth*L.AH/L.AW)+'px';const k=area.clientWidth/L.AW;L.k=k;
   Object.assign(board.style,{left:L.bx*k+'px',top:L.by*k+'px',width:W*k+'px',height:H*k+'px'});
@@ -543,8 +543,9 @@ function make(im,n){area.querySelectorAll('.pc').forEach(e=>e.remove());pieces=[
     p.tx=Math.max(L.tx-p.cw*.1,Math.min(L.tx+L.tw-p.cw*.9,p.tx));p.ty=Math.max(L.ty-p.chh*.1,Math.min(L.ty+L.th-p.chh*.9,p.ty));
     FT(()=>{p.x=p.tx;p.y=p.ty;show(p,true)},450+i*60)});
   document.getElementById('prog').textContent='🧩 0 / '+N;
+  if(innerWidth<=760&&started)FT(()=>window.scrollTo({top:area.getBoundingClientRect().top+scrollY-8,behavior:'smooth'}),300);started=true;
   FT(()=>sayEN("Let's make the "+cur[0]+'!','Bé ghép tranh '+cur[1]+' nhé! Kéo mảnh vào đúng chỗ.'),200)}
-let topZ=10;
+let topZ=10,started=false;
 function drag(p){p.el.addEventListener('pointerdown',e=>{if(p.done)return;e.preventDefault();p.el.setPointerCapture(e.pointerId);p.el.classList.remove('fly');p.el.classList.add('drag');p.el.style.zIndex=++topZ;sfx.tap&&sfx.tap();
   const k=L.k,sx=e.clientX,sy=e.clientY,ox=p.x,oy=p.y;
   const mv=ev=>{p.x=Math.max(-p.cw*.1,Math.min(L.AW-p.cw*.9,ox+(ev.clientX-sx)/k));p.y=Math.max(-p.chh*.3,Math.min(L.AH-p.chh*.7,oy+(ev.clientY-sy)/k));p.el.style.transform='translate3d('+(p.x*k)+'px,'+(p.y*k)+'px,0)'};
