@@ -117,8 +117,8 @@ button,a,.btn,[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:tr
 .bigm img{max-width:min(92vw,700px);max-height:80svh;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 @media (max-width:760px){.top{gap:6px}.lvb{font-size:14px;padding:6px 10px}.model img{width:64px;height:53px}.th{width:60px;height:50px}}
 </style>
-<script src="puz.js?v=4bdc7511"></script>
-<script src="wimg.js?v=4bdc7511"></script>
+<script src="puz.js?v=e9203f0e"></script>
+<script src="wimg.js?v=e9203f0e"></script>
 </head>
 <body>
 <header class="bar"><a class="ibtn" href="trang-chu.html" title="Về trang chính">🏠</a><h1>Ghép tranh <small>Jigsaw · 2 cấp độ, 20 bức tranh</small></h1><button class="ibtn" id="voiceBtn">🔊</button></header>
@@ -530,15 +530,15 @@ function make(im,n){area.querySelectorAll('.pc').forEach(e=>e.remove());pieces=[
   const [C,R]=GRID[n];const cw=W/C,chh=H/R,t=Math.min(cw,chh)*.22;
   const hE=[...Array(R+1)].map((_,r)=>[...Array(C)].map(()=>r===0||r===R?0:(Math.random()<.5?1:-1)));
   const vE=[...Array(R)].map(()=>[...Array(C+1)].map((_,c)=>c===0||c===C?0:(Math.random()<.5?1:-1)));
-  const sc=document.createElement('canvas');sc.width=W;sc.height=H;sc.getContext('2d').drawImage(im,0,0,W,H);
+  const SS=2,sc=document.createElement('canvas');sc.width=W*SS;sc.height=H*SS;const sx=sc.getContext('2d');sx.imageSmoothingQuality='high';sx.drawImage(im,0,0,W*SS,H*SS);
   /* cut lines drawn on the frame so the child sees where each piece goes */
   cuts.width=W*2;cuts.height=H*2;const cx=cuts.getContext('2d');cx.scale(2,2);cx.clearRect(0,0,W,H);
   for(let rr=0;rr<R;rr++)for(let c=0;c<C;c++){const e=[-hE[rr][c],vE[rr][c+1],hE[rr+1][c],-vE[rr][c]];
     piecePath(cx,cw,chh,t,e,c*cw-t,rr*chh-t);cx.setLineDash([7,5]);cx.lineWidth=2.5;cx.strokeStyle='rgba(31,42,68,.55)';cx.stroke()}
   cx.setLineDash([]);
   for(let rr=0;rr<R;rr++)for(let c=0;c<C;c++){const e=[-hE[rr][c],vE[rr][c+1],hE[rr+1][c],-vE[rr][c]];
-    const pc=document.createElement('canvas');const PW=Math.ceil(cw+2*t),PH=Math.ceil(chh+2*t);const dpr=2;pc.width=PW*dpr;pc.height=PH*dpr;const x=pc.getContext('2d');x.scale(dpr,dpr);
-    piecePath(x,cw,chh,t,e);x.save();x.clip();x.drawImage(sc,c*cw-t,rr*chh-t,PW,PH,0,0,PW,PH);x.restore();
+    const pc=document.createElement('canvas');const PW=Math.ceil(cw+2*t),PH=Math.ceil(chh+2*t);const dpr=Math.min(3,Math.max(2,devicePixelRatio||1));pc.width=PW*dpr;pc.height=PH*dpr;const x=pc.getContext('2d');x.scale(dpr,dpr);
+    piecePath(x,cw,chh,t,e);x.save();x.clip();x.imageSmoothingQuality='high';x.drawImage(sc,(c*cw-t)*SS,(rr*chh-t)*SS,PW*SS,PH*SS,0,0,PW,PH);x.restore();
     piecePath(x,cw,chh,t,e);x.lineWidth=3.5;x.strokeStyle='rgba(31,42,68,.75)';x.stroke();x.lineWidth=1.5;x.strokeStyle='rgba(255,255,255,.95)';x.stroke();
     const el=document.createElement('div');el.className='pc';el.appendChild(pc);area.appendChild(el);
     const p={el,cw:PW,chh:PH,hx:c*cw-t,hy:rr*chh-t,x:0,y:0,done:false};pieces.push(p)}
