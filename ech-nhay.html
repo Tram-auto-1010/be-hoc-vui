@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ếch nhảy lá sen · Frog hop</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@700;800&display=swap">
-<script src="rev.js"></script>
+<script src="rev.js?v=4bdc7511"></script>
 <style>
 :root{--ink:#1F2A44;--muted:#56627E;--bg:#FFF8EE;--card:#FFFFFF;--line:#E3E8F1;--red:#E5533A;--blue:#2E8FD8;--green:#2E9E5B;--yellow:#F2B705;--purple:#7B5CD6;}
 *{box-sizing:border-box}
@@ -81,6 +81,12 @@ html.dimg .bar h1::before{content:'';display:inline-block;width:1.15em;height:1.
 @media (max-height:800px){.jungle{height:60px;font-size:32px}}
 img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-align:-.2em;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 
+/* smoother feel: fade between pages, instant taps, no blur work while scrolling */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}
+button,a,.btn,[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
 .hud{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
 .prog{display:flex;gap:6px}.prog i{width:22px;height:22px;border-radius:50%;background:#C8E6C9;box-shadow:inset 0 -3px 0 rgba(0,0,0,.1)}.prog i.d{background:#43A047}
 .top{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;max-width:1000px;margin:0 auto 8px}
@@ -102,7 +108,7 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 #spk{max-width:640px;margin:8px auto 0}
 @media (max-width:640px){.pads{grid-template-columns:1fr;gap:8px}.pad{min-height:0;flex-direction:row;border-radius:40px;clip-path:none;padding:8px 14px;justify-content:flex-start;text-align:left}.pad b{text-align:left}.top{grid-template-columns:90px minmax(0,1fr)}.qpic{width:90px}.pond{padding-bottom:80px;min-height:0}}
 </style>
-<script src="wimg.js?v=1793854375"></script>
+<script src="wimg.js?v=4bdc7511"></script>
 </head>
 <body>
 <header class="bar"><a class="ibtn" href="trang-chu.html" title="Về trang chính">🏠</a><h1>Ếch nhảy lá sen <small>Frog hop · Nghe hỏi, nhảy vào câu trả lời</small></h1><button class="ibtn" id="voiceBtn">🔊</button></header>

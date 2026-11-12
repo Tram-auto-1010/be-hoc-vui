@@ -80,6 +80,12 @@ html.dimg .bar h1::before{content:'';display:inline-block;width:1.15em;height:1.
 @media (max-height:800px){.jungle{height:60px;font-size:32px}}
 img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-align:-.2em;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 
+/* smoother feel: fade between pages, instant taps, no blur work while scrolling */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}
+button,a,.btn,[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center}.tabs .btn{font-size:16px;padding:7px 13px}.tabs .stars{margin-left:auto}
 .title{text-align:center;margin:2px 0 12px}
 .title b{display:inline-block;font:800 clamp(28px,5vw,46px)/1 'Baloo 2',sans-serif;color:#1A2A5A;background:#F8BBD0;border:4px solid #F48FB1;border-radius:999px;padding:6px 28px}
@@ -132,7 +138,7 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 @media (max-width:640px){#kinds{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}#kinds .btn{flex-shrink:0}}
 @media (max-width:700px){.sheet{grid-template-columns:1fr;gap:10px}.qv{grid-template-columns:1fr;gap:10px}.qv .pic{height:min(34svh,250px)}}
 </style>
-<script src="wimg.js?v=1793854375"></script>
+<script src="wimg.js?v=4bdc7511"></script>
 </head>
 <body>
 <header class="bar"><a class="ibtn" href="trang-chu.html" title="Về trang chính">🏠</a><h1>Let's Review! <small>Ôn tập hỏi – đáp · Look and answer</small></h1><button class="ibtn" id="voiceBtn">🔊</button></header>
@@ -140,7 +146,7 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
   <div class="tabs"><button class="btn" id="tSheet">📋 Phiếu mẫu</button><button class="btn ghost" id="tPrac">🎲 Luyện thêm</button><button class="btn ghost" id="tTest">📝 Kiểm tra 10 câu</button><span class="stars" id="stat">⭐ 0</span></div><div class="tabs" id="kinds" hidden></div>
   <div id="stage"></div>
 </main>
-<script src="rev.js"></script>
+<script src="rev.js?v=4bdc7511"></script>
 <script>
 const VOICE_KEY='bhv-voice';
 let voiceOn=true;try{voiceOn=localStorage.getItem(VOICE_KEY)!=='0'}catch(e){}

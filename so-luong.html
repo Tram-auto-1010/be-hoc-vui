@@ -80,6 +80,12 @@ html.dimg .bar h1::before{content:'';display:inline-block;width:1.15em;height:1.
 @media (max-height:800px){.jungle{height:60px;font-size:32px}}
 img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-align:-.2em;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 
+/* smoother feel: fade between pages, instant taps, no blur work while scrolling */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}
+button,a,.btn,[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
 .modes{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.modes .stars{margin-left:auto}
 .top{display:flex;align-items:center;justify-content:center;gap:18px;margin:4px 0 12px;cursor:pointer}
 .bign{font:800 clamp(80px,14vw,130px)/1 'Baloo 2',sans-serif;color:#FFFFFF;background:linear-gradient(#FFB300,#FB8C00);width:clamp(110px,18vw,170px);aspect-ratio:1;border-radius:32px;display:grid;place-items:center;box-shadow:0 8px 0 rgba(0,0,0,.15)}
@@ -93,7 +99,7 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 .grp.ok{box-shadow:0 0 0 6px #43A047}
 @media (max-width:640px){.groups{grid-template-columns:1fr}.grp{min-height:110px}.top{gap:10px}}
 </style>
-<script src="wimg.js?v=1793854375"></script>
+<script src="wimg.js?v=4bdc7511"></script>
 </head>
 <body>
 <header class="bar"><a class="ibtn" href="trang-chu.html" title="Về trang chính">🏠</a><h1>Số mấy con? <small>How many? · Chọn nhóm đúng số</small></h1><button class="ibtn" id="voiceBtn">🔊</button></header>

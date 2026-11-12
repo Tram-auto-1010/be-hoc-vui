@@ -80,6 +80,12 @@ html.dimg .bar h1::before{content:'';display:inline-block;width:1.15em;height:1.
 @media (max-height:800px){.jungle{height:60px;font-size:32px}}
 img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-align:-.2em;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 
+/* smoother feel: fade between pages, instant taps, no blur work while scrolling */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}
+button,a,.btn,[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
 .hud{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .play{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:center;max-width:960px;margin:10px auto 0}
 .win{position:relative;width:min(100%,calc(100svh - 320px));justify-self:center;border-radius:26px;overflow:hidden;background:#FFFFFF;box-shadow:0 0 0 8px #8D6E63,0 12px 0 6px rgba(31,42,68,.14);margin:8px}
@@ -94,7 +100,7 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 .tip{font:800 15px 'Nunito',sans-serif;color:var(--muted);margin-bottom:4px}
 @media (max-width:640px){.play{grid-template-columns:1fr;gap:10px}.win{width:min(calc(100% - 16px),calc(100svh - 500px),300px)}.ans .btn{font-size:18px;padding:9px 12px}}
 </style>
-<script src="wimg.js?v=1793854375"></script>
+<script src="wimg.js?v=4bdc7511"></script>
 </head>
 <body>
 <header class="bar"><a class="ibtn" href="trang-chu.html" title="Về trang chính">🏠</a><h1>Ai sau cửa sổ? <small>Peek-a-boo · Mở ít ô, đoán đúng</small></h1><button class="ibtn" id="voiceBtn">🔊</button></header>

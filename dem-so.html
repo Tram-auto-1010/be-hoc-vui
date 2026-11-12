@@ -80,6 +80,12 @@ html.dimg .bar h1::before{content:'';display:inline-block;width:1.15em;height:1.
 @media (max-height:800px){.jungle{height:60px;font-size:32px}}
 img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-align:-.2em;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 
+/* smoother feel: fade between pages, instant taps, no blur work while scrolling */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}
+button,a,.btn,[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
 .top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
 .q{display:flex;align-items:center;justify-content:center;gap:12px;margin:18px 0 10px;font:800 clamp(24px,4vw,38px)/1.2 'Baloo 2',sans-serif;text-align:center}
 .q small{display:block;font:800 16px 'Nunito',sans-serif;color:var(--blue)}
@@ -93,7 +99,7 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 .num.ok{background:var(--green);color:#FFFFFF}
 .hint{text-align:center;font:700 15px 'Nunito',sans-serif;color:var(--muted);margin-top:14px}
 </style>
-<script src="wimg.js?v=1793854375"></script>
+<script src="wimg.js?v=4bdc7511"></script>
 </head>
 <body>
 <header class="bar"><a class="ibtn" href="trang-chu.html" title="Về trang chính">🏠</a><h1>Bé đếm số <small>Count and pick the number</small></h1><button class="ibtn" id="voiceBtn">🔊</button></header>

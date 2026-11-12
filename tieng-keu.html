@@ -80,6 +80,12 @@ html.dimg .bar h1::before{content:'';display:inline-block;width:1.15em;height:1.
 @media (max-height:800px){.jungle{height:60px;font-size:32px}}
 img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-align:-.2em;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 
+/* smoother feel: fade between pages, instant taps, no blur work while scrolling */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}
+button,a,.btn,[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
 .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .big{display:flex;flex-direction:column;align-items:center;gap:10px;margin:18px 0}
 .play{width:150px;height:150px;border-radius:50%;border:none;background:linear-gradient(135deg,#F2B705,#E5533A);font-size:72px;cursor:pointer;box-shadow:0 8px 0 rgba(31,42,68,.18)}
@@ -97,7 +103,7 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 .list{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:26px}
 .list button{border:3px solid var(--line);background:#FFFFFF;border-radius:16px;padding:6px 12px;font:800 15px 'Nunito',sans-serif;cursor:pointer}
 </style>
-<script src="wimg.js?v=1793854375"></script>
+<script src="wimg.js?v=4bdc7511"></script>
 </head>
 <body>
 <header class="bar"><a class="ibtn" href="trang-chu.html" title="Về trang chính">🏠</a><h1>Đoán tiếng kêu <small>Guess the animal sound</small></h1><button class="ibtn" id="voiceBtn">🔊</button></header>

@@ -80,6 +80,12 @@ html.dimg .bar h1::before{content:'';display:inline-block;width:1.15em;height:1.
 @media (max-height:800px){.jungle{height:60px;font-size:32px}}
 img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-align:-.2em;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 
+/* smoother feel: fade between pages, instant taps, no blur work while scrolling */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}
+button,a,.btn,[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
 .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 .grp{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .lvb{font-size:16px;padding:8px 14px}
@@ -111,8 +117,8 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 .bigm img{max-width:min(92vw,700px);max-height:80svh;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 @media (max-width:760px){.top{gap:6px}.lvb{font-size:14px;padding:6px 10px}.model img{width:64px;height:53px}.th{width:60px;height:50px}}
 </style>
-<script src="puz.js?v=2"></script>
-<script src="wimg.js?v=1793854375"></script>
+<script src="puz.js?v=4bdc7511"></script>
+<script src="wimg.js?v=4bdc7511"></script>
 </head>
 <body>
 <header class="bar"><a class="ibtn" href="trang-chu.html" title="Về trang chính">🏠</a><h1>Ghép tranh <small>Jigsaw · 2 cấp độ, 20 bức tranh</small></h1><button class="ibtn" id="voiceBtn">🔊</button></header>
