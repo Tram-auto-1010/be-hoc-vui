@@ -90,13 +90,20 @@ main{position:relative;z-index:1;padding-bottom:max(70px,env(safe-area-inset-bot
 .toast{width:max-content;max-width:min(92vw,560px);box-sizing:border-box}
 @media (max-width:760px){.dodo{top:calc(6px + env(safe-area-inset-top));bottom:auto;right:auto;left:50%;transform:translateX(-50%);z-index:70}.dodo .d{display:none}.dodo .bub{margin:0;border-radius:18px;box-shadow:0 6px 16px rgba(31,42,68,.18)}.jungle{opacity:.55}.jungle .walk{display:none}}
 
+/* global layout safety: tab rows wrap instead of hiding behind a scroll, no overlay toasts on phones, decor behind content */
+@media (max-width:1100px){div#tabs,div#kinds,div#topics,div#units,div#songs,div#chips{flex-wrap:wrap!important;overflow-x:visible!important;justify-content:center}div#tabs>*,div#kinds>*,div#topics>*,div#units>*,div#songs>*,div#chips>*{flex-shrink:1!important}div#tabs .stars,div#chips .stars{position:static!important;background:none!important;margin-left:auto}}
+@media (max-width:760px){.dodo{display:none!important}}
+.dodo{opacity:0!important;transition:opacity .25s}.dodo.say{opacity:1!important}
+.jungle{z-index:-1!important}
+html{scroll-padding-top:calc(var(--hdrH,84px) + 8px)}
+
 .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .msg{text-align:center;font:800 clamp(26px,4.4vw,40px)/1.2 'Baloo 2',sans-serif;margin:12px 0;display:flex;justify-content:center;align-items:center;gap:12px}
 .msg small{display:block;font:800 16px 'Nunito',sans-serif;color:var(--blue)}
 .sea{position:relative;height:max(300px,calc(100vh - 270px));border-radius:30px;overflow:hidden;background:linear-gradient(#8FD3F4,#2E8FD8);border:4px solid #1F6AA6}
 .fish{position:absolute;left:0;top:0;cursor:pointer;display:flex;align-items:center;gap:0;user-select:none}
 .fish span{font-size:clamp(56px,8vw,84px);line-height:1}
-.fish b{position:absolute;left:50%;top:50%;transform:translate(-30%,-55%);width:44px;height:44px;border-radius:50%;background:#FFFFFF;color:var(--ink);font:800 28px/44px 'Baloo 2',sans-serif;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.fish b{position:absolute;right:-10px;bottom:-10px;z-index:2;width:44px;height:44px;border-radius:50%;background:#FFFFFF;color:var(--ink);font:800 28px/44px 'Baloo 2',sans-serif;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,.2)}
 .fish span{display:inline-block;transition:transform .35s ease}
 .fish.r span{transform:scaleX(-1)}
 .fish.got{transition:transform .7s cubic-bezier(.5,-0.4,.7,1),opacity .7s ease-in;opacity:0}

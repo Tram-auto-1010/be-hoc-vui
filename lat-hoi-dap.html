@@ -91,6 +91,13 @@ main{position:relative;z-index:1;padding-bottom:max(70px,env(safe-area-inset-bot
 .toast{width:max-content;max-width:min(92vw,560px);box-sizing:border-box}
 @media (max-width:760px){.dodo{top:calc(6px + env(safe-area-inset-top));bottom:auto;right:auto;left:50%;transform:translateX(-50%);z-index:70}.dodo .d{display:none}.dodo .bub{margin:0;border-radius:18px;box-shadow:0 6px 16px rgba(31,42,68,.18)}.jungle{opacity:.55}.jungle .walk{display:none}}
 
+/* global layout safety: tab rows wrap instead of hiding behind a scroll, no overlay toasts on phones, decor behind content */
+@media (max-width:1100px){div#tabs,div#kinds,div#topics,div#units,div#songs,div#chips{flex-wrap:wrap!important;overflow-x:visible!important;justify-content:center}div#tabs>*,div#kinds>*,div#topics>*,div#units>*,div#songs>*,div#chips>*{flex-shrink:1!important}div#tabs .stars,div#chips .stars{position:static!important;background:none!important;margin-left:auto}}
+@media (max-width:760px){.dodo{display:none!important}}
+.dodo{opacity:0!important;transition:opacity .25s}.dodo.say{opacity:1!important}
+.jungle{z-index:-1!important}
+html{scroll-padding-top:calc(var(--hdrH,84px) + 8px)}
+
 .hud{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
 .hud .h{font:800 clamp(17px,2.4vw,22px) 'Baloo 2',sans-serif;color:#1A2A5A}
 .board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;max-width:min(1000px,calc((100svh - 240px)*1.6));margin:0 auto}
@@ -658,7 +665,7 @@ function speakPanel(box,target,vi,opts){opts=opts||{};
 .fgrp>div{flex:1;display:flex;align-items:flex-end;justify-content:center}.fgrp img{max-width:100%;max-height:100%}
 .fruler{position:relative;width:100%;aspect-ratio:1;display:flex;align-items:flex-end;justify-content:center;background:repeating-linear-gradient(to top,#FFFFFF 0 18%,#F1F5FA 18% 20%)}
 .fruler .bar{position:absolute;left:6px;bottom:0;width:12px;border-radius:6px;background:linear-gradient(#FFB74D,#FB8C00)}
-.fruler .who{display:flex;align-items:flex-end;justify-content:center;width:100%}.fruler img{max-width:80%;max-height:100%;object-fit:contain}
+.fruler .who{display:flex;align-items:flex-end;justify-content:center;width:100%}.fruler .who{min-height:0}.fruler img{max-width:80%;max-height:100%;height:100%;width:auto;object-fit:contain;object-position:50% 100%}
 .fcrowd{width:100%;aspect-ratio:1;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:4px}
 .fcrowd .fp{width:calc(100% / var(--c,3) - 4px);display:flex;flex-direction:column;align-items:center;min-width:0}.fcrowd .fphi{width:100%;aspect-ratio:1;object-fit:contain;display:block}.fcrowd .femo{font-size:clamp(34px,6vw,64px)}.fcrowd b{font:800 12px 'Nunito',sans-serif;color:var(--muted)}
 .spk{background:#FFF8E1;border-radius:20px;padding:10px 12px;margin-top:8px;font:800 15px 'Nunito',sans-serif;color:var(--ink)}

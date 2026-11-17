@@ -90,6 +90,13 @@ main{position:relative;z-index:1;padding-bottom:max(70px,env(safe-area-inset-bot
 .toast{width:max-content;max-width:min(92vw,560px);box-sizing:border-box}
 @media (max-width:760px){.dodo{top:calc(6px + env(safe-area-inset-top));bottom:auto;right:auto;left:50%;transform:translateX(-50%);z-index:70}.dodo .d{display:none}.dodo .bub{margin:0;border-radius:18px;box-shadow:0 6px 16px rgba(31,42,68,.18)}.jungle{opacity:.55}.jungle .walk{display:none}}
 
+/* global layout safety: tab rows wrap instead of hiding behind a scroll, no overlay toasts on phones, decor behind content */
+@media (max-width:1100px){div#tabs,div#kinds,div#topics,div#units,div#songs,div#chips{flex-wrap:wrap!important;overflow-x:visible!important;justify-content:center}div#tabs>*,div#kinds>*,div#topics>*,div#units>*,div#songs>*,div#chips>*{flex-shrink:1!important}div#tabs .stars,div#chips .stars{position:static!important;background:none!important;margin-left:auto}}
+@media (max-width:760px){.dodo{display:none!important}}
+.dodo{opacity:0!important;transition:opacity .25s}.dodo.say{opacity:1!important}
+.jungle{z-index:-1!important}
+html{scroll-padding-top:calc(var(--hdrH,84px) + 8px)}
+
 .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 .rule{text-align:center;font:800 17px 'Nunito',sans-serif;color:var(--muted);margin:0 0 12px}
 .wrap{display:flex;gap:24px;justify-content:center;align-items:center;flex-wrap:wrap}

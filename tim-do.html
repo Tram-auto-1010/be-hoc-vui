@@ -90,6 +90,13 @@ main{position:relative;z-index:1;padding-bottom:max(70px,env(safe-area-inset-bot
 .toast{width:max-content;max-width:min(92vw,560px);box-sizing:border-box}
 @media (max-width:760px){.dodo{top:calc(6px + env(safe-area-inset-top));bottom:auto;right:auto;left:50%;transform:translateX(-50%);z-index:70}.dodo .d{display:none}.dodo .bub{margin:0;border-radius:18px;box-shadow:0 6px 16px rgba(31,42,68,.18)}.jungle{opacity:.55}.jungle .walk{display:none}}
 
+/* global layout safety: tab rows wrap instead of hiding behind a scroll, no overlay toasts on phones, decor behind content */
+@media (max-width:1100px){div#tabs,div#kinds,div#topics,div#units,div#songs,div#chips{flex-wrap:wrap!important;overflow-x:visible!important;justify-content:center}div#tabs>*,div#kinds>*,div#topics>*,div#units>*,div#songs>*,div#chips>*{flex-shrink:1!important}div#tabs .stars,div#chips .stars{position:static!important;background:none!important;margin-left:auto}}
+@media (max-width:760px){.dodo{display:none!important}}
+.dodo{opacity:0!important;transition:opacity .25s}.dodo.say{opacity:1!important}
+.jungle{z-index:-1!important}
+html{scroll-padding-top:calc(var(--hdrH,84px) + 8px)}
+
 .scenes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}.scenes .btn{font-size:16px;padding:7px 13px}
 .hud{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .sc{position:relative;width:min(100%,calc((100svh - 300px)*1.55));aspect-ratio:1.55;margin:0 auto;border-radius:30px;overflow:hidden;box-shadow:0 7px 0 rgba(31,42,68,.12)}
@@ -674,7 +681,7 @@ function build(){scenes.querySelectorAll('button').forEach(b=>b.classList.toggle
   if(s.board)sc.insertAdjacentHTML('beforeend','<div style="position:absolute;left:32%;top:8%;width:36%;height:26%;background:#2E7D32;border:8px solid #8D6E63;border-radius:10px;color:#FFFFFF;font:800 clamp(18px,4vw,40px) \'Baloo 2\',sans-serif;display:grid;place-items:center">A B C</div>');
   const W=sc.clientWidth;
   s.deco.forEach(([e,x,y,w])=>sc.insertAdjacentHTML('beforeend','<span class="deco" style="left:'+x+'%;top:'+y+'%;font-size:'+(W*w/100)+'px">'+e+'</span>'));
-  const its=s.items.map(([t,w,x,y,sz])=>{const it=V(t,w);const b=document.createElement('button');b.className='it';const px=W*sz/100;b.style.cssText='left:'+x+'%;top:'+y+'%;width:'+px+'px;height:'+px+'px;--w:'+px+'px';
+  const its=s.items.map(([t,w,x,y,sz])=>{const it=V(t,w);const b=document.createElement('button');b.className='it';const px=W*sz/100;const _H=sc.clientHeight||W*.6;x=Math.max(1,Math.min(x,99-sz));y=Math.max(1,Math.min(y,99-px/_H*100));b.style.cssText='left:'+x+'%;top:'+y+'%;width:'+px+'px;height:'+px+'px;--w:'+px+'px';
     b.innerHTML=vocPic(it)+'<span class="lab">'+it[1]+'</span>';b.onclick=()=>tap(b,it);sc.appendChild(b);return it});
   order=shuffle(its);k=0;busy=false;show();}
 function show(){const it=order[k];document.getElementById('prog').textContent='🔎 '+k+' / '+order.length;if(!it)return;document.getElementById('q').textContent=qText(it);ask()}

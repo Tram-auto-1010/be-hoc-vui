@@ -90,6 +90,13 @@ main{position:relative;z-index:1;padding-bottom:max(70px,env(safe-area-inset-bot
 .toast{width:max-content;max-width:min(92vw,560px);box-sizing:border-box}
 @media (max-width:760px){.dodo{top:calc(6px + env(safe-area-inset-top));bottom:auto;right:auto;left:50%;transform:translateX(-50%);z-index:70}.dodo .d{display:none}.dodo .bub{margin:0;border-radius:18px;box-shadow:0 6px 16px rgba(31,42,68,.18)}.jungle{opacity:.55}.jungle .walk{display:none}}
 
+/* global layout safety: tab rows wrap instead of hiding behind a scroll, no overlay toasts on phones, decor behind content */
+@media (max-width:1100px){div#tabs,div#kinds,div#topics,div#units,div#songs,div#chips{flex-wrap:wrap!important;overflow-x:visible!important;justify-content:center}div#tabs>*,div#kinds>*,div#topics>*,div#units>*,div#songs>*,div#chips>*{flex-shrink:1!important}div#tabs .stars,div#chips .stars{position:static!important;background:none!important;margin-left:auto}}
+@media (max-width:760px){.dodo{display:none!important}}
+.dodo{opacity:0!important;transition:opacity .25s}.dodo.say{opacity:1!important}
+.jungle{z-index:-1!important}
+html{scroll-padding-top:calc(var(--hdrH,84px) + 8px)}
+
 .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 .grp{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .lvb{font-size:16px;padding:8px 14px}
@@ -646,12 +653,12 @@ function make(im,n){area.querySelectorAll('.pc').forEach(e=>e.remove());pieces=[
   layout();pieces.forEach(p=>{p.hx+=L.bx;p.hy+=L.by;p.x=p.hx;p.y=p.hy;show(p,false);drag(p)});
   const N=pieces.length,pw=pieces[0].cw,ph=pieces[0].chh,cols=Math.max(1,Math.min(N,Math.round(Math.sqrt(N*(L.tw/pw)/(L.th/ph))))),rows=Math.ceil(N/cols),gw=L.tw/cols,gh=L.th/rows;
   /* pieces waiting in the tray are shown smaller so they never pile on top of each other; they grow back when picked up */
-  const tsc=Math.max(.42,Math.min(1,Math.min(gw/pw,gh/ph)*1.12));
+  const tsc=Math.max(.3,Math.min(1,Math.min(gw/pw,gh/ph)*.96));
   shuffle(pieces.map((_,i)=>i)).forEach((slot,i)=>{const p=pieces[i],c=slot%cols,r=(slot/cols)|0;p.sc=tsc;const w=p.cw*tsc,h=p.chh*tsc;
     p.tx=L.tx+c*gw+(gw-w)/2;p.ty=L.ty+r*gh+(gh-h)/2;
     FT(()=>{p.x=p.tx;p.y=p.ty;show(p,true)},450+i*60)});
   document.getElementById('prog').textContent='🧩 0 / '+N;
-  if(innerWidth<=760&&started)FT(()=>window.scrollTo({top:area.getBoundingClientRect().top+scrollY-8,behavior:'smooth'}),300);started=true;
+  if(innerWidth<=760&&started)FT(()=>window.scrollTo({top:area.getBoundingClientRect().top+scrollY-((document.querySelector('.bar')||{}).offsetHeight||0)-8,behavior:'smooth'}),300);started=true;
   FT(()=>sayEN("Let's make the "+cur[0]+'!','Bé ghép tranh '+cur[1]+' nhé! Kéo mảnh vào đúng chỗ.'),200)}
 let topZ=10,started=false;
 function drag(p){p.el.addEventListener('pointerdown',e=>{if(p.done)return;e.preventDefault();p.el.setPointerCapture(e.pointerId);p.el.classList.remove('fly');p.el.classList.add('drag');p.el.style.zIndex=++topZ;sfx.tap&&sfx.tap();
