@@ -86,6 +86,10 @@ img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-
 button,a,.btn,[onclick]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
+main{position:relative;z-index:1;padding-bottom:max(70px,env(safe-area-inset-bottom))}
+.toast{width:max-content;max-width:min(92vw,560px);box-sizing:border-box}
+@media (max-width:760px){.dodo{top:calc(6px + env(safe-area-inset-top));bottom:auto;right:auto;left:50%;transform:translateX(-50%);z-index:70}.dodo .d{display:none}.dodo .bub{margin:0;border-radius:18px;box-shadow:0 6px 16px rgba(31,42,68,.18)}.jungle{opacity:.55}.jungle .walk{display:none}}
+
 .modes{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.modes .stars{margin-left:auto}
 .ask{font:800 clamp(24px,4vw,38px)/1.2 'Baloo 2',sans-serif;text-align:center;margin:6px 0 4px;cursor:pointer}
 .ask small{display:block;font:800 14px 'Nunito',sans-serif;color:var(--muted)}
@@ -149,7 +153,16 @@ recLoad();
 function playClip(group,then){if(!voiceOn||!REC[group]||!REC[group].length){then&&then();return false}try{if(_aud)_aud.pause();_aud=new Audio(REC[group][rand(REC[group].length)]);_aud.onended=()=>then&&then();_aud.play().catch(()=>then&&then())}catch(e){then&&then();return false}return true}
 function cute(t){return t.replace(/\s*\.\s+/g,'. ').replace(/!/g,'!')}
 const _SS=('speechSynthesis' in window)?speechSynthesis:null;
-function _speakQ(list){if(!_SS)return;try{_SS.cancel();list.forEach(u=>_SS.speak(u))}catch(e){}}
+/* speech manager: a tap from the child interrupts at once; speech started automatically (by a timer) waits until the current sentence ends, so voices never pile up */
+let _inTimer=0,_pend=null,_pendAt=0,_tok=0;
+const _st0=window.setTimeout.bind(window),_si0=window.setInterval.bind(window);
+window.setTimeout=function(fn,ms,...a){if(typeof fn!=='function')return _st0(fn,ms,...a);return _st0(function(){_inTimer++;try{return fn.apply(this,a)}finally{_inTimer--}},ms)};
+window.setInterval=function(fn,ms,...a){if(typeof fn!=='function')return _si0(fn,ms,...a);return _si0(function(){_inTimer++;try{return fn.apply(this,a)}finally{_inTimer--}},ms)};
+function _busy(){return !!(_SS&&(_SS.speaking||_SS.pending))}
+function _doSpeak(list){const my=++_tok;try{const b=_busy();_SS.cancel();const go=()=>{if(my!==_tok)return;try{_SS.cancel();list.forEach(u=>_SS.speak(u))}catch(e){}};if(b)_st0(go,140);else go()}catch(e){}}
+function _speakQ(list){if(!_SS||!list.length)return;if(_inTimer&&_busy()){_pend=list;_pendAt=Date.now();return}_pend=null;_doSpeak(list)}
+function speechStop(){_pend=null;_tok++;try{_SS&&_SS.cancel()}catch(e){}try{if(_aud)_aud.pause()}catch(e){}}
+_si0(()=>{if(_pend&&(!_busy()||Date.now()-_pendAt>7000)){const l=_pend;_pend=null;_doSpeak(l)}},150);
 function tts(vi,en){if(!voiceOn||!_SS)return;const Q=[];
   const L=VS.lang||'vi';if(L==='vi')en='';else if(L==='en'&&en)vi='';
   if(vi){(vi.match(/[^.!?]+[.!?]*/g)||[]).map(x=>x.trim()).filter(Boolean).forEach((part,i)=>{const u=new SpeechSynthesisUtterance(cute(part));u.lang='vi-VN';const v=pickVoice('vi');if(v)u.voice=v;
