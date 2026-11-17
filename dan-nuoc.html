@@ -154,11 +154,20 @@ function _doSpeak(list){const my=++_tok;try{const b=_busy();_SS.cancel();const g
 function _speakQ(list){if(!_SS||!list.length)return;if(_inTimer&&_busy()){_pend=list;_pendAt=Date.now();return}_pend=null;_doSpeak(list)}
 function speechStop(){_pend=null;_tok++;try{_SS&&_SS.cancel()}catch(e){}try{if(_aud)_aud.pause()}catch(e){}}
 _si0(()=>{if(_pend&&(!_busy()||Date.now()-_pendAt>7000)){const l=_pend;_pend=null;_doSpeak(l)}},150);
-function tts(vi,en){if(!voiceOn||!_SS)return;const Q=[];
-  const L=VS.lang||'vi';if(L==='vi')en='';else if(L==='en'&&en)vi='';
-  if(vi){(vi.match(/[^.!?]+[.!?]*/g)||[]).map(x=>x.trim()).filter(Boolean).forEach((part,i)=>{const u=new SpeechSynthesisUtterance(cute(part));u.lang='vi-VN';const v=pickVoice('vi');if(v)u.voice=v;
-    const ex=/!$/.test(part);u.rate=VS.rate*(ex?1.04:1);u.pitch=Math.min(2,VS.pitch*(ex?1.08:1));u.volume=1;Q.push(u)})}
-  if(en){const v=pickVoice('en');(enFix(en).match(/[^.!?]+[.!?]*/g)||[]).map(x=>x.trim()).filter(Boolean).forEach(part=>{const e=new SpeechSynthesisUtterance(part);e.lang=v?v.lang:'en-US';if(v)e.voice=v;e.rate=Math.max(.75,Math.min(1,VS.rate*1.02));e.pitch=Math.max(1,Math.min(1.25,VS.pitch*.85));e.volume=1;Q.push(e)})}
+function mkU(text,lang){const ex=/!$/.test(text);if(lang==='vi'){const u=new SpeechSynthesisUtterance(cute(text));u.lang='vi-VN';const v=pickVoice('vi');if(v)u.voice=v;u.rate=VS.rate*(ex?1.04:1);u.pitch=Math.min(2,VS.pitch*(ex?1.08:1));u.volume=1;return u}
+  const v=pickVoice('en');const e=new SpeechSynthesisUtterance(enFix(text));e.lang=v?v.lang:'en-US';if(v)e.voice=v;e.rate=Math.max(.7,Math.min(.9,VS.rate*.95));e.pitch=Math.max(1,Math.min(1.25,VS.pitch*.85));e.volume=1;return e}
+const _sent=t=>(String(t).match(/[^.!?…]+[.!?…]*/g)||[]).map(x=>x.trim()).filter(Boolean);
+/* English feedback/instructions -> Vietnamese (used when the chosen language is Tiếng Việt). English words the child is learning stay English. */
+const FB_VI={'yes!':'Đúng rồi!','yes.':'Đúng rồi.','super!':'Tuyệt vời!','great!':'Giỏi quá!','great job!':'Giỏi quá!','good job!':'Giỏi lắm!','well done!':'Giỏi lắm!','perfect!':'Chính xác!','excellent!':'Xuất sắc!','correct!':'Đúng rồi!',"that's right!":'Đúng rồi!','wow!':'Oa!','hooray!':'Hoan hô!','pop!':'Bụp!','splash!':'Tõm!','yummy!':'Ngon quá!','oops!':'Ối!','oh no!':'Ôi không!','hmm.':'Hừm.','no.':'Không phải.','hmm, no.':'Không phải rồi.','hmm, not yet.':'Chưa đúng rồi.','hmm, not quite.':'Chưa đúng lắm.','not yet!':'Chưa đúng!','almost!':'Gần đúng rồi!','look again!':'Bé nhìn lại nhé!','hmm, look again!':'Bé nhìn lại nhé!','try again!':'Bé thử lại nhé!','think again!':'Bé nghĩ lại nhé!','keep going!':'Tiếp nào!',"let's count again!":'Mình đếm lại nhé!','all done!':'Xong hết rồi!','you win!':'Bé thắng rồi!','you win the race!':'Bé thắng cuộc đua rồi!','go go go!':'Chạy nào!','you found it!':'Bé tìm thấy rồi!','you found everything!':'Bé tìm được hết rồi!','you found them all!':'Bé tìm được hết rồi!','all pairs!':'Đủ cặp rồi!','you got a sticker!':'Bé được thêm một sticker!','look at your stickers!':'Bé xem sticker nhé!','super eyes!':'Mắt bé tinh quá!','you are a super talker!':'Bé nói giỏi quá!','dino is right!':'Dino nói đúng!','is dino right?':'Dino nói đúng không?','thank you!':'Cảm ơn bé!','bye bye!':'Tạm biệt!','goodbye!':'Tạm biệt!','hello!':'Xin chào!','hi!':'Chào bé!','oh, nice!':'Ồ, hay quá!','tap it!':'Bé chạm vào nhé!','open a window and look!':'Bé mở một cửa sổ ra xem nhé!','open another window!':'Bé mở cửa sổ khác nhé!',"let's review!":'Mình cùng ôn bài nhé!','spin the wheel!':'Bé quay vòng quay nhé!','you are the teacher!':'Bé làm cô giáo nhé!','ask dino a question!':'Bé hỏi Dino một câu nhé!','flip the cards and find the pairs!':'Bé lật thẻ tìm cặp nhé!','find a question and its answer!':'Bé tìm câu hỏi và câu trả lời nhé!','choose two or more people, please!':'Bé chọn từ hai người trở lên nhé!','listen to another clue!':'Nghe thêm gợi ý nhé!','fix the arrows':'Bé sửa lại mũi tên nhé','oops, off the map!':'Ối, đi ra ngoài rồi!','oops, a rock!':'Ối, đụng đá rồi!','tap the dinosaur to hear the words':'Bé chạm vào khủng long để nghe từ nhé','the frog is home!':'Ếch về nhà rồi!','dino is home!':'Dino về nhà rồi!','new sticker!':'Sticker mới!'};
+const fbVI=t=>FB_VI[String(t).trim().toLowerCase()]||null;
+/* Vietnamese feedback -> English (used when the chosen language is English and a game gave no English line) */
+const FB_EN=[[/^(giỏi quá|bé giỏi lắm|giỏi lắm)/i,'Great job!'],[/^(đúng rồi|đúng chỗ rồi)/i,"That's right!"],[/^tuyệt( vời)?/i,'Wonderful!'],[/^hoan hô/i,'Hooray!'],[/^(thử lại|bé thử lại|bé làm lại)/i,'Try again!'],[/^(gần đúng)/i,'Almost!'],[/^(chưa đúng|chưa phải|chưa khớp|ồ, chưa)/i,'Not quite. Try again!'],[/^tiếp nào/i,'Keep going!'],[/^bụp/i,'Pop!'],[/^(xong|bé .*xong)/i,'All done!'],[/^nhăm nhăm/i,'Yummy!'],[/^trứng nở rồi/i,'It hatched!']];
+const fbEN=t=>{t=String(t).trim();for(const [r,e] of FB_EN)if(r.test(t))return e;return null};
+const LANG=()=>VS.lang==='en'?'en':'vi';
+function tts(vi,en){if(!voiceOn||!_SS)return;const Q=[];const L=LANG();
+  if(L==='en'){if(!en&&vi){/* translate the feedback parts only; never read Vietnamese aloud in English mode */const parts=_sent(vi).map(fbEN).filter(Boolean);en=parts.length?[...new Set(parts)].join(' '):''}
+    if(en)_sent(en).forEach(p=>Q.push(mkU(p,'en')))}
+  else{if(vi)_sent(vi).forEach(p=>Q.push(mkU(p,'vi')));else if(en)_sent(en).forEach(p=>{const v=fbVI(p);Q.push(v?mkU(v,'vi'):mkU(p,'en'))})}
   if(window._ttsExtra){Q.push(window._ttsExtra);window._ttsExtra=null}
   _speakQ(Q)}
 const PRAISE_RE=/^(Giỏi quá|Đúng rồi|Tuyệt vời|Bé giỏi lắm|Tuyệt|Hoan hô|Nhăm nhăm|Nở rồi|Hiện ra rồi)[!.,]?\s*/;
@@ -176,7 +185,9 @@ function setupLangBtn(vb){if(!vb||document.getElementById('langBtn'))return;cons
   vb.parentNode.insertBefore(b,vb)}
 function setupVoiceBtn(){const b=document.getElementById('voiceBtn');if(!b)return;setupLangBtn(b);const r=()=>{b.textContent=voiceOn?'🔊':'🔇';b.classList.toggle('off',!voiceOn);b.title=voiceOn?'Tắt tiếng':'Bật tiếng'};r();b.onclick=()=>{voiceOn=!voiceOn;try{localStorage.setItem(VOICE_KEY,voiceOn?'1':'0')}catch(e){}if(!voiceOn&&'speechSynthesis' in window)speechSynthesis.cancel();r()}}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function rand(n){return Math.floor(Math.random()*n)}
+const _rh={};function rand(n){const r0=()=>Math.floor(Math.random()*n);if(n<4)return r0();const h=_rh[n]||(_rh[n]=[]);const k=Math.min(3,Math.floor(n/2));let v,t=0;do{v=r0()}while(h.includes(v)&&++t<30);h.push(v);while(h.length>k)h.shift();return v}
+/* bag: goes through every item once (shuffled) before any repeats */
+const _bags=new Map();function bag(key,arr){let b=_bags.get(key);if(!b||!b.length){b=shuffle(arr.slice());const last=_bags.get(key+'_last');if(b.length>1&&b[b.length-1]===last)b.unshift(b.pop());_bags.set(key,b)}const v=b.pop();_bags.set(key+'_last',v);return v}
 function confetti(){const em=['🦕','🦖','🥚','🌴','⭐','🎉','🌟','💖'];for(let i=0;i<26;i++){const s=document.createElement('span');s.className='confetti';s.textContent=em[rand(em.length)];s.style.left=rand(100)+'vw';s.style.animationDelay=(Math.random()*0.8)+'s';document.body.appendChild(s);setTimeout(()=>s.remove(),3200)}}
 function toast(html,ms){const t=document.createElement('div');t.className='toast';t.innerHTML=html;document.body.appendChild(t);if(ms)setTimeout(()=>t.remove(),ms);return t}
 const PRAISE=[['Giỏi quá!','Great job!'],['Đúng rồi!','Well done!'],['Tuyệt vời!','Awesome!'],['Bé giỏi lắm!','Super!']];
@@ -222,8 +233,8 @@ say=function(vi,en){if(vi&&Date.now()-_lastSfx>400){if(WRONG.test(vi))bad(null);
 let _dodoT=null;
 function dodo(kind,text){const d=document.querySelector('.dodo');if(!d)return;d.classList.remove('happy','sad','say');void d.offsetWidth;d.querySelector('.bub').textContent=text;d.classList.add(kind,'say');clearTimeout(_dodoT);_dodoT=setTimeout(()=>d.classList.remove('say','happy','sad'),1800)}
 const _good0=good,_bad0=bad;
-good=function(el){_good0(el);addStar(1);dodo('happy',['Giỏi quá! 🎉','Đúng rồi! ⭐','Tuyệt vời! 🦕','Hoan hô! 🥳'][rand(4)])};
-bad=function(el){_bad0(el);dodo('sad',['Thử lại nha! 💪','Gần đúng rồi! 🤗','Bé làm lại nhé! 🦕'][rand(3)])};
+good=function(el){_good0(el);addStar(1);dodo('happy',(LANG()==='en'?['Great job! 🎉','Correct! ⭐','Super! 🦕','Hooray! 🥳']:['Giỏi quá! 🎉','Đúng rồi! ⭐','Tuyệt vời! 🦕','Hoan hô! 🥳'])[rand(4)])};
+bad=function(el){_bad0(el);dodo('sad',(LANG()==='en'?['Try again! 💪','Almost! 🤗','Once more! 🦕']:['Thử lại nha! 💪','Gần đúng rồi! 🤗','Bé làm lại nhé! 🦕'])[rand(3)])};
 /* ===== Kéo thả dùng chung ===== */
 function dragify(el,targetSel,onDrop,onTap){el.style.touchAction='none';el.addEventListener('pointerdown',e=>{e.preventDefault();const sx=e.clientX,sy=e.clientY,r=el.getBoundingClientRect();let g=null;
   const at=(x,y)=>{const t=document.elementFromPoint(x,y);return t&&t.closest(targetSel)};
@@ -238,9 +249,12 @@ async function saveFile(blob,name){try{if(window.claude&&window.claude.use){cons
 const EN_NAMES={"khủng long cổ dài": "long-neck dinosaur", "khủng long bạo chúa": "T-rex", "cá sấu": "crocodile", "con chó": "dog", "con mèo": "cat", "con thỏ": "rabbit", "con voi": "elephant", "con cá": "fish", "con gà": "chicken", "con vịt": "duck", "con lợn": "pig", "con bò": "cow", "con khỉ": "monkey", "con ếch": "frog", "sư tử": "lion", "con rùa": "turtle", "hươu cao cổ": "giraffe", "gấu trúc": "panda", "con bướm": "butterfly", "lá cây": "leaves", "miếng thịt": "meat", "cà rốt": "carrot", "quả chuối": "banana", "khúc xương": "bone", "lá tre": "bamboo", "mật ong": "honey", "bó cỏ": "grass", "hạt ngô": "corn", "phô mai": "cheese", "bông hoa": "flower", "quả trứng": "egg", "vỏ ốc": "seashell", "viên đá quý": "gem", "con cua": "crab", "chiếc chìa khóa": "key", "núi lửa": "volcano", "xe cứu hỏa": "fire engine", "khủng long": "dinosaur", "bạch tuộc": "octopus", "tàu hỏa": "train", "kỳ lân": "unicorn", "khủng long mẹ": "mother dinosaur", "thỏ": "rabbit", "khỉ": "monkey", "cún con": "puppy", "mèo": "cat", "gấu": "bear", "hũ mật ong": "honey pot", "ong": "bee", "chuột": "mouse", "miếng phô mai": "cheese", "trứng": "egg", "cây dừa": "palm tree", "táo": "apple", "chuối": "banana", "nho": "grapes", "dâu": "strawberry", "sao": "star", "trăng": "moon", "mặt trời": "sun", "chó": "dog", "đỏ": "red", "xanh": "blue", "vàng": "yellow", "xanh lá": "green", "ô tô": "car", "xe buýt": "bus", "hoa": "flower", "lá": "leaf", "cá": "fish", "gà con": "chick", "quả táo": "apple", "cái cây": "tree", "con gấu": "bear", "ngôi sao": "star", "hạt giống": "seed", "nảy mầm": "sprout", "ra hoa": "flower", "gà mẹ": "hen", "em bé": "baby", "bé đi học": "child", "người lớn": "grown-up", "rửa tay": "wash hands", "ăn cơm": "eat", "đánh răng": "brush teeth", "mây đen": "dark clouds", "trời mưa": "rain", "cầu vồng": "rainbow", "gà trống": "rooster", "con dê": "goat", "con ngựa": "horse", "con ong": "bee", "con rắn": "snake", "khủng long con": "baby dinosaur", "chuột hamster": "hamster", "mèo con": "kitten", "ngôi nhà": "house", "trái tim": "heart", "mặt trăng": "moon", "màu đỏ": "red", "màu cam": "orange", "màu vàng": "yellow", "xanh dương": "blue", "màu tím": "purple", "màu hồng": "pink", "màu nâu": "brown", "màu đen": "black", "cục tẩy": "eraser"};
 function en(v){return EN_NAMES[v]||v}
 /* ===== Tiếng Anh: luôn đọc bằng tiếng Anh (trò học tiếng Anh) ===== */
-function sayEN(t,viAfter){if(!voiceOn||!('speechSynthesis' in window))return;const old=VS.lang;
-  if(viAfter&&old!=='en'){const u=new SpeechSynthesisUtterance(viAfter);u.lang='vi-VN';const v=pickVoice('vi');if(v)u.voice=v;u.rate=VS.rate;u.pitch=VS.pitch;window._ttsExtra=u}
-  VS.lang='en';tts('',t);VS.lang=old}
+function sayEN(t,viAfter){if(!voiceOn||!_SS)return;const L=LANG();const Q=[];
+  _sent(t).forEach(p=>{if(L==='vi'){const v=fbVI(p);if(v){Q.push(mkU(v,'vi'));return}
+      const m=p.match(/^Find (.+)!$/);if(m&&!viAfter){Q.push(mkU('Bé tìm','vi'));Q.push(mkU(m[1],'en'));return}}
+    Q.push(mkU(p,'en'))});
+  if(viAfter&&L==='vi')_sent(viAfter).forEach(p=>Q.push(mkU(p,'vi')));
+  _speakQ(Q)}
 /* ===== Ngôi sao tích lũy để mở khóa bạn khủng long ===== */
 const STAR_KEY='bhv-stars';
 function addStar(n){try{const v=(+localStorage.getItem(STAR_KEY)||0)+(n||1);localStorage.setItem(STAR_KEY,v);return v}catch(e){return 0}}
@@ -454,13 +468,14 @@ function stkShow(t,x,done,n,N){const d=document.createElement('div');d.className
   d.innerHTML='<div class="stkcard"><div class="stkt">🎁 Sticker mới! · New sticker!</div><div class="stkimg"><img src="'+WIMG[x[0]]+'" alt=""></div><b>'+x[1]+'</b><small>'+t[1]+' '+t[2]+' · 📒 '+n+'/'+N+'</small>'+(done?'<div class="stkbadge">🏅 Đủ bộ '+t[2]+'!</div>':'')+'<a href="album-sticker.html">📒 Xem album</a></div>';
   document.body.appendChild(d);try{sfx.win&&sfx.win()}catch(e){}
   setTimeout(()=>{try{if(window.sayEN)sayEN('You got a sticker! '+x[1]+'!'+(done?' You finished the '+t[3]+' set!':''),done?'Bé sưu tập đủ bộ '+t[2]+' rồi!':null)}catch(e){}},700);
-  if(done)try{confetti()}catch(e){}
+  if(done)try{_stkIn=true;confetti()}catch(e){}finally{_stkIn=false}
   d.onclick=e=>{if(e.target.tagName!=='A')d.remove()};setTimeout(()=>d.classList.add('out'),3400);setTimeout(()=>d.remove(),3900)}
 let _stkLast=0;
-function stkTick(){if(/album-sticker/.test(location.pathname)||document.getElementById('shelf'))return;const now=Date.now();if(now-_stkLast<1200)return;_stkLast=now;
+function stkTick(){if(/album-sticker/.test(location.pathname)||document.getElementById('shelf'))return;const now=Date.now();if(now-_stkLast<5000)return;_stkLast=now;
   let c=0;try{c=+(localStorage.getItem(STK_CNT)||0)+1;localStorage.setItem(STK_CNT,c)}catch(e){c=1}
-  if(c%3===0)setTimeout(stkAward,1300)}
-(function(){const g0=good;good=function(el){g0.apply(this,arguments);try{stkTick()}catch(e){}};
+  setTimeout(stkAward,1800)}
+/* a sticker is earned when the child FINISHES a round (the celebration), not in the middle of playing */
+let _stkIn=false;(function(){const c0=confetti;confetti=function(){c0.apply(this,arguments);if(_stkIn)return;try{stkTick()}catch(e){}};
   const st=document.createElement('style');st.textContent=`.stkpop{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(0,0,0,.25);animation:stkin .3s}
 .stkpop.out{animation:stkout .5s forwards}
 @keyframes stkin{from{opacity:0}}@keyframes stkout{to{opacity:0}}
@@ -532,6 +547,20 @@ async function exp(){const L=await all();if(!L.length){toast('Chưa có lỗi n�
  const ok=await saveFile(blob,'loi-be-hoc-vui-'+new Date().toISOString().slice(0,16).replace(/[:T]/g,'-')+'.json');if(ok)toast('📤 Đã lưu file. Ba mẹ gửi file này vào khung chat cho Claude nhé!',3500)}
 function addBtn(){const b=document.createElement('button');b.id='dlBtn';b.title='Dò lỗi';b.textContent='🐞';b.onclick=menu;document.body.appendChild(b);count();setTimeout(scan,1500)}
 if(document.body)addBtn();else document.addEventListener('DOMContentLoaded',addBtn);
+})();
+/* ===== Trò chữ cái: bắt buộc chọn Tiếng Việt hay English trước khi chơi ===== */
+(function(){const kind=document.documentElement.dataset.letters;if(!kind)return;/* 'vi' = Vietnamese letters only, 'en' = English letters only, 'both' */
+ const ALT={vi:'abc.html',en:'chu-cai.html'};
+ function apply(l){VS.lang=l;saveVS();const b=document.getElementById('langBtn');if(b){const x=LANGS.find(z=>z[0]===l);b.innerHTML='<span style="font-size:22px">'+x[1]+'</span><span class="lt-name">'+x[2]+'</span>'}
+   if(kind!=='both'&&kind!==l){location.replace(ALT[kind]+'?l='+l);return true}return false}
+ const q=(location.search.match(/[?&]l=(vi|en)/)||[])[1];
+ if(q){VS.lang=q;saveVS()}
+ else{const m=document.createElement('div');m.className='lgate';m.innerHTML='<div class="lgc"><div class="lgt">Bé học chữ cái tiếng nào?<small>Which alphabet?</small></div><div class="lgb"><button data-l="vi"><span>🇻🇳</span>Tiếng Việt<small>29 chữ cái</small></button><button data-l="en"><span>🇬🇧</span>English<small>26 letters</small></button></div></div>';
+   const st=document.createElement('style');st.textContent='.lgate{position:fixed;inset:0;z-index:9500;background:rgba(31,42,68,.55);display:grid;place-items:center;padding:16px}.lgc{background:#fff;border-radius:28px;padding:22px;max-width:560px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.35)}.lgt{font:800 clamp(24px,4vw,34px)/1.15 "Baloo 2",sans-serif;color:#1A2A5A;margin-bottom:16px}.lgt small{display:block;font:800 15px Nunito,sans-serif;color:#6B7690}.lgb{display:grid;grid-template-columns:1fr 1fr;gap:14px}.lgb button{border:none;border-radius:24px;padding:18px 10px;cursor:pointer;font:800 clamp(20px,3.4vw,28px) "Baloo 2",sans-serif;color:#fff;box-shadow:0 6px 0 rgba(0,0,0,.18);display:flex;flex-direction:column;align-items:center;gap:4px}.lgb button span{font-size:clamp(46px,8vw,70px);line-height:1}.lgb button small{font:800 14px Nunito,sans-serif;opacity:.9}.lgb [data-l=vi]{background:#E53935}.lgb [data-l=en]{background:#1E88E5}';
+   document.head.appendChild(st);const add=()=>{document.body.appendChild(m);m.querySelectorAll('button').forEach(b=>b.onclick=()=>{const l=b.dataset.l;if(apply(l))return;m.remove();if(l==='vi')tts('Mình học chữ cái tiếng Việt nhé!');else tts('',"Let's learn the English alphabet!");try{dispatchEvent(new Event('langchange'))}catch(e){}})};
+   if(document.body)add();else document.addEventListener('DOMContentLoaded',add)}
+ /* the language button in the header switches alphabet on these pages */
+ addEventListener('langchange',()=>{if(document.querySelector('.lgate'))return;const l=LANG();if(kind!=='both'&&kind!==l)apply(l)});
 })();
 
 const N_=1,E_=2,S_=4,W_=8,DIR=[[N_,-1,0,S_],[E_,0,1,W_],[S_,1,0,N_],[W_,0,-1,E_]];
