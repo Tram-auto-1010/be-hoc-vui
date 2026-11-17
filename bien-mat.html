@@ -470,6 +470,65 @@ function stkTick(){if(/album-sticker/.test(location.pathname)||document.getEleme
 .stkcard small{display:block;font:800 14px 'Nunito',sans-serif;color:#5A6478}
 .stkbadge{margin-top:6px;font:800 18px 'Baloo 2',sans-serif;color:#FFFFFF;background:linear-gradient(#FFB300,#FB8C00);border-radius:999px;padding:4px 14px;display:inline-block}
 .stkcard a{display:inline-block;margin-top:10px;font:800 15px 'Nunito',sans-serif;color:#1565C0;text-decoration:none;background:#E3F2FD;border-radius:999px;padding:6px 14px}`;document.head.appendChild(st)})();
+/* ===== Chế độ dò lỗi cho ba mẹ: bấm 🐞, chạm chỗ lỗi, xuất 1 file gửi Claude ===== */
+(function(){
+const ON_KEY='be-doloi';const on=()=>{try{return localStorage.getItem(ON_KEY)==='1'}catch(e){return false}};
+if(/[?&]doloi=1/.test(location.search)){try{localStorage.setItem(ON_KEY,'1')}catch(e){}}
+if(/[?&]doloi=0/.test(location.search)){try{localStorage.removeItem(ON_KEY)}catch(e){}}
+window.doloiToggle=function(v){try{v?localStorage.setItem(ON_KEY,'1'):localStorage.removeItem(ON_KEY)}catch(e){}location.reload()};
+if(!on())return;
+const page=location.pathname.split('/').pop()+location.hash;const LOG=[];const t0=Date.now();
+const log=(k,m)=>{LOG.push([Math.round((Date.now()-t0)/100)/10,k,String(m).slice(0,160)]);if(LOG.length>80)LOG.shift()};
+addEventListener('error',e=>{log('JS',e.message+' @'+(e.lineno||''));autoSave('Lỗi chương trình',e.message)});
+addEventListener('unhandledrejection',e=>log('JS',(e.reason&&e.reason.message)||e.reason));
+document.addEventListener('pointerdown',e=>{if(e.target.closest('#dlPanel,#dlBtn'))return;const t=e.target.closest('button,a,[onclick],.card,.opt')||e.target;log('tap',(t.tagName+'.'+[...t.classList].join('.')+' '+(t.textContent||'').trim().slice(0,30)));setTimeout(scan,900)},true);
+if(window.speechSynthesis){const S=speechSynthesis,sp=S.speak.bind(S),ca=S.cancel.bind(S);S.speak=u=>{log('say',(S.speaking?'[chồng] ':'')+u.text);return sp(u)};S.cancel=()=>{if(S.speaking)log('cut','ngắt giọng đang đọc');return ca()}}
+const pl=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){log('sound',(this.src||'').split('/').pop().slice(0,40)+(window.speechSynthesis&&speechSynthesis.speaking?' [đè lên giọng đọc]':''));return pl.apply(this,arguments)};
+/* tự dò hình tràn khung / chồng nhau */
+let lastScan='';
+function scan(){const out=[];const vis=e=>{const s=getComputedStyle(e);if(s.visibility==='hidden'||+s.opacity<.2)return false;const r=e.getBoundingClientRect();return r.width>8&&r.height>8&&r.bottom>0&&r.top<innerHeight};
+ const card=e=>{const s=getComputedStyle(e);return s.backgroundColor!=='rgba(0, 0, 0, 0)'||s.boxShadow!=='none'};
+ document.querySelectorAll('main img').forEach(i=>{if(!vis(i))return;const r=i.getBoundingClientRect();let c=i.parentElement;while(c&&c!==document.body&&!card(c))c=c.parentElement;if(!c||c===document.body)return;const q=c.getBoundingClientRect();const o=Math.max(q.left-r.left,r.right-q.right,q.top-r.top,r.bottom-q.bottom);if(o>8)out.push('ảnh tràn khung '+Math.round(o)+'px ('+c.className+')')});
+ const bx=[...document.querySelectorAll('main button,main .card,main .opt')].filter(vis);for(let a=0;a<bx.length;a++)for(let b=a+1;b<bx.length;b++){if(bx[a].contains(bx[b])||bx[b].contains(bx[a]))continue;const A=bx[a].getBoundingClientRect(),B=bx[b].getBoundingClientRect();if(Math.min(A.right,B.right)-Math.max(A.left,B.left)>10&&Math.min(A.bottom,B.bottom)-Math.max(A.top,B.top)>10)out.push('2 nút chồng nhau: "'+bx[a].textContent.trim().slice(0,15)+'" / "'+bx[b].textContent.trim().slice(0,15)+'"')}
+ if(document.documentElement.scrollWidth>innerWidth+2)out.push('trang bị kéo ngang');
+ const k=out.join('|');if(out.length&&k!==lastScan){lastScan=k;out.slice(0,3).forEach(x=>log('auto',x));autoSave('Máy tự phát hiện',out.slice(0,4).join('; '))}}
+/* lưu trữ */
+function db(){return new Promise((ok,no)=>{const r=indexedDB.open('be-doloi',1);r.onupgradeneeded=()=>r.result.createObjectStore('bugs',{autoIncrement:true});r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
+async function put(o){const d=await db();return new Promise(ok=>{const t=d.transaction('bugs','readwrite');t.objectStore('bugs').add(o);t.oncomplete=()=>{ok();count()}})}
+async function all(){const d=await db();return new Promise(ok=>{const q=d.transaction('bugs').objectStore('bugs').getAll();q.onsuccess=()=>ok(q.result)})}
+async function clear(){const d=await db();return new Promise(ok=>{const t=d.transaction('bugs','readwrite');t.objectStore('bugs').clear();t.oncomplete=ok})}
+let autoN=0;function autoSave(kind,msg){if(autoN++>6)return;put({page,kind,note:msg,at:new Date().toLocaleString('vi-VN'),vw:innerWidth+'x'+innerHeight,ua:navigator.userAgent,log:LOG.slice(-25)})}
+async function count(){const n=(await all()).length;const b=document.getElementById('dlBtn');if(b)b.dataset.n=n||''}
+/* chụp màn hình */
+let h2c=null;function loadH2C(){if(window.html2canvas)return Promise.resolve();if(h2c)return h2c;h2c=new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});return h2c}
+async function shot(x,y){try{await loadH2C();const c=await html2canvas(document.body,{x:scrollX,y:scrollY,width:innerWidth,height:innerHeight,scale:Math.min(1,700/innerWidth),useCORS:true,logging:false,ignoreElements:e=>e.id==='dlPanel'||e.id==='dlBtn'||e.id==='dlAim'});const g=c.getContext('2d');const k=c.width/innerWidth;g.strokeStyle='#E53935';g.lineWidth=5;g.beginPath();g.arc(x*k,y*k,26*k+6,0,7);g.stroke();return c.toDataURL('image/jpeg',.7)}catch(e){return null}}
+/* giao diện */
+const css=document.createElement('style');css.textContent=`#dlBtn{position:fixed;left:10px;bottom:max(10px,env(safe-area-inset-bottom));z-index:9000;width:54px;height:54px;border-radius:50%;border:3px solid #fff;background:#E53935;color:#fff;font-size:26px;box-shadow:0 4px 12px rgba(0,0,0,.3);cursor:pointer}
+#dlBtn[data-n]:not([data-n=""]):after{content:attr(data-n);position:absolute;right:-6px;top:-6px;background:#1E88E5;border-radius:12px;min-width:22px;height:22px;font:800 13px/22px Nunito,sans-serif}
+#dlAim{position:fixed;inset:0;z-index:8999;cursor:crosshair;background:rgba(229,57,53,.08)}#dlAim div{position:fixed;left:50%;top:12px;transform:translateX(-50%);background:#E53935;color:#fff;padding:10px 16px;border-radius:16px;font:800 16px Nunito,sans-serif;text-align:center;max-width:90vw}
+#dlPanel{position:fixed;left:8px;right:8px;bottom:8px;z-index:9001;max-width:520px;margin:0 auto;background:#fff;border-radius:22px;box-shadow:0 10px 40px rgba(0,0,0,.35);padding:14px;font:700 15px Nunito,sans-serif;color:#1F2A44;max-height:88svh;overflow:auto}
+#dlPanel h4{margin:0 0 8px;font:800 18px 'Baloo 2',sans-serif}#dlPanel .ch{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}#dlPanel .ch button{border:2px solid #E3E8F1;background:#F7F9FC;border-radius:14px;padding:7px 10px;font:800 14px Nunito,sans-serif;cursor:pointer}#dlPanel .ch button.on{background:#E53935;border-color:#E53935;color:#fff}
+#dlPanel textarea{width:100%;box-sizing:border-box;border:2px solid #E3E8F1;border-radius:12px;padding:8px;font:700 15px Nunito,sans-serif;min-height:56px}#dlPanel .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}#dlPanel .row button{flex:1;min-width:120px;border:none;border-radius:14px;padding:11px;font:800 15px Nunito,sans-serif;cursor:pointer;background:#EEF2F8}#dlPanel .row .pri{background:#43A047;color:#fff}#dlPanel img{width:100%;border-radius:12px;margin-top:6px}`;
+document.head.appendChild(css);
+const KINDS=['🔊 Âm thanh đè nhau','🖼️ Hình/chữ đè nhau','📦 Hình tràn khung','👆 Bấm không được','🗣️ Đọc sai','✅ Chấm sai đúng/sai','🐢 Chậm/đứng','❓ Khác'];
+function menu(){close();const p=document.createElement('div');p.id='dlPanel';p.innerHTML='<h4>🐞 Dò lỗi cho ba mẹ</h4><div>Trang: <b>'+page+'</b></div><div class="row"><button class="pri" id="dlNew">📍 Chạm vào chỗ bị lỗi</button></div><div class="row"><button id="dlList">📋 Xem lỗi đã ghi</button><button id="dlExp">📤 Xuất file gửi Claude</button></div><div class="row"><button id="dlClr">🗑️ Xoá hết</button><button id="dlOff">⏹️ Tắt chế độ dò lỗi</button><button id="dlX">✖ Đóng</button></div>';
+ document.body.appendChild(p);p.querySelector('#dlNew').onclick=aim;p.querySelector('#dlX').onclick=close;p.querySelector('#dlOff').onclick=()=>doloiToggle(0);
+ p.querySelector('#dlClr').onclick=async()=>{if(confirmBox('Xoá hết lỗi đã ghi?')){await clear();count();close()}};p.querySelector('#dlList').onclick=list;p.querySelector('#dlExp').onclick=exp}
+function confirmBox(t){return window.confirm(t)}
+function close(){['dlPanel','dlAim'].forEach(i=>{const e=document.getElementById(i);if(e)e.remove()})}
+function aim(){close();try{speechSynthesis.cancel()}catch(e){}const a=document.createElement('div');a.id='dlAim';a.innerHTML='<div>Chạm vào đúng chỗ bị lỗi trên màn hình 👇</div>';document.body.appendChild(a);
+ a.addEventListener('pointerdown',async e=>{e.preventDefault();e.stopPropagation();const x=e.clientX,y=e.clientY;a.remove();const el=document.elementFromPoint(x,y);const img=await shot(x,y);form(x,y,el,img)},{once:true})}
+function form(x,y,el,img){const p=document.createElement('div');p.id='dlPanel';const sel=new Set();
+ p.innerHTML='<h4>Lỗi gì vậy?</h4><div class="ch">'+KINDS.map(k=>'<button>'+k+'</button>').join('')+'</div><textarea placeholder="Ba mẹ ghi thêm (không bắt buộc): ví dụ ‘bé chọn con bò mà Dino nói sai’"></textarea>'+(img?'<img src="'+img+'">':'<div style="color:#E65100">(Không chụp được màn hình, vẫn lưu được vị trí và nhật ký.)</div>')+'<div class="row"><button class="pri" id="dlSave">💾 Lưu lỗi</button><button id="dlX">Huỷ</button></div>';
+ document.body.appendChild(p);p.querySelectorAll('.ch button').forEach(b=>b.onclick=()=>{b.classList.toggle('on');b.classList.contains('on')?sel.add(b.textContent):sel.delete(b.textContent)});p.querySelector('#dlX').onclick=close;
+ p.querySelector('#dlSave').onclick=async()=>{const r=el&&el.getBoundingClientRect();await put({page,kind:[...sel].join(', ')||'Ba mẹ đánh dấu',note:p.querySelector('textarea').value,at:new Date().toLocaleString('vi-VN'),vw:innerWidth+'x'+innerHeight,ua:navigator.userAgent,
+   x:Math.round(x),y:Math.round(y),el:el?(el.tagName+'.'+[...el.classList].join('.')+' "'+(el.textContent||'').trim().slice(0,40)+'"'+(r?' '+Math.round(r.width)+'x'+Math.round(r.height):'')):'',shot:img,log:LOG.slice(-25)});close();toast('✅ Đã ghi lỗi!',1200)}}
+async function list(){const L=await all();close();const p=document.createElement('div');p.id='dlPanel';p.innerHTML='<h4>📋 '+L.length+' lỗi đã ghi</h4>'+(L.map((b,i)=>'<div style="border-top:1px solid #E3E8F1;padding:6px 0"><b>'+(i+1)+'. '+b.page+'</b> · '+b.kind+(b.note?'<br>'+b.note:'')+'<br><small>'+b.at+'</small></div>').join('')||'Chưa có lỗi nào.')+'<div class="row"><button id="dlX">Đóng</button></div>';document.body.appendChild(p);p.querySelector('#dlX').onclick=close}
+async function exp(){const L=await all();if(!L.length){toast('Chưa có lỗi nào',1200);return}const blob=new Blob([JSON.stringify({site:location.origin+location.pathname.replace(/[^/]*$/,''),exported:new Date().toISOString(),bugs:L})],{type:'application/json'});
+ const ok=await saveFile(blob,'loi-be-hoc-vui-'+new Date().toISOString().slice(0,16).replace(/[:T]/g,'-')+'.json');if(ok)toast('📤 Đã lưu file. Ba mẹ gửi file này vào khung chat cho Claude nhé!',3500)}
+function addBtn(){const b=document.createElement('button');b.id='dlBtn';b.title='Dò lỗi';b.textContent='🐞';b.onclick=menu;document.body.appendChild(b);count();setTimeout(scan,1500)}
+if(document.body)addBtn();else document.addEventListener('DOMContentLoaded',addBtn);
+})();
 
 const A=[['🦕','khủng long cổ dài'],['🦖','khủng long bạo chúa'],['🐊','cá sấu'],['🐶','con chó'],['🐱','con mèo'],['🐰','con thỏ'],['🐘','con voi'],['🐟','con cá'],['🐔','con gà'],['🦆','con vịt'],['🐷','con lợn'],['🐄','con bò'],['🐵','con khỉ'],['🐸','con ếch'],['🦁','sư tử'],['🐢','con rùa'],['🦒','hươu cao cổ'],['🐼','gấu trúc'],['🦋','con bướm']];
 let n=3,stars=0,gone=null,busy=true;
