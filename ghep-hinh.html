@@ -534,8 +534,8 @@ const css=document.createElement('style');css.textContent=`#dlBtn{position:fixed
 #dlPanel textarea{width:100%;box-sizing:border-box;border:2px solid #E3E8F1;border-radius:12px;padding:8px;font:700 15px Nunito,sans-serif;min-height:56px}#dlPanel .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}#dlPanel .row button{flex:1;min-width:120px;border:none;border-radius:14px;padding:11px;font:800 15px Nunito,sans-serif;cursor:pointer;background:#EEF2F8}#dlPanel .row .pri{background:#43A047;color:#fff}#dlPanel img{width:100%;border-radius:12px;margin-top:6px}`;
 document.head.appendChild(css);
 const KINDS=['🔊 Âm thanh đè nhau','🖼️ Hình/chữ đè nhau','📦 Hình tràn khung','👆 Bấm không được','🗣️ Đọc sai','✅ Chấm sai đúng/sai','🐢 Chậm/đứng','❓ Khác'];
-function menu(){close();const p=document.createElement('div');p.id='dlPanel';p.innerHTML='<h4>🐞 Dò lỗi cho ba mẹ</h4><div>Trang: <b>'+page+'</b></div><div class="row"><button class="pri" id="dlNew">📍 Chạm vào chỗ bị lỗi</button></div><div class="row"><button id="dlList">📋 Xem lỗi đã ghi</button><button id="dlExp">📤 Xuất file gửi Claude</button></div><div class="row"><button id="dlClr">🗑️ Xoá hết</button><button id="dlOff">⏹️ Tắt chế độ dò lỗi</button><button id="dlX">✖ Đóng</button></div>';
- document.body.appendChild(p);p.querySelector('#dlNew').onclick=aim;p.querySelector('#dlX').onclick=close;p.querySelector('#dlOff').onclick=()=>doloiToggle(0);
+function menu(){close();const p=document.createElement('div');p.id='dlPanel';p.innerHTML='<h4>🐞 Dò lỗi cho ba mẹ</h4><div>Trang: <b>'+page+'</b></div><div class="row"><button class="pri" id="dlNew">📍 Chạm vào chỗ bị lỗi</button></div><div class="row"><button id="dlRec">⏺ Ghi lại lượt chơi</button></div><div class="row"><button id="dlList">📋 Xem lỗi đã ghi</button><button id="dlExp">📤 Xuất file gửi Claude</button></div><div class="row"><button id="dlClr">🗑️ Xoá hết</button><button id="dlOff">⏹️ Tắt chế độ dò lỗi</button><button id="dlX">✖ Đóng</button></div>';
+ document.body.appendChild(p);p.querySelector('#dlNew').onclick=aim;p.querySelector('#dlRec').onclick=()=>{if(window.recIsOn&&recIsOn()){close();document.getElementById('recPill')?.click()}else window.recStart()};p.querySelector('#dlX').onclick=close;p.querySelector('#dlOff').onclick=()=>doloiToggle(0);
  p.querySelector('#dlClr').onclick=async()=>{if(confirmBox('Xoá hết lỗi đã ghi?')){await clear();count();close()}};p.querySelector('#dlList').onclick=list;p.querySelector('#dlExp').onclick=exp}
 function confirmBox(t){return window.confirm(t)}
 function close(){['dlPanel','dlAim'].forEach(i=>{const e=document.getElementById(i);if(e)e.remove()})}
@@ -551,6 +551,84 @@ async function exp(){const L=await all();if(!L.length){toast('Chưa có lỗi n�
  const ok=await saveFile(blob,'loi-be-hoc-vui-'+new Date().toISOString().slice(0,16).replace(/[:T]/g,'-')+'.json');if(ok)toast('📤 Đã lưu file. Ba mẹ gửi file này vào khung chat cho Claude nhé!',3500)}
 function addBtn(){const b=document.createElement('button');b.id='dlBtn';b.title='Dò lỗi';b.textContent='🐞';b.onclick=menu;document.body.appendChild(b);count();setTimeout(scan,1500)}
 if(document.body)addBtn();else document.addEventListener('DOMContentLoaded',addBtn);
+})();
+/* ===== Ghi lại lượt chơi: ghi thao tác, giọng đọc, ảnh màn hình, lỗi; xuất 1 file gửi Claude phân tích ===== */
+(function(){
+const K='be-rec';let S=null;try{S=JSON.parse(localStorage.getItem(K)||'null')}catch(e){}
+const DBN='be-rec',ST='ev';
+function db(){return new Promise((ok,no)=>{const r=indexedDB.open(DBN,1);r.onupgradeneeded=()=>r.result.createObjectStore(ST,{autoIncrement:true});r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
+let _d=null;const D=()=>_d||(_d=db());
+async function put(o){try{const d=await D();d.transaction(ST,'readwrite').objectStore(ST).add(o)}catch(e){}}
+async function all(){const d=await D();return new Promise(ok=>{const q=d.transaction(ST).objectStore(ST).getAll();q.onsuccess=()=>ok(q.result);q.onerror=()=>ok([])})}
+async function clear(){const d=await D();return new Promise(ok=>{const t=d.transaction(ST,'readwrite');t.objectStore(ST).clear();t.oncomplete=ok;t.onerror=ok})}
+window.recStart=async function(){await clear();S={id:Date.now(),t0:Date.now(),shots:0};try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}location.reload()};
+window.recIsOn=()=>!!S;
+if(!S)return;
+const page=location.pathname.split('/').pop()||'index.html';
+const T=()=>Math.round((Date.now()-S.t0)/100)/10;
+const saveS=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+const desc=e=>{if(!e||!e.tagName)return'';const r=e.getBoundingClientRect();return e.tagName.toLowerCase()+(e.id?'#'+e.id:'')+(e.classList.length?'.'+[...e.classList].slice(0,3).join('.'):'')+' "'+(e.textContent||e.alt||'').trim().replace(/\s+/g,' ').slice(0,40)+'" ['+Math.round(r.left)+','+Math.round(r.top)+' '+Math.round(r.width)+'x'+Math.round(r.height)+']'};
+const ev=(k,o)=>put(Object.assign({t:T(),page,k},o||{}));
+setTimeout(()=>{let langNow='';try{langNow=(typeof LANG==='function'&&LANG())||''}catch(e){}ev('page',{url:location.pathname+location.search+location.hash,vw:innerWidth+'x'+innerHeight,dpr:devicePixelRatio,ua:navigator.userAgent,lang:langNow,voice:(typeof voiceOn!=='undefined')?voiceOn:null})},0);
+addEventListener('error',e=>ev('jserror',{msg:e.message,src:(e.filename||'').split('/').pop(),line:e.lineno}));
+addEventListener('unhandledrejection',e=>ev('jserror',{msg:String((e.reason&&e.reason.message)||e.reason)}));
+addEventListener('hashchange',()=>ev('hash',{url:location.hash}));
+/* giọng đọc + âm thanh */
+let speakingSince=0,curText='';
+if(window.speechSynthesis){const SS=speechSynthesis,sp=SS.speak.bind(SS),ca=SS.cancel.bind(SS);
+ SS.speak=u=>{const q=SS.speaking||SS.pending;ev('say',{text:u.text,lang:u.lang,rate:u.rate&&+u.rate.toFixed(2),queued:q});
+   try{u.addEventListener('start',()=>{speakingSince=Date.now();curText=u.text;ev('say_start',{text:u.text.slice(0,60)})});u.addEventListener('end',()=>{ev('say_end',{text:u.text.slice(0,60),ms:Date.now()-speakingSince});curText=''})}catch(e){}return sp(u)};
+ SS.cancel=()=>{if(SS.speaking)ev('say_cut',{text:curText.slice(0,60)});return ca()}}
+const pl=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){ev('sound',{src:(this.src||'').split('/').pop().slice(0,50),overSpeech:!!(window.speechSynthesis&&speechSynthesis.speaking),speechText:curText.slice(0,40)});return pl.apply(this,arguments)};
+/* tự kiểm tra bố cục: chữ bị che / bị cắt, ảnh tràn khung, trang kéo ngang */
+function layout(){const out=[];const pe=document.createElement('style');pe.textContent='*{pointer-events:auto!important}#recPill,#recPanel,.toast{display:none!important}';document.head.appendChild(pe);
+ try{const vis=e=>{for(let x=e;x&&x!==document.documentElement;x=x.parentElement){const s=getComputedStyle(x);if(s.display==='none'||s.visibility==='hidden'||+s.opacity<.15)return false}return true};
+  const opaque=e=>{if(/^(IMG|CANVAS|SVG|VIDEO)$/i.test(e.tagName))return true;const s=getComputedStyle(e);return (s.backgroundColor!=='rgba(0, 0, 0, 0)'&&s.backgroundColor!=='transparent')||s.backgroundImage!=='none'};
+  const clip=e=>{let L=0,Tp=0,R=innerWidth,B=1e9;for(let x=e.parentElement;x&&x!==document.body;x=x.parentElement){const s=getComputedStyle(x);if(/(hidden|clip|auto|scroll)/.test(s.overflow+s.overflowX+s.overflowY)){const r=x.getBoundingClientRect();L=Math.max(L,r.left);Tp=Math.max(Tp,r.top);R=Math.min(R,r.right);B=Math.min(B,r.bottom)}}return[L,Tp,R,B]};
+  const tw=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n,c=0;
+  const pinned=e=>{for(let x=e;x&&x!==document.body;x=x.parentElement){const p=getComputedStyle(x).position;if(p==='fixed'||p==='sticky')return true}return false};
+  while((n=tw.nextNode())&&c<400){const t=n.textContent.trim();if(t.length<2||!/[\p{L}\p{N}]/u.test(t))continue;const el=n.parentElement;if(!el||el.closest('script,style,header,.toast,#recPill,#recPanel,#dlPanel,.back,.face.back')||!vis(el))continue;c++;
+   const rg=document.createRange();rg.selectNodeContents(n);for(const r of rg.getClientRects()){if(r.width<4||r.height<6||r.bottom<0||r.top>innerHeight)continue;
+    const [L,Tp,R,B]=clip(el);const cx=Math.max(0,L-r.left)+Math.max(0,r.right-R),cy=Math.max(0,Tp-r.top)+Math.max(0,r.bottom-B);
+    if(cx>4||cy>4){out.push('chữ bị cắt: "'+t.slice(0,25)+'"');break}
+    let bad=0,by=null;for(const fx of[.2,.5,.8])for(const fy of[.25,.5,.75]){const x=r.left+r.width*fx,y=r.top+r.height*fy;if(y<0||y>=innerHeight||x<0||x>=innerWidth)continue;const top=document.elementFromPoint(x,y);if(!top||top===el||el.contains(top))continue;if(pinned(top)&&!pinned(el))continue;if(top.contains(el)||opaque(top)){bad++;by=top}}
+    if(bad>=3){out.push('chữ bị che: "'+t.slice(0,25)+'" bởi '+desc(by).slice(0,60));break}}}
+  document.querySelectorAll('main img').forEach(i=>{if(!vis(i))return;const r=i.getBoundingClientRect();if(r.width<20||r.bottom<0||r.top>innerHeight)return;const [L,Tp,R,B]=clip(i);const cx=Math.max(0,L-r.left)+Math.max(0,r.right-R),cy=Math.max(0,Tp-r.top)+Math.max(0,r.bottom-B);if(cx>.2*r.width||cy>.2*r.height)out.push('ảnh bị cắt: '+desc(i).slice(0,60))});
+  if(document.documentElement.scrollWidth>innerWidth+2)out.push('trang bị kéo ngang '+document.documentElement.scrollWidth+'px')}catch(e){}
+ pe.remove();return [...new Set(out)].slice(0,8)}
+/* chụp màn hình (nhẹ) */
+let h2c=null;function loadH2C(){if(window.html2canvas)return Promise.resolve();if(h2c)return h2c;h2c=new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});return h2c}
+/* html2canvas không hiểu color-mix(): đổi sang rgba trước khi chụp */
+const cv=v=>v.replace(/color\(srgb ([\d.e-]+) ([\d.e-]+) ([\d.e-]+)(?: \/ ([\d.e-]+))?\)/g,(m,r,g,b,a)=>'rgba('+Math.round(r*255)+','+Math.round(g*255)+','+Math.round(b*255)+','+(a==null?1:a)+')');
+function fixColors(doc){const w=doc.defaultView;const P=['color','backgroundColor','borderTopColor','borderRightColor','borderBottomColor','borderLeftColor','outlineColor','boxShadow','backgroundImage','textShadow','fill','stroke'];doc.querySelectorAll('*').forEach(e=>{const s=w.getComputedStyle(e);P.forEach(k=>{const v=s[k];if(v&&v.indexOf('color(')>=0)e.style[k]=cv(v)})})}
+const MAXSHOT=400;let busy=false,lastShot=0;
+async function shot(why,x,y){if(busy||S.shots>=MAXSHOT)return;const now=Date.now();if(why==='tap'&&now-lastShot<1200)return;busy=true;lastShot=now;
+ try{await loadH2C();const c=await html2canvas(document.body,{x:scrollX,y:scrollY,width:innerWidth,height:innerHeight,scale:Math.min(1,480/innerWidth),useCORS:true,logging:false,ignoreElements:e=>e.id==='recPill'||e.id==='recPanel',onclone:fixColors});
+  if(x!=null){const g=c.getContext('2d');const k=c.width/innerWidth;g.strokeStyle='#E53935';g.lineWidth=4;g.beginPath();g.arc(x*k,y*k,18*k+4,0,7);g.stroke()}
+  S.shots++;saveS();await ev('shot',{why,img:c.toDataURL('image/jpeg',.6),issues:layout()})}catch(e){ev('shot_fail',{msg:String(e&&e.message||e)})}busy=false}
+/* thao tác của bé */
+document.addEventListener('pointerdown',e=>{if(e.target.closest('#recPill,#recPanel'))return;const t=e.target.closest('button,a,[onclick],.card,.opt,.it,.pvo,.fish,.cd')||e.target;const x=e.clientX,y=e.clientY;
+ ev('tap',{x:Math.round(x),y:Math.round(y),el:desc(t)});setTimeout(()=>shot('tap',x,y),700)},true);
+addEventListener('load',()=>setTimeout(()=>shot('open'),1200));
+/* giao diện: nút ghi đỏ + bảng điều khiển */
+const css=document.createElement('style');css.textContent=`#recPill{position:fixed;left:50%;transform:translateX(-50%);bottom:max(8px,env(safe-area-inset-bottom));z-index:9002;display:flex;align-items:center;gap:6px;border:2px solid #fff;background:#C62828;color:#fff;border-radius:999px;padding:6px 12px;font:800 14px Nunito,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.3);cursor:pointer}#recPill i{width:10px;height:10px;border-radius:50%;background:#fff;animation:recBl 1s infinite}@keyframes recBl{50%{opacity:.2}}
+#recPanel{position:fixed;left:8px;right:8px;bottom:8px;z-index:9003;max-width:480px;margin:0 auto;background:#fff;border-radius:22px;box-shadow:0 10px 40px rgba(0,0,0,.35);padding:14px;font:700 15px Nunito,sans-serif;color:#1F2A44}#recPanel h4{margin:0 0 6px;font:800 18px 'Baloo 2',sans-serif}#recPanel textarea{width:100%;box-sizing:border-box;border:2px solid #E3E8F1;border-radius:12px;padding:8px;font:700 15px Nunito,sans-serif;min-height:50px;margin-top:6px}#recPanel .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}#recPanel .row button{flex:1;min-width:130px;border:none;border-radius:14px;padding:11px;font:800 15px Nunito,sans-serif;cursor:pointer;background:#EEF2F8}#recPanel .pri{background:#43A047!important;color:#fff}#recPanel .red{background:#C62828!important;color:#fff}`;document.head.appendChild(css);
+const fmt=s=>{s=Math.floor(s);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+function pill(){const b=document.createElement('button');b.id='recPill';b.innerHTML='<i></i><span>REC 0:00</span>';b.onclick=panel;document.body.appendChild(b);setInterval(()=>{b.querySelector('span').textContent='REC '+fmt((Date.now()-S.t0)/1000)},1000)}
+function close(){const p=document.getElementById('recPanel');if(p)p.remove()}
+function panel(){close();const p=document.createElement('div');p.id='recPanel';
+ p.innerHTML='<h4>⏺ Đang ghi lại lượt chơi</h4><div style="font-size:13px;color:#6B7690">Đã ghi '+fmt((Date.now()-S.t0)/1000)+' · '+S.shots+' ảnh. Thấy lỗi thì bấm “Đánh dấu lỗi” ngay lúc đó.</div><textarea id="recNote" placeholder="Ghi chú lỗi (không bắt buộc), ví dụ: hai giọng đọc chồng lên nhau"></textarea><div class="row"><button class="red" id="recMark">📍 Đánh dấu lỗi ở đây</button><button id="recBack">▶ Chơi tiếp</button></div><div class="row"><button class="pri" id="recStop">⏹ Dừng & tải file gửi Claude</button></div><div class="row"><button id="recDrop">🗑️ Huỷ bản ghi</button></div>';
+ document.body.appendChild(p);p.querySelector('#recBack').onclick=close;
+ p.querySelector('#recMark').onclick=async()=>{const note=p.querySelector('#recNote').value;close();await ev('mark',{note});lastShot=0;await shot('mark');toast('📍 Đã đánh dấu!',1200)};
+ p.querySelector('#recDrop').onclick=async()=>{if(!confirm('Huỷ bản ghi này?'))return;await clear();try{localStorage.removeItem(K)}catch(e){}location.reload()};
+ p.querySelector('#recStop').onclick=stop}
+async function stop(){close();const t=toast('⏳ Đang đóng gói file…');const L=await all();t.remove();
+ const meta={site:location.origin+location.pathname.replace(/[^/]*$/,''),started:new Date(S.t0).toISOString(),ended:new Date().toISOString(),seconds:Math.round((Date.now()-S.t0)/1000),ua:navigator.userAgent,events:L.length,shots:S.shots};
+ const blob=new Blob([JSON.stringify({type:'be-hoc-vui-recording',v:1,meta,events:L})],{type:'application/json'});
+ const name='ghi-lai-be-hoc-vui-'+new Date().toISOString().slice(0,16).replace(/[:T]/g,'-')+'.json';
+ const ok=await saveFile(blob,name);
+ if(ok){await clear();try{localStorage.removeItem(K)}catch(e){}S=null;const b=document.getElementById('recPill');if(b)b.remove();toast('📤 Đã lưu file “'+name+'”. Ba mẹ gửi file này vào khung chat cho Claude nhé!',5000)}}
+if(document.body)pill();else document.addEventListener('DOMContentLoaded',pill);
 })();
 /* ===== Trò chữ cái: bắt buộc chọn Tiếng Việt hay English trước khi chơi ===== */
 (function(){const kind=document.documentElement.dataset.letters;if(!kind)return;/* 'vi' = Vietnamese letters only, 'en' = English letters only, 'both' */
