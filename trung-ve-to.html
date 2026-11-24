@@ -95,6 +95,7 @@ main{position:relative;z-index:1;padding-bottom:max(70px,env(safe-area-inset-bot
 @media (max-width:760px){.dodo{display:none!important}}
 .dodo{opacity:0!important;transition:opacity .25s}.dodo.say{opacity:1!important}
 .jungle{z-index:-1!important}
+#speakGate{position:fixed;inset:0;z-index:99990;display:grid;place-items:center;background:rgba(20,30,50,.28);backdrop-filter:blur(1px)}#speakGate button{width:min(46vw,220px);height:min(46vw,220px);border-radius:50%;border:8px solid #fff;background:#FFB627;box-shadow:0 14px 0 #D98C00,0 20px 40px rgba(0,0,0,.25);font-size:min(22vw,110px);position:relative;cursor:pointer;animation:sgPulse 1.1s ease-in-out infinite}#speakGate i{position:absolute;right:-6%;bottom:-10%;font-style:normal;font-size:.55em;animation:sgTap 1.1s ease-in-out infinite}@keyframes sgPulse{50%{transform:scale(1.08)}}@keyframes sgTap{50%{transform:translate(-8px,-10px)}}
 html{scroll-padding-top:calc(var(--hdrH,84px) + 8px)}
 
 .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
@@ -156,7 +157,15 @@ window.setTimeout=function(fn,ms,...a){if(typeof fn!=='function')return _st0(fn,
 window.setInterval=function(fn,ms,...a){if(typeof fn!=='function')return _si0(fn,ms,...a);return _si0(function(){_inTimer++;try{return fn.apply(this,a)}finally{_inTimer--}},ms)};
 function _busy(){return !!(_SS&&(_SS.speaking||_SS.pending))}
 function _doSpeak(list){const my=++_tok;try{const b=_busy();_SS.cancel();const go=()=>{if(my!==_tok)return;try{_SS.cancel();list.forEach(u=>_SS.speak(u))}catch(e){}};if(b)_st0(go,140);else go()}catch(e){}}
-function _speakQ(list){if(!_SS||!list.length)return;if(_inTimer&&_busy()){_pend=list;_pendAt=Date.now();return}_pend=null;_doSpeak(list)}
+/* Trình duyệt không cho tự đọc khi bé chưa chạm vào trang: hiện nút loa to, chạm là đọc lại câu vừa rồi */
+let _tapped=false,_gateQ=null,_gateEl=null;
+function _needTap(){if(_tapped)return false;const ua=navigator.userActivation;return ua?!ua.hasBeenActive:false}
+function _showGate(list){_gateQ=list;if(_gateEl||!document.body)return;const g=document.createElement('div');g.id='speakGate';g.innerHTML='<button aria-label="Nghe"><span>🔊</span><i>👆</i></button>';document.body.appendChild(g);_gateEl=g;
+  const go=e=>{e.preventDefault();e.stopPropagation();_tapped=true;g.remove();_gateEl=null;const q=_gateQ;_gateQ=null;if(q){/* tạo lại câu để Safari chịu đọc */const fresh=q.map(u=>{const n=new SpeechSynthesisUtterance(u.text);n.lang=u.lang;if(u.voice)n.voice=u.voice;n.rate=u.rate;n.pitch=u.pitch;n.volume=u.volume;n.onend=u.onend;n.onstart=u.onstart;return n});try{_SS.cancel();fresh.forEach(u=>_SS.speak(u))}catch(x){}}};
+  g.addEventListener('pointerdown',go,{once:true});g.addEventListener('click',e=>{e.stopPropagation()})}
+addEventListener('pointerdown',()=>{_tapped=true},true);addEventListener('keydown',()=>{_tapped=true},true);
+function _watch(list){/* trình duyệt không có userActivation: nếu sau 1,6 giây vẫn chưa nói được thì hiện nút loa */if(navigator.userActivation||_tapped)return;let ok=false;list[0]&&list[0].addEventListener('start',()=>{ok=true});_st0(()=>{if(!ok&&!_tapped&&!_busy())_showGate(list)},1600)}
+function _speakQ(list){if(!_SS||!list.length)return;if(_needTap()){_showGate(list);return}if(_gateEl){_gateQ=list;return}_watch(list);if(_inTimer&&_busy()){_pend=list;_pendAt=Date.now();return}_pend=null;_doSpeak(list)}
 function speechStop(){_pend=null;_tok++;try{_SS&&_SS.cancel()}catch(e){}try{if(_aud)_aud.pause()}catch(e){}}
 _si0(()=>{if(_pend&&(!_busy()||Date.now()-_pendAt>7000)){const l=_pend;_pend=null;_doSpeak(l)}},150);
 function mkU(text,lang){const ex=/!$/.test(text);if(lang==='vi'){const u=new SpeechSynthesisUtterance(cute(text));u.lang='vi-VN';const v=pickVoice('vi');if(v)u.voice=v;u.rate=VS.rate*(ex?1.04:1);u.pitch=Math.min(2,VS.pitch*(ex?1.08:1));u.volume=1;return u}
