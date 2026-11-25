@@ -842,13 +842,13 @@ const UNITS=[
    I(ACT('swim','🌊'),'swim','bơi','I can swim! Swim, swim, swim!','Who is swimming?')],
   intro:"Let's move!"},
  {id:'fam',ico:'👪',t:'Family',items:[
-   I(E('👩'),'mother','mẹ','This is my mother. I love my mother!','Where is the mother?'),
-   I(E('👨'),'father','bố','This is my father. I love my father!','Where is the father?'),
-   I(E('👶'),'baby','em bé','This is the baby.','Where is the baby?'),
-   I(E('👦'),'brother','anh, em trai','This is my brother.','Where is the brother?'),
-   I(E('👧'),'sister','chị, em gái','This is my sister.','Where is the sister?'),
-   I(E('👵'),'grandmother','bà','This is my grandmother.','Where is the grandmother?'),
-   I(E('👴'),'grandfather','ông','This is my grandfather.','Where is the grandfather?'),
+   I(E('👩'),'mother','mẹ','Who is she? She is the mother.','Where is the mother?'),
+   I(E('👨'),'father','bố','Who is he? He is the father.','Where is the father?'),
+   I(E('👶'),'baby','em bé','Who is he? He is the baby.','Where is the baby?'),
+   I(E('👦'),'brother','anh, em trai','Who is he? He is the brother.','Where is the brother?'),
+   I(E('👧'),'sister','chị, em gái','Who is she? She is the sister.','Where is the sister?'),
+   I(E('👵'),'grandmother','bà','Who is she? She is the grandmother.','Where is the grandmother?'),
+   I(E('👴'),'grandfather','ông','Who is he? He is the grandfather.','Where is the grandfather?'),
    I(WIMG.family?'<div style="width:100%;height:100%">'+wimg('family')+'</div>':'<span class="em fam">👨👩👧</span>','family','gia đình','This is my family. I love my family!','Where is the family?')],
   intro:'This is my family.'}];
 const PIC=it=>(WIMG[it.w]&&U.id!=='act')?'<div style="width:100%;height:100%">'+wimg(it.w)+'</div>':(U.id==='fam'&&KID_POSES[it.w])?'<div style="width:100%;height:100%">'+KID(it.w)+'</div>':it.p;

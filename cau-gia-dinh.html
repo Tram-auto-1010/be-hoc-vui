@@ -166,7 +166,7 @@ button.ph.ok{box-shadow:0 0 0 6px #43A047}
 <script src="wimg.js?v=e9203f0e"></script>
 </head>
 <body>
-<header class="bar"><a class="ibtn" href="trang-chu.html" title="Về trang chính">🏠</a><h1>Mẫu câu gia đình <small>Family talk · Who is this?</small></h1><button class="ibtn" id="voiceBtn">🔊</button></header>
+<header class="bar"><a class="ibtn" href="trang-chu.html" title="Về trang chính">🏠</a><h1>Mẫu câu gia đình <small>Family talk · Who is she / he?</small></h1><button class="ibtn" id="voiceBtn">🔊</button></header>
 <main>
   <div class="tabs" id="tabs"></div>
   <div class="hud"><div class="vtarget" style="flex:1"><span class="t">🦕</span><div class="bub" id="bub"><div class="qa"><span class="q" id="q"></span><span class="qv" id="qv"></span></div><small>🔈 Chạm để nghe lại · Tap to listen</small></div></div><span class="stars" id="stat">⭐ 0</span></div>
@@ -737,7 +737,7 @@ function fresh(gen){let r,i=0;do{r=gen();i++}while(r.key===lastKey&&i<8);lastKey
 
 /* ---------- 📖 Learn: dialog cards ---------- */
 const CARDS=[];
-PEOPLE.concat('baby').forEach(m=>CARDS.push({pic:img(m),q:['Who is this?','Đây là ai?'],a:['This is my '+m+'.','Đây là '+vi(m)+' của bé.']}));
+PEOPLE.concat('baby').forEach(m=>{const pr={mother:'she',sister:'she',grandmother:'she'}[m]||'he';CARDS.push({pic:img(m),q:['Who is '+pr+'?','Đây là ai?'],a:[pr[0].toUpperCase()+pr.slice(1)+' is the '+m+'.','Đây là '+vi(m)+'.']})});
 ['family','grandparents','sib'].forEach(g=>CARDS.push({pic:grpHTML(g),q:['Who are they?','Họ là ai?'],a:['They are '+GROUPS[g].en+'.','Họ là '+GROUPS[g].vi+'.']}));
 CARDS.push({pic:crowdMini(['grandfather','grandmother','father','mother','brother','sister']),q:['How many people are there in your family?','Gia đình bé có mấy người?'],a:['There are six people in my family.','Gia đình bé có 6 người.']});
 CARDS.push({pic:img('mother'),q:['Is she the mother?','Đây có phải là mẹ không?'],a:['Yes, she is.','Vâng, đúng rồi.']});
@@ -766,10 +766,10 @@ function ruler(m){return '<div class="ruler"><div class="bar" style="height:'+HE
 
 /* ---------- 👤 Who is this? ---------- */
 function whoIs(){const r=fresh(()=>{const t=PEOPLE[rand(PEOPLE.length)];return {t,key:t}});const t=r.t;
-  const set=shuffle([t,...shuffle(PEOPLE.filter(x=>x!==t)).slice(0,2)]);
-  setQ('Who is this?','Đây là ai?',()=>sayEN('Who is this?','Đây là ai?'));
-  oneLayout('<div class="im">'+img(t)+'</div>',set.map(m=>['This is my '+m+'.','Đây là '+vi(m)+' của bé.',m===t,'💬 ']),
-    ()=>'This is my '+t+'.','Đây là '+vi(t)+' của bé.')}
+  const pr=FM[t][1],Pr=fcap(pr),Q='Who is '+pr+'?';const set=shuffle([t,...shuffle(PEOPLE.filter(x=>x!==t&&FM[x][1]===pr)).slice(0,2)]);
+  setQ(Q,'Đây là ai?',()=>sayEN(Q,'Đây là ai?'));
+  oneLayout('<div class="im">'+img(t)+'</div>',set.map(m=>[Pr+' is the '+m+'.','Đây là '+vi(m)+'.',m===t,'💬 ']),
+    ()=>Pr+' is the '+t+'.','Đây là '+vi(t)+'.')}
 
 /* ---------- 👥 Who are they? ---------- */
 function whoAre(){const keys=Object.keys(GROUPS);const r=fresh(()=>{const t=keys[rand(keys.length)];return {t,key:t}});const t=r.t,G=GROUPS[t];
@@ -836,16 +836,16 @@ function fcrowd(list){return '<div class="fcrowd" style="--c:'+(list.length<=4?2
 const pick=a=>a[rand(a.length)];
 /* Question bank. Each returns {kind,q,qv,pic,opts:[{en,vi,ok}],ans,ansVi,full} */
 const FQ={
- who(){const t=pick(FPEOPLE);const o=shuffle([t,...shuffle(FPEOPLE.filter(x=>x!==t)).slice(0,2)]);
-   return {kind:'who',key:'who'+t,q:'Who is this?',qv:'Đây là ai?',pic:fpic(fimg(t)),opts:o.map(m=>({en:'This is my '+m+'.',vi:'Đây là '+fvi(m)+' của bé.',ok:m===t})),ans:'This is my '+t+'.',ansVi:'Đây là '+fvi(t)+' của bé.'}},
+ who(){const t=pick(FPEOPLE);const pr=FM[t][1],Pr=fcap(pr);const o=shuffle([t,...shuffle(FPEOPLE.filter(x=>x!==t&&FM[x][1]===pr)).slice(0,2)]);
+   return {kind:'who',key:'who'+t,q:'Who is '+pr+'?',qv:'Đây là ai?',pic:fpic(fimg(t)),opts:o.map(m=>({en:Pr+' is the '+m+'.',vi:'Đây là '+fvi(m)+'.',ok:m===t})),ans:Pr+' is the '+t+'.',ansVi:'Đây là '+fvi(t)+'.'}},
  they(){const ks=Object.keys(FGROUPS);const t=pick(ks);const o=shuffle([t,...shuffle(ks.filter(x=>x!==t)).slice(0,2)]);
-   return {kind:'they',key:'they'+t,q:'Who are they?',qv:'Họ là ai?',pic:fgroup(t),opts:o.map(k=>({en:'They\'re '+FGROUPS[k].en+'.',vi:'Họ là '+FGROUPS[k].vi+'.',ok:k===t})),ans:'They\'re '+FGROUPS[t].en+'.',ansVi:'Họ là '+FGROUPS[t].vi+'.'}},
+   return {kind:'they',key:'they'+t,q:'Who are they?',qv:'Họ là ai?',pic:fgroup(t),opts:o.map(k=>({en:'They are '+FGROUPS[k].en+'.',vi:'Họ là '+FGROUPS[k].vi+'.',ok:k===t})),ans:'They are '+FGROUPS[t].en+'.',ansVi:'Họ là '+FGROUPS[t].vi+'.'}},
  many(){const n=3+rand(5);const fam=shuffle(FORDER.slice()).slice(0,n).sort((a,b)=>FORDER.indexOf(a)-FORDER.indexOf(b));const o=shuffle([n,...shuffle([n-1,n+1,n+2].filter(x=>x>=2&&x<=9)).slice(0,2)]);
    return {kind:'many',key:'many'+n,n,fam,q:'How many people are there in your family?',qv:'Gia đình bé có mấy người?',pic:fcrowd(fam),opts:o.map(x=>({en:'There are '+FNUM[x]+' people in my family.',vi:'Gia đình bé có '+x+' người.',ok:x===n})),ans:'There are '+FNUM[n]+' people in my family.',ansVi:'Gia đình bé có '+n+' người.'}},
  look(){const p=pick(FPEOPLE),pr=FM[p][1];const age=['grandfather','grandmother'].includes(p)?'old':'young',h=['father','mother'].includes(p)?'tall':'short';const att=Math.random()<.5?'age':'h';const adj=att==='age'?age:h,opp=FOPP[adj];const form=Math.random()<.5;const Pr=fcap(pr)+"'s";const s1=a=>form?'My '+p+' is '+a+'.':Pr+' '+a+'.';
    return {kind:'look',key:'look'+p+att,q:'What does your '+p+' look like?',qv:fcap(fvi(p))+' của bé trông như thế nào?',pic:att==='h'?fruler(p):fpic(fimg(p)),opts:shuffle([{en:s1(adj),vi:fcap(fvi(p))+' '+FADJ[adj].vi+'.',ok:true},{en:s1(opp),vi:fcap(fvi(p))+' '+FADJ[opp].vi+'.',ok:false}]),ans:s1(adj),ansVi:fcap(fvi(p))+' '+FADJ[adj].vi+'.',full:'My '+p+' is '+adj+'. '+Pr+' '+adj+'.'}},
  is(){const p=pick(FPEOPLE),pr=FM[p][1];const same=FPEOPLE.filter(x=>FM[x][1]===pr&&x!==p);const a=Math.random()<.5?p:pick(same);const y=a===p;
-   return {kind:'is',key:'is'+p+a,yes:y,q:'Is '+pr+' the '+a+'?',qv:'Đây có phải là '+fvi(a)+' không?',pic:fpic(fimg(p)),opts:[{en:'Yes, '+pr+' is.',vi:'Vâng, đúng rồi.',ok:y},{en:'No, '+pr+' isn\'t.',vi:'Không, không phải.',ok:!y}],ans:y?'Yes, '+pr+' is.':'No, '+pr+' isn\'t.',ansVi:y?'Vâng, đúng rồi.':'Không, không phải.',full:y?'Yes, '+pr+' is. '+fcap(pr)+' is my '+p+'.':'No, '+pr+' isn\'t. '+fcap(pr)+' is my '+p+'.'}},
+   return {kind:'is',key:'is'+p+a,yes:y,q:'Is '+pr+' the '+a+'?',qv:'Đây có phải là '+fvi(a)+' không?',pic:fpic(fimg(p)),opts:[{en:'Yes, '+pr+' is.',vi:'Vâng, đúng rồi.',ok:y},{en:'No, '+pr+' isn\'t.',vi:'Không, không phải.',ok:!y}],ans:y?'Yes, '+pr+' is.':'No, '+pr+' isn\'t.',ansVi:y?'Vâng, đúng rồi.':'Không, không phải.',full:y?'Yes, '+pr+' is. '+fcap(pr)+' is the '+p+'.':'No, '+pr+' isn\'t. '+fcap(pr)+' is the '+p+'.'}},
  adj(){const k=pick(Object.keys(FADJ));const y=Math.random()<.5;const p=pick(y?FADJ[k].yes:FADJ[k].no),pr=FM[p][1];
    return {kind:'adj',key:'adj'+k+p,yes:y,q:'Is the '+p+' '+k+'?',qv:fcap(fvi(p))+' có '+FADJ[k].vi+' không?',pic:(k==='tall'||k==='short')?fruler(p):fpic(fimg(p)),opts:[{en:'Yes, '+pr+' is.',vi:'Vâng, đúng rồi.',ok:y},{en:'No, '+pr+' isn\'t.',vi:'Không phải.',ok:!y},{en:(y?'Yes, ':'No, ')+(pr==='he'?'she':'he')+(y?' is.':' isn\'t.'),vi:'Chưa đúng: '+(pr==='he'?'con trai thì nói he':'con gái thì nói she'),ok:false,pron:1}],ans:y?'Yes, '+pr+' is.':'No, '+pr+' isn\'t.',ansVi:y?'Vâng, '+fvi(p)+' '+FADJ[k].vi+'.':'Không, '+fvi(p)+' '+FADJ[FOPP[k]].vi+'.',full:(y?'Yes, '+pr+' is.':'No, '+pr+' isn\'t.')+' The '+p+' is '+(y?k:FOPP[k])+'.'}}
 };
@@ -927,7 +927,7 @@ function speakPanel(box,target,vi,opts){opts=opts||{};
 `;document.head.appendChild(st)})();
 /* pattern chips */
 let FKINDS=null;
-function famTabs(el,kinds,onChange){const L={all:'🎲 Tất cả',who:'👤 Who is this?',they:'👥 Who are they?',many:'🔢 How many?',is:'❓ Is she / he…?',look:'👀 What does … look like?',adj:'📏 Old · tall…'};
+function famTabs(el,kinds,onChange){const L={all:'🎲 Tất cả',who:'👤 Who is she / he?',they:'👥 Who are they?',many:'🔢 How many?',is:'❓ Is she / he…?',look:'👀 What does … look like?',adj:'📏 Old · tall…'};
   el.className='ftabs';['all',...kinds].forEach(k=>{const b=document.createElement('button');b.className='btn'+(k==='all'?'':' ghost');b.textContent=L[k];b.onclick=()=>{FKINDS=k==='all'?kinds:[k];el.querySelectorAll('.btn').forEach(x=>x.className='btn'+(x===b?'':' ghost'));_fqLast='';onChange()};el.appendChild(b)});FKINDS=kinds}
 (function(){const st=document.createElement('style');st.textContent=`.ftabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}.ftabs .btn{font-size:15px;padding:6px 12px}
 @media (max-width:640px){.ftabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.ftabs .btn{flex-shrink:0;font-size:14px;padding:6px 10px}}`;document.head.appendChild(st)})();
@@ -964,7 +964,7 @@ function wordIcon(w){w=w.toLowerCase().replace(/[.,!?]/g,'');if(FM[w])return fth
 
 /* ===== Learn one sentence pattern at a time: game.html?k=who|many|is|adj|look keeps only that question type ===== */
 var FTOPIC=(function(){try{return new URLSearchParams(location.search).get('k')||''}catch(e){return ''}})();
-var FTOPMAP={who:{fq:['who','they'],rg:['who','they'],t:'👤 Who is this? · This is my mother.'},many:{fq:['many'],rg:['many'],t:'🔢 How many people? · There are four people.'},is:{fq:['is'],rg:['is'],t:'🎀 Is she the mother? · Yes, she is. / No, he isn\'t.'},adj:{fq:['adj'],rg:['age','height'],t:'📏 Is the father tall / old? · Yes, he is.'},look:{fq:['look'],rg:['look'],t:'👀 What does your mother look like? · She\'s tall.'}};
+var FTOPMAP={who:{fq:['who','they'],rg:['who','they'],t:'👤 Who is she / he? · She is the mother.'},many:{fq:['many'],rg:['many'],t:'🔢 How many people are there in your family? · There are … people in my family.'},is:{fq:['is'],rg:['is'],t:'🎀 Is she the mother? · Yes, she is. / No, he isn\'t.'},adj:{fq:['adj'],rg:['age','height'],t:'📏 Is the father tall / old? · Yes, he is.'},look:{fq:['look'],rg:['look'],t:'👀 What does your mother look like? · She\'s tall. · My mother is tall.'}};
 function ftopicApply(G,keys){const ok=keys.filter(k=>typeof G[k]==='function');if(!ok.length)return;const orig=Object.assign({},G);
   Object.keys(orig).forEach(k=>{if(typeof orig[k]!=='function'||ok.includes(k))return;G[k]=function(...a){for(let i=0;i<6;i++){try{const r=orig[pick(ok)].apply(this,a);if(r)return r}catch(e){}}return orig[k].apply(this,a)}});window.__ftopicOK=true}
 if(FTOPIC&&FTOPMAP[FTOPIC])ftopicApply(FQ,FTOPMAP[FTOPIC].fq);
@@ -977,7 +977,7 @@ if(FTOPIC&&FTOPMAP[FTOPIC])ftopicApply(FQ,FTOPMAP[FTOPIC].fq);
 const addStars=n=>{stars+=n;document.getElementById('stat').textContent='⭐ '+stars};
 
 /* ---------- modes ---------- */
-const MODES=[['learn','📖 Học mẫu câu',learn],['who','👤 Who is this?',whoIs],['they','👥 Who are they?',whoAre],['many','🔢 How many?',howMany],['is','❓ Is she / he…?',isThe],['adj','📏 Old · young · tall · short',adj],['mix','🎲 Trộn · Mix',null]];
+const MODES=[['learn','📖 Học mẫu câu',learn],['who','👤 Who is she / he?',whoIs],['they','👥 Who are they?',whoAre],['many','🔢 How many?',howMany],['is','❓ Is she / he…?',isThe],['adj','📏 Old · young · tall · short',adj],['mix','🎲 Trộn · Mix',null]];
 const GAMES=[whoIs,whoAre,howMany,isThe,adj,isThe,adj];
 function next(){stopAll();busy=false;if(mode==='learn')return learn();if(mode==='mix')return GAMES[rand(GAMES.length)]();MODES.find(m=>m[0]===mode)[2]()}
 const tabs=document.getElementById('tabs');
