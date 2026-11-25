@@ -692,7 +692,7 @@ const FQ={
  is(){const p=pick(FPEOPLE),pr=FM[p][1];const same=FPEOPLE.filter(x=>FM[x][1]===pr&&x!==p);const a=Math.random()<.5?p:pick(same);const y=a===p;
    return {kind:'is',key:'is'+p+a,yes:y,q:'Is '+pr+' the '+a+'?',qv:'Đây có phải là '+fvi(a)+' không?',pic:fpic(fimg(p)),opts:[{en:'Yes, '+pr+' is.',vi:'Vâng, đúng rồi.',ok:y},{en:'No, '+pr+' isn\'t.',vi:'Không, không phải.',ok:!y}],ans:y?'Yes, '+pr+' is.':'No, '+pr+' isn\'t.',ansVi:y?'Vâng, đúng rồi.':'Không, không phải.',full:y?'Yes, '+pr+' is. '+fcap(pr)+' is my '+p+'.':'No, '+pr+' isn\'t. '+fcap(pr)+' is my '+p+'.'}},
  adj(){const k=pick(Object.keys(FADJ));const y=Math.random()<.5;const p=pick(y?FADJ[k].yes:FADJ[k].no),pr=FM[p][1];
-   return {kind:'adj',key:'adj'+k+p,yes:y,q:'Is the '+p+' '+k+'?',qv:fcap(fvi(p))+' có '+FADJ[k].vi+' không?',pic:(k==='tall'||k==='short')?fruler(p):fpic(fimg(p)),opts:[{en:'Yes, '+pr+' is.',vi:'Vâng, đúng rồi.',ok:y},{en:'No, '+pr+' isn\'t.',vi:'Không phải.',ok:!y}],ans:y?'Yes, '+pr+' is.':'No, '+pr+' isn\'t.',ansVi:y?'Vâng, '+fvi(p)+' '+FADJ[k].vi+'.':'Không, '+fvi(p)+' '+FADJ[FOPP[k]].vi+'.',full:(y?'Yes, '+pr+' is.':'No, '+pr+' isn\'t.')+' The '+p+' is '+(y?k:FOPP[k])+'.'}}
+   return {kind:'adj',key:'adj'+k+p,yes:y,q:'Is the '+p+' '+k+'?',qv:fcap(fvi(p))+' có '+FADJ[k].vi+' không?',pic:(k==='tall'||k==='short')?fruler(p):fpic(fimg(p)),opts:[{en:'Yes, '+pr+' is.',vi:'Vâng, đúng rồi.',ok:y},{en:'No, '+pr+' isn\'t.',vi:'Không phải.',ok:!y},{en:(y?'Yes, ':'No, ')+(pr==='he'?'she':'he')+(y?' is.':' isn\'t.'),vi:'Chưa đúng: '+(pr==='he'?'con trai thì nói he':'con gái thì nói she'),ok:false,pron:1}],ans:y?'Yes, '+pr+' is.':'No, '+pr+' isn\'t.',ansVi:y?'Vâng, '+fvi(p)+' '+FADJ[k].vi+'.':'Không, '+fvi(p)+' '+FADJ[FOPP[k]].vi+'.',full:(y?'Yes, '+pr+' is.':'No, '+pr+' isn\'t.')+' The '+p+' is '+(y?k:FOPP[k])+'.'}}
 };
 let _fqLast='';
 function famQ(kinds){kinds=kinds||Object.keys(FQ);let r,i=0;do{r=FQ[pick(kinds)]();i++}while(r.key===_fqLast&&i<10);_fqLast=r.key;return r}
@@ -786,7 +786,7 @@ function optIcon(en){const t=en.toLowerCase();
   m=t.match(/\b(tall|short|young|old)\.?$/);if(m)return '<span class="oi">'+{tall:'🦒',short:'🐢',young:'👶',old:'🧓'}[m[1]]+'</span>';
   return '<span class="oi">💬</span>'}
 function optHTML(en,vi){return '<span class="opt">'+optIcon(en)+'<span class="ot">'+en+(vi?'<small>'+vi+'</small>':'')+'</span></span>'}
-function wordIcon(w){w=w.toLowerCase().replace(/[.,!?]/g,'');if(FM[w])return fthumb(w);return {she:'👩',he:'👨',yes:'👍',no:'👎',family:fthumb('#family'),grandparents:'👴👵',mother:'',father:''}[w]||(FNUM.indexOf(w)>0?String(FNUM.indexOf(w)):'')}
+function wordIcon(w){w=w.toLowerCase().replace(/[.,!?]/g,'');if(FM[w])return fthumb(w);return {she:'🎀',he:'🧢',yes:'👍',no:'👎',family:fthumb('#family'),grandparents:'👴👵',mother:'',father:''}[w]||(FNUM.indexOf(w)>0?String(FNUM.indexOf(w)):'')}
 (function(){const st=document.createElement('style');st.textContent=`
 .opt{display:flex;align-items:center;gap:12px;width:100%}
 .oi{flex:0 0 auto;width:clamp(58px,8vw,86px);height:clamp(58px,8vw,86px);display:grid;place-items:center;font-size:clamp(36px,5vw,52px);border-radius:16px;background:#FFFFFF;overflow:hidden;box-shadow:inset 0 0 0 2px #E3E8F1}
@@ -796,6 +796,16 @@ function wordIcon(w){w=w.toLowerCase().replace(/[.,!?]/g,'');if(FM[w])return fth
 .oi.num{display:flex;flex-direction:column;line-height:1}.oi.num b{font:800 clamp(30px,4.4vw,44px)/1 'Baloo 2',sans-serif;color:#FB8C00}.oi.num i{font-style:normal;font-size:9px;color:#FB8C00;letter-spacing:1px;word-break:break-all;max-width:90%;text-align:center}
 .ot{flex:1;font-size:.82em;line-height:1.15}.ot small{display:block}
 `;document.head.appendChild(st)})();
+
+/* ===== he / she always look the same in every family game: blue pill = he, pink pill = she ===== */
+(function(){const st=document.createElement('style');st.textContent='.pn{display:inline-block;border-radius:.45em;padding:0 .22em;color:#FFFFFF!important;text-shadow:none!important;line-height:1.15}.pn-he{background:#1E88E5}.pn-she{background:#E91E63}';document.head.appendChild(st);
+  const RE=/\b(she|he)\b/i,SPLIT=/\b(she|he|She|He|SHE|HE)\b/;
+  const wrap=root=>{if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{const p=n.parentElement;if(!p||p.closest('.pn,.tag,.key,.ch,.house,.sl,script,style,textarea,input,title,#speakGate,#recPanel'))return 2;return RE.test(n.nodeValue)?1:2}});
+    const ns=[];while(w.nextNode())ns.push(w.currentNode);
+    ns.forEach(n=>{const f=document.createDocumentFragment();n.nodeValue.split(SPLIT).forEach((x,i)=>{if(i%2){const b=document.createElement('span');b.className='pn pn-'+x.toLowerCase();b.textContent=x;f.appendChild(b)}else if(x)f.appendChild(document.createTextNode(x))});n.replaceWith(f)})};
+  let q=false;const run=()=>{q=false;wrap(document.querySelector('main'))};
+  const go=()=>{run();new MutationObserver(()=>{if(!q){q=true;requestAnimationFrame(run)}}).observe(document.body,{childList:true,subtree:true,characterData:true})};
+  if(document.body)go();else document.addEventListener('DOMContentLoaded',go)})();
 
 /* ===== Family review: worksheet characters + question generator (needs rev.js) ===== */
 const RV=window.__REV||{};
@@ -827,9 +837,9 @@ const RG={
    const s1=a=>form?'My '+k+' is '+a+'.':Pr+' '+a+'.';
    return {kind:'look',key:'look'+k+att,q:'What does your '+k+' look like?',qv:rcap(p.vi)+' của bé trông như thế nào?',pic:att==='h'?rruler(k):rpicOne(k),opts:[{en:s1(adj),vi:rcap(p.vi)+' '+RVAD[adj]+'.',ic:rpics([p.img]),ok:1,full:'My '+k+' is '+adj+'. '+Pr+' '+adj+'.'},{en:s1(opp),vi:rcap(p.vi)+' '+RVAD[opp]+'.',ic:rpics([RP[other].img])}],ans:s1(adj),ansVi:rcap(p.vi)+' '+RVAD[adj]+'.',small:[p.img]}},
  age(k){k=k||pick(RPK);const p=RP[k];const a=Math.random()<.5?'old':'young';const y=p.age===a;
-   return {kind:'age',key:'age'+k+a,q:'Is the '+k+' '+a+'?',qv:rcap(p.vi)+' có '+RVAD[a]+' không?',pic:rpicOne(k),opts:[{en:'Yes, '+p.pr+' is.',vi:'Vâng, đúng rồi.',ic:RYES,ok:y,full:'Yes, '+p.pr+' is. '+rcap(p.pr)+'\'s '+p.age+'.'},{en:'No, '+p.pr+' isn\'t.',vi:'Không phải.',ic:RNO,ok:!y,full:'No, '+p.pr+' isn\'t. '+rcap(p.pr)+'\'s '+p.age+'.'}],ans:y?'Yes, '+p.pr+' is.':'No, '+p.pr+' isn\'t.',ansVi:rcap(p.vi)+' '+RVAD[p.age]+'.',small:[p.img]}},
+   return {kind:'age',key:'age'+k+a,q:'Is the '+k+' '+a+'?',qv:rcap(p.vi)+' có '+RVAD[a]+' không?',pic:rpicOne(k),opts:[{en:'Yes, '+p.pr+' is.',vi:'Vâng, đúng rồi.',ic:RYES,ok:y,full:'Yes, '+p.pr+' is. '+rcap(p.pr)+'\'s '+p.age+'.'},{en:'No, '+p.pr+' isn\'t.',vi:'Không phải.',ic:RNO,ok:!y,full:'No, '+p.pr+' isn\'t. '+rcap(p.pr)+'\'s '+p.age+'.'},{en:(y?'Yes, ':'No, ')+(p.pr==='he'?'she':'he')+(y?' is.':' isn\'t.'),vi:'Chưa đúng: '+(p.pr==='he'?'con trai thì nói he':'con gái thì nói she'),ic:y?RYES:RNO,ok:false,pron:1}],ans:y?'Yes, '+p.pr+' is.':'No, '+p.pr+' isn\'t.',ansVi:rcap(p.vi)+' '+RVAD[p.age]+'.',small:[p.img]}},
  height(k){k=k||pick(RPK);const p=RP[k];const a=Math.random()<.5?'tall':'short';const y=p.h===a;
-   return {kind:'height',key:'h'+k+a,q:'Is the '+k+' '+a+'?',qv:rcap(p.vi)+' có '+RVAD[a]+' không?',pic:rruler(k),opts:[{en:'Yes, '+p.pr+' is.',vi:'Vâng, đúng rồi.',ic:RYES,ok:y,full:'Yes, '+p.pr+' is. '+rcap(p.pr)+'\'s '+p.h+'.'},{en:'No, '+p.pr+' isn\'t.',vi:'Không phải.',ic:RNO,ok:!y,full:'No, '+p.pr+' isn\'t. '+rcap(p.pr)+'\'s '+p.h+'.'}],ans:y?'Yes, '+p.pr+' is.':'No, '+p.pr+' isn\'t.',ansVi:rcap(p.vi)+' '+RVAD[p.h]+'.',small:[p.img]}}};
+   return {kind:'height',key:'h'+k+a,q:'Is the '+k+' '+a+'?',qv:rcap(p.vi)+' có '+RVAD[a]+' không?',pic:rruler(k),opts:[{en:'Yes, '+p.pr+' is.',vi:'Vâng, đúng rồi.',ic:RYES,ok:y,full:'Yes, '+p.pr+' is. '+rcap(p.pr)+'\'s '+p.h+'.'},{en:'No, '+p.pr+' isn\'t.',vi:'Không phải.',ic:RNO,ok:!y,full:'No, '+p.pr+' isn\'t. '+rcap(p.pr)+'\'s '+p.h+'.'},{en:(y?'Yes, ':'No, ')+(p.pr==='he'?'she':'he')+(y?' is.':' isn\'t.'),vi:'Chưa đúng: '+(p.pr==='he'?'con trai thì nói he':'con gái thì nói she'),ic:y?RYES:RNO,ok:false,pron:1}],ans:y?'Yes, '+p.pr+' is.':'No, '+p.pr+' isn\'t.',ansVi:rcap(p.vi)+' '+RVAD[p.h]+'.',small:[p.img]}}};
 let _rvLast='';
 function rvQ(kinds,k){kinds=kinds||Object.keys(RG);let r,i=0;do{r=RG[pick(kinds)](k);i++}while(r.key===_rvLast&&i<10);_rvLast=r.key;return r}
 function rvOptBtn(o){const b=document.createElement('button');b.className='btn ghost rvopt';b.innerHTML='<span class="ansrow">'+o.ic+'<span class="t">'+o.en+'<small>'+o.vi+'</small></span></span>';return b}
