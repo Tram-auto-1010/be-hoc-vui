@@ -809,6 +809,18 @@ function wordIcon(w){w=w.toLowerCase().replace(/[.,!?]/g,'');if(FM[w])return fth
   const go=()=>{run();new MutationObserver(()=>{if(!q){q=true;requestAnimationFrame(run)}}).observe(document.body,{childList:true,subtree:true,characterData:true})};
   if(document.body)go();else document.addEventListener('DOMContentLoaded',go)})();
 
+/* ===== Learn one sentence pattern at a time: game.html?k=who|many|is|adj|look keeps only that question type ===== */
+var FTOPIC=(function(){try{return new URLSearchParams(location.search).get('k')||''}catch(e){return ''}})();
+var FTOPMAP={who:{fq:['who','they'],rg:['who','they'],t:'👤 Who is this? · This is my mother.'},many:{fq:['many'],rg:['many'],t:'🔢 How many people? · There are four people.'},is:{fq:['is'],rg:['is'],t:'🎀 Is she the mother? · Yes, she is. / No, he isn\'t.'},adj:{fq:['adj'],rg:['age','height'],t:'📏 Is the father tall / old? · Yes, he is.'},look:{fq:['look'],rg:['look'],t:'👀 What does your mother look like? · She\'s tall.'}};
+function ftopicApply(G,keys){const ok=keys.filter(k=>typeof G[k]==='function');if(!ok.length)return;const orig=Object.assign({},G);
+  Object.keys(orig).forEach(k=>{if(typeof orig[k]!=='function'||ok.includes(k))return;G[k]=function(...a){for(let i=0;i<6;i++){try{const r=orig[pick(ok)].apply(this,a);if(r)return r}catch(e){}}return orig[k].apply(this,a)}});window.__ftopicOK=true}
+if(FTOPIC&&FTOPMAP[FTOPIC])ftopicApply(FQ,FTOPMAP[FTOPIC].fq);
+(function(){if(!FTOPIC||!FTOPMAP[FTOPIC])return;const _ft=famTabs;famTabs=function(el,kinds,onChange){_ft(el,kinds,onChange);el.style.display='none'};
+  const show=()=>{if(!window.__ftopicOK)return;const m=document.querySelector('main');if(!m||document.getElementById('ftopic'))return;const d=document.createElement('div');d.id='ftopic';
+    d.style.cssText="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;background:#E0F2F1;border:3px solid #00897B;border-radius:16px;padding:6px 12px;margin:0 auto 10px;max-width:900px;font:800 15px/1.3 'Nunito',sans-serif;color:#004D40;text-align:center";
+    const u=new URL(location.href);u.searchParams.delete('k');d.innerHTML='<span>📌 Đang luyện: '+FTOPMAP[FTOPIC].t+'</span><a href="'+u.href+'" style="color:#00695C;font-size:13px">Ôn tất cả câu →</a>';m.prepend(d)};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',show);else setTimeout(show,0)})();
+
 /* ===== Family review: worksheet characters + question generator (needs rev.js) ===== */
 const RV=window.__REV||{};
 const RIMG=k=>'<img src="'+RV[k]+'" alt="" draggable="false">';
@@ -866,6 +878,9 @@ function rvOptBtn(o){const b=document.createElement('button');b.className='btn g
 const RRULE={who:['❓ Who is this?','💬 This is my …'],they:['❓ Who are they?','💬 They\'re my …'],many:['❓ How many people…?','💬 There are … people'],is:['❓ Is she / he the …?','👍 Yes, she is · 👎 No, he isn\'t'],look:['❓ What does … look like?','💬 She\'s / He\'s tall, old…'],age:['❓ Is the … old / young?','👍 Yes, … is · 👎 No, … isn\'t'],height:['❓ Is the … tall / short?','👍 Yes, … is · 👎 No, … isn\'t']};
 function rvRuleHTML(k){const r=RRULE[k];return '<div class="rvrule"><span>'+r[0]+'</span><b>→</b><span>'+r[1]+'</span></div>'}
 (function(){const st=document.createElement('style');st.textContent=`.rvrule{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:8px auto 0;background:#FFFDE7;border:3px dashed #FBC02D;border-radius:16px;padding:6px 12px;font:800 clamp(14px,2vw,18px) 'Baloo 2',sans-serif;color:#1A2A5A;max-width:640px}.rvrule b{color:#FB8C00;font-size:1.3em}`;document.head.appendChild(st)})();
+
+/* sentence-pattern filter for the review question bank (see fam.txt) */
+if(typeof FTOPIC!=='undefined'&&FTOPIC&&FTOPMAP[FTOPIC])ftopicApply(RG,FTOPMAP[FTOPIC].rg);
 
 const W=['father','mother','brother','sister','grandfather','grandmother','baby'];
 const wheel=document.getElementById('wheel'),panel=document.getElementById('panel'),spinB=document.getElementById('spin');

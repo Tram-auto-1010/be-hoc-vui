@@ -180,6 +180,7 @@ body{background:#F3FAEC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .top .tr{display:flex;gap:10px;align-items:center}
 .topstar{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font:800 18px 'Baloo 2',sans-serif;color:#C98A00;background:#FFFFFF;border:3px solid var(--line);border-radius:999px;padding:6px 14px;white-space:nowrap}
 @media (max-width:640px){.top{width:calc(100% - 20px)}}
+.subh{flex:0 0 100%;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;background:#FFFFFF;border-left:8px solid var(--c);border-radius:14px;padding:8px 14px;margin-top:6px;text-align:left}.subh b{font:800 clamp(17px,2.2vw,21px)/1.2 'Baloo 2',sans-serif;color:#1F2A44}.subh span{font:800 14px 'Nunito',sans-serif;color:var(--c)}
 html,body{overflow-x:clip}
 .scene.paused *,.scene.paused{animation-play-state:paused!important}
 </style>
@@ -749,8 +750,38 @@ const SECS=[
    ['tu-vung.html','🗣️','Nghe và chọn','Listen and tap','Animals, colors, food…'],
    ['abc.html','🔠','Dino ABC','A is for apple','Chữ cái tiếng Anh'],
    ['dino-says.html','🦕','Dino says','Touch the tail!','Bộ phận cơ thể']]],
- ['💬 Mẫu câu gia đình','Family sentences','#00897B','#E0F2F1',[
+ ['💬 Ôn tập Unit 4 · Gia đình','Family · học theo từng mẫu câu','#00897B','#E0F2F1',[
+   ['#','👤 Who is this? · Who are they?','This is my mother. · They are my grandparents.'],
+   ['dino-hoi.html?k=who','🎤','Dino hỏi, bé nói','Talk with Dino','Bé nói câu trả lời'],
+   ['ech-nhay.html?k=who','🐸','Ếch nhảy lá sen','Frog hop','Nhảy vào câu trả lời đúng'],
+   ['rem-cua.html?k=who','🪟','Ai sau cửa sổ?','Peek-a-boo','Mở ít ô, đoán đúng'],
+   ['ghep-cau.html?k=who','🧱','Ghép câu','Build the answer','Chạm từ theo thứ tự'],
+   ['cau-ca-tra-loi.html?k=who','🎣','Câu cá câu trả lời','Answer fishing','Chạm đúng con cá'],
+   ['#','🔢 How many people are there in your family?','There are … people in my family.'],
+   ['dino-hoi.html?k=many','🎤','Dino hỏi, bé nói','Talk with Dino','Bé nói câu trả lời'],
+   ['cau-ca-tra-loi.html?k=many','🎣','Câu cá câu trả lời','Answer fishing','Chạm đúng con cá'],
+   ['ghep-cau.html?k=many','🧱','Ghép câu','Build the answer','Chạm từ theo thứ tự'],
+   ['lat-hoi-dap.html?k=many','🃏','Lật thẻ hỏi – đáp','Q&A memory','Ghép câu hỏi với câu trả lời'],
+   ['gia-dinh-be.html','🏡','Gia đình của bé','My family','Chọn nhà bé, rồi trả lời'],
+   ['#','🎀 Is she the mother? · Is he the father?','Yes, she is. · No, he isn\'t.'],
    ['he-she.html','🎀','He hay She?','He or she?','Con trai: he · Con gái: she'],
+   ['dino-ve-nha.html?k=is','🏠','Dino về nhà','Yes, she is · No, he isn\'t','Đúng thì Dino nhảy'],
+   ['ech-nhay.html?k=is','🐸','Ếch nhảy lá sen','Frog hop','Nhảy vào câu trả lời đúng'],
+   ['cau-ca-tra-loi.html?k=is','🎣','Câu cá câu trả lời','Answer fishing','Chạm đúng con cá'],
+   ['phan-biet.html','🔀','Bé phân biệt','she/he · Yes/No · is/isn\'t','4 dạng bài tập'],
+   ['#','📏 Is the sister old? · Is the father tall?','Yes, she is. · No, he isn\'t.'],
+   ['he-she.html#answer','💬','Trả lời Yes / No','Pick he or she','Bé tự chọn he hay she'],
+   ['cao-thap.html','📏','Tall · Short · Young · Old','Cao · thấp · trẻ · già','So sánh 2 hình, vận động theo'],
+   ['dino-ve-nha.html?k=adj','🏠','Dino về nhà','Yes, she is · No, he isn\'t','Đúng thì Dino nhảy'],
+   ['ech-nhay.html?k=adj','🐸','Ếch nhảy lá sen','Frog hop','Nhảy vào câu trả lời đúng'],
+   ['rem-cua.html?k=adj','🪟','Ai sau cửa sổ?','Peek-a-boo','Mở ít ô, đoán đúng'],
+   ['#','👀 What does your mother look like?','She\'s tall. · My brother is young.'],
+   ['dino-hoi.html?k=look','🎤','Dino hỏi, bé nói','Talk with Dino','Bé nói câu trả lời'],
+   ['ghep-cau.html?k=look','🧱','Ghép câu','Build the answer','Chạm từ theo thứ tự'],
+   ['cau-hoi-nao.html?k=look','❓','Câu hỏi nào?','Which question?','Nghe đáp, chọn câu hỏi'],
+   ['rem-cua.html?k=look','🪟','Ai sau cửa sổ?','Peek-a-boo','Mở ít ô, đoán đúng'],
+   ['tham-tu.html','🕵️','Thám tử Dino','Guess who?','Nghe gợi ý, đoán người'],
+   ['#','🎲 Ôn tất cả Unit 4','Trộn mọi mẫu câu, chơi như cũ'],
    ['on-tap.html','📋','Let\'s Review!','Ôn tập hỏi – đáp','Phiếu mẫu + câu hỏi mới'],
    ['hat-mau-cau.html','🎵','Hát mẫu câu','Family chants','Vỗ tay hát hỏi – đáp'],
    ['vong-quay.html','🎡','Vòng quay gia đình','Family wheel','Quay trúng ai, hỏi người đó'],
@@ -858,11 +889,11 @@ const W_=window.__WIMG||{};
 let io=null;try{io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -6% 0px'})}catch(e){}
 const ALLG=[];
 SECS.forEach(([t,en,c,tint,games],si)=>{const m=t.match(/^(\S+)\s+(.*)$/)||['',' ',t];const s=document.createElement('section');s.className='sec';s.id='sec-'+si;s.style.setProperty('--c',c);s.style.setProperty('--t',tint);
-  s.innerHTML='<div class="panel"><h2><span class="sic">'+m[1]+'</span>'+m[2]+' <small>· '+en+'</small><i>'+games.length+' trò</i></h2><div class="grid"></div></div>';
+  s.innerHTML='<div class="panel"><h2><span class="sic">'+m[1]+'</span>'+m[2]+' <small>· '+en+'</small><i>'+games.filter(x=>x[0]!=='#').length+' trò</i></h2><div class="grid"></div></div>';
   root.appendChild(s);
   const n=document.createElement('a');n.href='#sec-'+si;n.style.setProperty('--c',c);n.textContent=t;nav.appendChild(n);
-  games.forEach(([href,ic,vi,gen,em],gi)=>{ALLG.push(href);const a=document.createElement('a');a.className='game';a.href=href;a.style.setProperty('--c',c);a.style.setProperty('--t',tint);
-    const k=CARDPIC[href];const pic=k&&W_[k]?'<img class="'+(COVER.has(k)?'cov':'')+'" src="'+W_[k]+'" alt="" draggable="false">':ic;
+  games.forEach(([href,ic,vi,gen,em],gi)=>{if(href==='#'){const h=document.createElement('div');h.className='subh';h.innerHTML='<b>'+ic+'</b><span>'+vi+'</span>';s.querySelector('.grid').appendChild(h);return}ALLG.push(href);const a=document.createElement('a');a.className='game';a.href=href;a.style.setProperty('--c',c);a.style.setProperty('--t',tint);
+    const k=CARDPIC[href]||CARDPIC[href.split('?')[0]];const pic=k&&W_[k]?'<img class="'+(COVER.has(k)?'cov':'')+'" src="'+W_[k]+'" alt="" draggable="false">':ic;
     a.innerHTML=(NEW.has(href)?'<i class="new">MỚI</i>':'')+'<div class="ic">'+pic+'</div><b>'+vi+'</b><span>'+gen+'</span><em>'+em+'</em>';
     a.addEventListener('pointerenter',()=>{});s.querySelector('.grid').appendChild(a);a.style.transitionDelay=(gi%5)*60+'ms';if(io)io.observe(a);else a.classList.add('in')})});
 setTimeout(()=>document.querySelectorAll('.game:not(.in)').forEach(a=>{const r=a.getBoundingClientRect();if(r.top<innerHeight)a.classList.add('in')}),50);
