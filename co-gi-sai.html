@@ -73,10 +73,10 @@ html.dimg .bar h1::before{content:'';display:inline-block;width:1.15em;height:1.
 @keyframes breathe{50%{transform:scale(1.04,.97)}}
 @keyframes jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-38px) rotate(-8deg)}}
 @keyframes wob{25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
-#langBtn{white-space:nowrap}
+#langBtn,#spdBtn{white-space:nowrap}
 .bar h1{min-width:0}
 @media (max-width:600px){.bar{padding:8px 10px;gap:8px}.bar .ibtn{width:46px;height:46px;font-size:23px;border-radius:15px}.bar h1{font-size:19px;line-height:1.15}.bar h1::before{content:''}.bar h1 small{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}main{padding:14px 12px}}
-@media (max-width:760px){#langBtn .lt-name{display:none}.dodo{opacity:0;transition:opacity .2s}.dodo.say{opacity:1}.dodo .d{font-size:54px}.dodo .bub{font-size:16px;margin-bottom:36px}.jungle{height:56px;font-size:28px}body{padding-bottom:70px}}
+@media (max-width:760px){#langBtn .lt-name,#spdBtn .lt-name{display:none}.dodo{opacity:0;transition:opacity .2s}.dodo.say{opacity:1}.dodo .d{font-size:54px}.dodo .bub{font-size:16px;margin-bottom:36px}.jungle{height:56px;font-size:28px}body{padding-bottom:70px}}
 @media (max-height:800px){.jungle{height:60px;font-size:32px}}
 img.emo{display:inline-block;width:1.15em;height:1.15em;max-width:100%;vertical-align:-.2em;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 
@@ -123,7 +123,7 @@ html{scroll-padding-top:calc(var(--hdrH,84px) + 8px)}
 const VOICE_KEY='bhv-voice';
 let voiceOn=true;try{voiceOn=localStorage.getItem(VOICE_KEY)!=='0'}catch(e){}
 /* ===== Giọng đọc: chọn giọng hay nhất + giọng ba mẹ thu sẵn ===== */
-const VSET_KEY='bhv-voiceset';let VS={vi:'',en:'',pitch:1.3,rate:.88,mode:'mix',lang:'vi'};try{Object.assign(VS,JSON.parse(localStorage.getItem(VSET_KEY)||'{}'))}catch(e){}
+const VSET_KEY='bhv-voiceset';let VS={vi:'',en:'',pitch:1.3,rate:.88,mode:'mix',lang:'vi',spd:'slow'};try{Object.assign(VS,JSON.parse(localStorage.getItem(VSET_KEY)||'{}'))}catch(e){}
 const NICE=/Natural|Online|Neural|Premium|Enhanced|HoaiMy|Hoài|NamMinh|Linh|Google|Siri|Samantha|Jenny|Aria|Ana/i;
 function voicesFor(lang){if(!('speechSynthesis' in window))return [];return speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.toLowerCase().replace('_','-').startsWith(lang))}
 const NOVELTY=/Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Deranged|Good News|Hysterical|Jester|Organ|Superstar|Trinoids|Whisper|Wobble|Zarvox|Fred|Junior|Ralph|Kathy|Grandma|Grandpa|Rocko|Shelley|Flo|Eddy|Reed|Sandy/i;
@@ -154,21 +154,31 @@ let _inTimer=0,_pend=null,_pendAt=0,_tok=0;
 const _st0=window.setTimeout.bind(window),_si0=window.setInterval.bind(window);
 window.setTimeout=function(fn,ms,...a){if(typeof fn!=='function')return _st0(fn,ms,...a);return _st0(function(){_inTimer++;try{return fn.apply(this,a)}finally{_inTimer--}},ms)};
 window.setInterval=function(fn,ms,...a){if(typeof fn!=='function')return _si0(fn,ms,...a);return _si0(function(){_inTimer++;try{return fn.apply(this,a)}finally{_inTimer--}},ms)};
-function _busy(){return !!(_SS&&(_SS.speaking||_SS.pending))}
-function _doSpeak(list){const my=++_tok;try{const b=_busy();_SS.cancel();const go=()=>{if(my!==_tok)return;try{_SS.cancel();list.forEach(u=>_SS.speak(u))}catch(e){}};if(b)_st0(go,140);else go()}catch(e){}}
+let _chain=0;
+function _busy(){return !!(_chain||(_SS&&(_SS.speaking||_SS.pending)))}
+/* Đọc từng câu một, nghỉ một chút giữa các câu cho bé kịp nghe */
+const SPD={slow:{en:.62,gap:1.5},mid:{en:.74,gap:1.15},fast:{en:.86,gap:.8}};
+function _spd(){return SPD[VS.spd]||SPD.slow}
+function _gapAfter(u,nx){const t=(u.text||'').trim();let g=/\?$/.test(t)?900:/[.!]$/.test(t)?650:350;if(nx&&u.lang!==nx.lang)g+=200;return Math.round(g*_spd().gap)}
+function _estMs(u){const n=(u.text||'').length;return Math.round(n*95/(u.rate||1))+3000}
+function _doSpeak(list){const my=++_tok;try{const b=_busy();_SS.cancel();_chain=my;
+  const step=i=>{if(my!==_tok)return;if(i>=list.length){if(_chain===my)_chain=0;return}const u=list[i];let done=false,fb=0;
+    const next=()=>{if(done)return;done=true;clearTimeout(fb);if(my!==_tok)return;if(i+1<list.length)_st0(()=>step(i+1),_gapAfter(u,list[i+1]));else{if(_chain===my)_chain=0}};
+    u.addEventListener('end',next);u.addEventListener('error',next);fb=_st0(next,_estMs(u));try{_SS.speak(u)}catch(e){next()}};
+  const go=()=>{if(my!==_tok)return;try{_SS.cancel()}catch(e){}step(0)};if(b)_st0(go,160);else go()}catch(e){_chain=0}}
 /* Trình duyệt không cho tự đọc khi bé chưa chạm vào trang: hiện nút loa to, chạm là đọc lại câu vừa rồi */
 let _tapped=false,_gateQ=null,_gateEl=null;
 function _needTap(){if(_tapped)return false;const ua=navigator.userActivation;return ua?!ua.hasBeenActive:false}
 function _showGate(list){_gateQ=list;if(_gateEl||!document.body)return;const g=document.createElement('div');g.id='speakGate';g.innerHTML='<button aria-label="Nghe"><span>🔊</span><i>👆</i></button>';document.body.appendChild(g);_gateEl=g;
-  const go=e=>{e.preventDefault();e.stopPropagation();_tapped=true;g.remove();_gateEl=null;const q=_gateQ;_gateQ=null;if(q){/* tạo lại câu để Safari chịu đọc */const fresh=q.map(u=>{const n=new SpeechSynthesisUtterance(u.text);n.lang=u.lang;if(u.voice)n.voice=u.voice;n.rate=u.rate;n.pitch=u.pitch;n.volume=u.volume;n.onend=u.onend;n.onstart=u.onstart;return n});try{_SS.cancel();fresh.forEach(u=>_SS.speak(u))}catch(x){}}};
+  const go=e=>{e.preventDefault();e.stopPropagation();_tapped=true;g.remove();_gateEl=null;const q=_gateQ;_gateQ=null;if(q){/* tạo lại câu để Safari chịu đọc */const fresh=q.map(u=>{const n=new SpeechSynthesisUtterance(u.text);n.lang=u.lang;if(u.voice)n.voice=u.voice;n.rate=u.rate;n.pitch=u.pitch;n.volume=u.volume;['start','end','error','boundary'].forEach(t=>n.addEventListener(t,e=>{try{const f=new Event(t);if(e.charIndex!=null){f.charIndex=e.charIndex;f.name=e.name}u.dispatchEvent(f)}catch(x){}}));return n});_doSpeak(fresh)}};
   g.addEventListener('pointerdown',go,{once:true});g.addEventListener('click',e=>{e.stopPropagation()})}
 addEventListener('pointerdown',()=>{_tapped=true},true);addEventListener('keydown',()=>{_tapped=true},true);
 function _watch(list){/* trình duyệt không có userActivation: nếu sau 1,6 giây vẫn chưa nói được thì hiện nút loa */if(navigator.userActivation||_tapped)return;let ok=false;list[0]&&list[0].addEventListener('start',()=>{ok=true});_st0(()=>{if(!ok&&!_tapped&&!_busy())_showGate(list)},1600)}
 function _speakQ(list){if(!_SS||!list.length)return;if(_needTap()){_showGate(list);return}if(_gateEl){_gateQ=list;return}_watch(list);if(_inTimer&&_busy()){_pend=list;_pendAt=Date.now();return}_pend=null;_doSpeak(list)}
-function speechStop(){_pend=null;_tok++;try{_SS&&_SS.cancel()}catch(e){}try{if(_aud)_aud.pause()}catch(e){}}
-_si0(()=>{if(_pend&&(!_busy()||Date.now()-_pendAt>7000)){const l=_pend;_pend=null;_doSpeak(l)}},150);
-function mkU(text,lang){const ex=/!$/.test(text);if(lang==='vi'){const u=new SpeechSynthesisUtterance(cute(text));u.lang='vi-VN';const v=pickVoice('vi');if(v)u.voice=v;u.rate=VS.rate*(ex?1.04:1);u.pitch=Math.min(2,VS.pitch*(ex?1.08:1));u.volume=1;return u}
-  const v=pickVoice('en');const e=new SpeechSynthesisUtterance(enFix(text));e.lang=v?v.lang:'en-US';if(v)e.voice=v;e.rate=Math.max(.7,Math.min(.9,VS.rate*.95));e.pitch=Math.max(1,Math.min(1.25,VS.pitch*.85));e.volume=1;return e}
+function speechStop(){_pend=null;_tok++;_chain=0;try{_SS&&_SS.cancel()}catch(e){}try{if(_aud)_aud.pause()}catch(e){}}
+_si0(()=>{if(_pend&&(!_busy()||Date.now()-_pendAt>15000)){const l=_pend;_pend=null;_doSpeak(l)}},150);
+function mkU(text,lang){const ex=/!$/.test(text);if(lang==='vi'){const u=new SpeechSynthesisUtterance(cute(text));u.lang='vi-VN';const v=pickVoice('vi');if(v)u.voice=v;u.rate=VS.rate*(VS.spd==='slow'?.9:1)*(ex?1.04:1);u.pitch=Math.min(2,VS.pitch*(ex?1.08:1));u.volume=1;return u}
+  const v=pickVoice('en');const e=new SpeechSynthesisUtterance(enFix(text));e.lang=v?v.lang:'en-US';if(v)e.voice=v;e.rate=_spd().en;e.pitch=Math.max(1,Math.min(1.25,VS.pitch*.85));e.volume=1;return e}
 const _sent=t=>(String(t).match(/[^.!?…]+[.!?…]*/g)||[]).map(x=>x.trim()).filter(Boolean);
 /* English feedback/instructions -> Vietnamese (used when the chosen language is Tiếng Việt). English words the child is learning stay English. */
 const FB_VI={'yes!':'Đúng rồi!','yes.':'Đúng rồi.','super!':'Tuyệt vời!','great!':'Giỏi quá!','great job!':'Giỏi quá!','good job!':'Giỏi lắm!','well done!':'Giỏi lắm!','perfect!':'Chính xác!','excellent!':'Xuất sắc!','correct!':'Đúng rồi!',"that's right!":'Đúng rồi!','wow!':'Oa!','hooray!':'Hoan hô!','pop!':'Bụp!','splash!':'Tõm!','yummy!':'Ngon quá!','oops!':'Ối!','oh no!':'Ôi không!','hmm.':'Hừm.','no.':'Không phải.','hmm, no.':'Không phải rồi.','hmm, not yet.':'Chưa đúng rồi.','hmm, not quite.':'Chưa đúng lắm.','not yet!':'Chưa đúng!','almost!':'Gần đúng rồi!','look again!':'Bé nhìn lại nhé!','hmm, look again!':'Bé nhìn lại nhé!','try again!':'Bé thử lại nhé!','think again!':'Bé nghĩ lại nhé!','keep going!':'Tiếp nào!',"let's count again!":'Mình đếm lại nhé!','all done!':'Xong hết rồi!','you win!':'Bé thắng rồi!','you win the race!':'Bé thắng cuộc đua rồi!','go go go!':'Chạy nào!','you found it!':'Bé tìm thấy rồi!','you found everything!':'Bé tìm được hết rồi!','you found them all!':'Bé tìm được hết rồi!','all pairs!':'Đủ cặp rồi!','you got a sticker!':'Bé được thêm một sticker!','look at your stickers!':'Bé xem sticker nhé!','super eyes!':'Mắt bé tinh quá!','you are a super talker!':'Bé nói giỏi quá!','dino is right!':'Dino nói đúng!','is dino right?':'Dino nói đúng không?','thank you!':'Cảm ơn bé!','bye bye!':'Tạm biệt!','goodbye!':'Tạm biệt!','hello!':'Xin chào!','hi!':'Chào bé!','oh, nice!':'Ồ, hay quá!','tap it!':'Bé chạm vào nhé!','open a window and look!':'Bé mở một cửa sổ ra xem nhé!','open another window!':'Bé mở cửa sổ khác nhé!',"let's review!":'Mình cùng ôn bài nhé!','spin the wheel!':'Bé quay vòng quay nhé!','you are the teacher!':'Bé làm cô giáo nhé!','ask dino a question!':'Bé hỏi Dino một câu nhé!','flip the cards and find the pairs!':'Bé lật thẻ tìm cặp nhé!','find a question and its answer!':'Bé tìm câu hỏi và câu trả lời nhé!','choose two or more people, please!':'Bé chọn từ hai người trở lên nhé!','listen to another clue!':'Nghe thêm gợi ý nhé!','fix the arrows':'Bé sửa lại mũi tên nhé','oops, off the map!':'Ối, đi ra ngoài rồi!','oops, a rock!':'Ối, đụng đá rồi!','tap the dinosaur to hear the words':'Bé chạm vào khủng long để nghe từ nhé','the frog is home!':'Ếch về nhà rồi!','dino is home!':'Dino về nhà rồi!','new sticker!':'Sticker mới!'};
@@ -195,6 +205,11 @@ function setupLangBtn(vb){if(!vb||document.getElementById('langBtn'))return;cons
   const r=()=>{const l=LANGS.find(x=>x[0]===(VS.lang||'vi'))||LANGS[0];b.innerHTML='<span style="font-size:22px">'+l[1]+'</span><span class="lt-name">'+l[2]+'</span>';b.title='Ngôn ngữ đọc: '+l[2]+' (bấm để đổi)'};r();
   b.onclick=()=>{const i=LANGS.findIndex(x=>x[0]===(VS.lang||'vi'));VS.lang=LANGS[(i+1)%LANGS.length][0];saveVS();r();try{window.dispatchEvent(new Event('langchange'))}catch(e){}
     if(VS.lang==='vi')tts('Tiếng Việt');else tts('','English')};
+  vb.parentNode.insertBefore(b,vb);setupSpdBtn(vb)}
+const SPDS=[['slow','🐢','Chậm'],['mid','🚶','Vừa'],['fast','🐇','Nhanh']];
+function setupSpdBtn(vb){if(document.getElementById('spdBtn'))return;const b=document.createElement('button');b.id='spdBtn';b.className='ibtn';b.style.cssText="width:auto;padding:0 10px;font:800 15px 'Nunito',sans-serif;gap:4px;display:flex;align-items:center;color:#1F2A44";
+  const r=()=>{const x=SPDS.find(z=>z[0]===(VS.spd||'slow'))||SPDS[0];b.innerHTML='<span style="font-size:22px">'+x[1]+'</span><span class="lt-name">'+x[2]+'</span>';b.title='Tốc độ đọc tiếng Anh: '+x[2]+' (bấm để đổi)'};r();
+  b.onclick=()=>{const i=SPDS.findIndex(z=>z[0]===(VS.spd||'slow'));VS.spd=SPDS[(i+1)%SPDS.length][0];saveVS();r();sayEN('Hello! I am Dino.','Tốc độ '+SPDS.find(z=>z[0]===VS.spd)[2].toLowerCase()+'.')};
   vb.parentNode.insertBefore(b,vb)}
 function setupVoiceBtn(){const b=document.getElementById('voiceBtn');if(!b)return;setupLangBtn(b);const r=()=>{b.textContent=voiceOn?'🔊':'🔇';b.classList.toggle('off',!voiceOn);b.title=voiceOn?'Tắt tiếng':'Bật tiếng'};r();b.onclick=()=>{voiceOn=!voiceOn;try{localStorage.setItem(VOICE_KEY,voiceOn?'1':'0')}catch(e){}if(!voiceOn&&'speechSynthesis' in window)speechSynthesis.cancel();r()}}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
